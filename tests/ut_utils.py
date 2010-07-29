@@ -1,3 +1,5 @@
+from forge import Forge
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -6,3 +8,7 @@ except ImportError:
 class TestCase(unittest.TestCase):
     pass
 
+class ForgeTestCase(TestCase):
+    def setUp(self):
+        super(ForgeTestCase, self).setUp()
+        self.forge = Forge()

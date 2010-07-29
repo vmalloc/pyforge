@@ -4,7 +4,11 @@ class Forge(object):
         self._is_replaying = False
     def isReplaying(self):
         return self._is_replaying
+    def isRecording(self):
+        return not self.isReplaying()
     def reset(self):
         self._is_replaying = False
     def replay(self):
         self._is_replaying = True
+    def verify(self):
+        pass

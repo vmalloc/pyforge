@@ -5,11 +5,20 @@ class ForgeTest(TestCase):
     def setUp(self):
         super(ForgeTest, self).setUp()
         self.forge = Forge()
-    def test__replaying(self):
+    def assertRecording(self):
         self.assertFalse(self.forge.isReplaying())
-        self.forge.replay()
+        self.assertTrue(self.forge.isRecording())
+    def assertReplaying(self):
         self.assertTrue(self.forge.isReplaying())
+        self.assertFalse(self.forge.isRecording())
+        
+    def test__replaying(self):
+        self.assertRecording()
+        self.forge.replay()
+        self.assertReplaying()
+        self.forge.verify()
+        self.assertReplaying()
     def test__reset(self):
         self.test__replaying()
         self.forge.reset()
-        self.assertFalse(self.forge.isReplaying())
+        self.assertRecording()
