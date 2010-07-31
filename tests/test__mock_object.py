@@ -17,5 +17,9 @@ class MockObjectTest(TestCase):
         self.assertIs(self.obj.a, attr_value)
         self.forge.replay()
         self.assertIs(self.obj.a, attr_value)
+    def test__getattr_of_nonexisting_attr_during_replay(self):
+        self.forge.replay()
+        with self.assertRaises(AttributeError):
+            value = self.obj.nonexisting_attr
 
         
