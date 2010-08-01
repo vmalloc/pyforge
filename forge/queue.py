@@ -1,6 +1,7 @@
 from collections import deque
 from .expected_call import ExpectedCall
 from .exceptions import UnexpectedCall
+from .exceptions import ExpectedCallsNotFound
 
 class ForgeQueue(object):
     def __init__(self, forge):
@@ -17,3 +18,6 @@ class ForgeQueue(object):
             self._queue.popleft()
         else:
             raise UnexpectedCall()
+    def verify(self):
+        if self._queue:
+            raise ExpectedCallsNotFound(self._queue)

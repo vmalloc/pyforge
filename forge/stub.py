@@ -1,8 +1,11 @@
+from signature import FunctionSignature
+
 class FunctionStub(object):
     def __init__(self, forge, original):
         super(FunctionStub, self).__init__()
         self._forge = forge
         self._original = original
+        self._signature = FunctionSignature(self._original)
     def __call__(self, *args, **kwargs):
         if self._forge.is_recording():
             self._handle_recorded_call(args, kwargs)
