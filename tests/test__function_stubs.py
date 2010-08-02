@@ -9,15 +9,24 @@ def _func1(a, b, c=2):
 def _func2(a, b, c=2, *args, **kwargs):
     raise NotImplementedError()
 
-class FunctionMockRecordReplayTest(ForgeTestCase):
+class FunctionStubAttributesTest(ForgeTestCase):
     def setUp(self):
-        super(FunctionMockRecordReplayTest, self).setUp()
+        super(FunctionStubAttributesTest, self).setUp()
+        self.stub = self.forge.create_function_stub(_func2)
+    def test__name(self):
+        self.assertEquals(self.stub.__name__, _func2.__name__)
+    def test__doc(self):
+        self.assertEquals(self.stub.__doc__, _func2.__doc__)
+
+class FunctionStubRecordReplayTest(ForgeTestCase):
+    def setUp(self):
+        super(FunctionStubRecordReplayTest, self).setUp()
         self.assertTrue(self.forge.is_recording())
         self.stub1 = self.forge.create_function_stub(_func1)
         self.stub2 = self.forge.create_function_stub(_func2)
     def tearDown(self):
         self.forge.verify()
-        super(FunctionMockRecordReplayTest, self).tearDown()
+        super(FunctionStubRecordReplayTest, self).tearDown()
     def test__record_replay_regular_functions(self):
         self.stub1(1, 2, 3)
         self.forge.replay()

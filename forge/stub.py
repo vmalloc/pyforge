@@ -6,6 +6,8 @@ class FunctionStub(object):
         self._forge = forge
         self._original = original
         self._signature = FunctionSignature(self._original)
+        self.__name__ = original.__name__
+        self.__doc__ = original.__doc__
     def __call__(self, *args, **kwargs):
         if self._forge.is_recording():
             self._handle_recorded_call(args, kwargs)
