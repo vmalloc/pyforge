@@ -1,5 +1,6 @@
 from .stub import FunctionStub
 from .queue import ForgeQueue
+from .mock_object import MockObject
 
 class Forge(object):
     def __init__(self):
@@ -14,6 +15,10 @@ class Forge(object):
         self.queue = ForgeQueue(self)
     def create_function_stub(self, func):
         return FunctionStub(self, func)
+    def create_method_stub(self, method):
+        return FunctionStub(self, method)
+    def create_mock(self, mocked_class):
+        return MockObject(self, mocked_class)
     def replay(self):
         self._is_replaying = True
     def verify(self):

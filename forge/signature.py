@@ -1,9 +1,8 @@
 import inspect
 import itertools
 from exceptions import SignatureException
-
-NOTHING = object()
-
+from numbers import Number
+from dtypes import NOTHING
 
 class Argument(object):
     def __init__(self, name, default=NOTHING):
@@ -40,11 +39,14 @@ class FunctionSignature(object):
         self._update_normalized_positional_args(returned, args)
         self._update_normalized_kwargs(returned, kwargs)
         self._check_missing_arguments(returned)
-        self._check_unknown_arguments(returned, args, kwargs)
+        self._check_unknown_arguments(returned)
         return returned
     def _update_normalized_positional_args(self, returned, args):
-        for our_arg, given_arg in zip(self.args, args):
-            returned[our_arg.name] = given_arg
+        argument_names = [arg.name for arg in self.args]
+        argument_names.extend(range(len(args) - len(self.args)))
+        for arg_name, given_arg in zip(argument_names, args):
+            returned[arg_name] = given_arg
+        
     def _update_normalized_kwargs(self, returned, kwargs):
         for arg_name, arg in kwargs.iteritems():
             if arg_name in returned:
@@ -56,9 +58,10 @@ class FunctionSignature(object):
         missing_arguments = required_arguments - set(args_dict)
         if missing_arguments:
             raise SignatureException("The following arguments were not specified: %s" % ",".join(map(repr, missing_arguments)))
-    def _check_unknown_arguments(self, args_dict, args, kwargs):
-        if len(args) > len(self.args) and not self.has_variable_args():
-            raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.func_name, len(self.args), len(args)))
+    def _check_unknown_arguments(self, args_dict):
+        positional_arg_count = len([arg_name for arg_name in args_dict if isinstance(arg_name, Number)])
+        if positional_arg_count and not self.has_variable_kwargs():
+            raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.func_name, len(self.args), len(self.args) + positional_arg_count))
         unknown = set(args_dict) - set(arg.name for arg in self.args)
         if unknown and not self.has_variable_kwargs():
             raise SignatureException("%s received unknown argument(s): %s" % (self.func_name, ",".join(unknown)))

@@ -1,5 +1,5 @@
 from collections import deque
-from .expected_call import ExpectedCall
+from .function_call import FunctionCall
 from .exceptions import UnexpectedCall
 from .exceptions import ExpectedCallsNotFound
 
@@ -11,13 +11,13 @@ class ForgeQueue(object):
     def __len__(self):
         return len(self._queue)
     def expect_call(self, target, args, kwargs):
-        self._queue.append(ExpectedCall(target, args, kwargs))
+        self._queue.append(FunctionCall(target, args, kwargs))
     def pop_call(self, target, args, kwargs):
         popped = self._queue[0]
         if popped.matches_call(target, args, kwargs):
             self._queue.popleft()
         else:
-            raise UnexpectedCall()
+            raise UnexpectedCall(popped, FunctionCall(target, args, kwargs), target._is_method())
     def verify(self):
         if self._queue:
             raise ExpectedCallsNotFound(self._queue)

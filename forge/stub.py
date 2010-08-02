@@ -1,3 +1,4 @@
+import types
 from signature import FunctionSignature
 
 class FunctionStub(object):
@@ -8,6 +9,8 @@ class FunctionStub(object):
         self._signature = FunctionSignature(self._original)
         self.__name__ = original.__name__
         self.__doc__ = original.__doc__
+    def _is_method(self):
+        return type(self._original) in (types.MethodType,)
     def __call__(self, *args, **kwargs):
         if self._forge.is_recording():
             self._handle_recorded_call(args, kwargs)

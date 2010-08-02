@@ -40,8 +40,12 @@ class FunctionStubRecordReplayTest(ForgeTestCase):
     def test__record_replay_not_recording_optional_argument(self):
         self.stub1(1, 2)
         self.forge.replay()
-        with self.assertRaises(UnexpectedCall):
+        with self.assertRaises(UnexpectedCall) as caught:
             self.stub1(1, 2, 2)
+        exc = caught.exception
+        self.assertEquals(exc.expected.args, (1, 2))
+        self.assertEquals(exc.expected.args, (1, 2))
+        self.assertEquals(exc.got.args, (1, 2, 2))
         self._assert_verify_expected_not_met(self.stub1)
         self.forge.reset()            
     def test__record_replay_no_actual_call(self):
@@ -49,6 +53,21 @@ class FunctionStubRecordReplayTest(ForgeTestCase):
         self.forge.replay()
         self._assert_verify_expected_not_met(self.stub1)
         self.forge.reset()
+    def test__record_replay_different_varargs_too_many(self):
+        self.stub2(1, 2, 3, 4)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall) as caught:
+            self.stub2(1, 2, 3, 4, 5)
+        self.assertIs(caught.exception.expected.target, self.stub2)
+        self.forge.reset()
+    def test__record_replay_different_varargs_too_little(self):
+        self.stub2(1, 2, 3, 4, 5)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall) as caught:
+            self.stub2(1, 2, 3, 4)
+        self.assertIs(caught.exception.expected.target, self.stub2)
+        self.forge.reset()
+
     def _assert_verify_expected_not_met(self, stub):
         with self.assertRaises(ExpectedCallsNotFound) as caught:
             self.forge.verify()
