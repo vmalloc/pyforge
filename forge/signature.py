@@ -1,3 +1,4 @@
+import types
 import inspect
 import itertools
 from exceptions import SignatureException
@@ -23,9 +24,16 @@ class FunctionSignature(object):
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
         return itertools.izip(args, filled_defaults)
 
+    def is_method(self):
+        return type(self.func) in (types.MethodType,)
+    def can_be_called_as_method(self):
+        return self._can_be_called_as_method
     def _build_arguments(self):
         self.args = []
         args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
+        if self.is_method():
+            self._can_be_called_as_method = len(args) > 0
+            args = args[1:]
         for arg_name, default in self._iter_args_and_defaults(args, defaults):
             self.args.append(Argument(arg_name, default))
         self._varargs_name = varargs_name

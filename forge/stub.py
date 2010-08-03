@@ -1,17 +1,18 @@
-import types
 from signature import FunctionSignature
+from exceptions import SignatureException
 
 class FunctionStub(object):
-    def __init__(self, forge, original):
+    def __init__(self, forge, original, obj=None):
         super(FunctionStub, self).__init__()
         self._forge = forge
         self._original = original
+        self._obj = obj
         self._signature = FunctionSignature(self._original)
         self.__name__ = original.__name__
         self.__doc__ = original.__doc__
-    def _is_method(self):
-        return type(self._original) in (types.MethodType,)
     def __call__(self, *args, **kwargs):
+        if self._obj is not None and not self._signature.can_be_called_as_method():
+            raise SignatureException("%s cannot be called as method!" % (self,))
         if self._forge.is_recording():
             self._handle_recorded_call(args, kwargs)
         else:

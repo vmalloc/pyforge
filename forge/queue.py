@@ -17,7 +17,7 @@ class ForgeQueue(object):
         if popped.matches_call(target, args, kwargs):
             self._queue.popleft()
         else:
-            raise UnexpectedCall(popped, FunctionCall(target, args, kwargs), target._is_method())
+            raise UnexpectedCall(popped, FunctionCall(target, args, kwargs), target._signature.is_method())
     def verify(self):
         if self._queue:
             raise ExpectedCallsNotFound(self._queue)

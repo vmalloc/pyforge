@@ -12,8 +12,8 @@ class FunctionCall(object):
     def __str__(self):
         return "<Function call: %s(%s)" % (self.target, self._get_argument_string())
     def _get_argument_string(self):
-        args = ["%s=%s" % (arg_name, value) for arg_name, value in sorted(self._expected.iteritems())
+        args = ["%s=%s" % (arg_name, value) for arg_name, value in sorted(self._normalized.iteritems())
                 if isinstance(arg_name, basestring)]
-        args.extend(str(value) for arg_name, value in sorted((k, v) for k, v in self._expected.iteritems()
+        args.extend(str(value) for arg_name, value in sorted((k, v) for k, v in self._normalized.iteritems()
                                                         if not isinstance(k, basestring)))
         return ", ".join(args)
