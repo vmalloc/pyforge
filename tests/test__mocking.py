@@ -1,6 +1,7 @@
 from ut_utils import ForgeTestCase
 from forge.mock_handle import MockHandle
 from forge import UnauthorizedMemberAccess
+from forge import SignatureException
 
 class MockedClass(object):
     def some_method(self):
@@ -36,4 +37,18 @@ class MockingTest(ForgeTestCase):
         with self.assertRaises(UnauthorizedMemberAccess):
             self.obj.some_method
 
-        
+class MockingCornerCasesTest(ForgeTestCase):
+    def test__mocking_invalid_method(self):
+        class NewStyleClass(object):
+            def invalid_method():
+                raise NotImplementedError()
+        class OldStyleClass:
+            def invalid_method():
+                raise NotImplementedError()
+        for cls in (NewStyleClass, OldStyleClass):
+            m = self.forge.create_mock(cls)
+            #obtaining the method is ok
+            method = m.invalid_method
+            with self.assertRaises(SignatureException):
+                #calling it is not
+                method()

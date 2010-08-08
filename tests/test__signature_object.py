@@ -1,6 +1,6 @@
 from ut_utils import TestCase
 from forge.signature import FunctionSignature
-from forge.signature import SignatureException
+from forge.exceptions import SignatureException, InvalidKeywordArgument
 
 # no named tuples for python 2.5 compliance...
 class ExpectedArg(object):
@@ -9,7 +9,7 @@ class ExpectedArg(object):
         self.has_default = has_default
         self.default = default
 
-class SimpleFunctionsTest(TestCase):
+class SignatureTest(TestCase):
     def _assert_argument_names(self, sig, names):
         self.assertEquals([arg.name for arg in sig.args], names)
 
@@ -61,13 +61,11 @@ class SimpleFunctionsTest(TestCase):
         self._test_function_signature(f_args_kwargs, sig, has_varargs=True, has_varkwargs=True)
         self._test_function_signature(lambda_args_kwargs, sig, has_varargs=True, has_varkwargs=True)
 
+        
     def test__normalizing_args(self):
         def f(a, b, c=2, *args, **kwargs):
             pass
-        def strict_f(a, b, c):
-            pass
         sig = FunctionSignature(f)
-        strict_sig = FunctionSignature(strict_f)
 
         self.assertEquals(dict(a=1, b=2),
                           sig.get_normalized_args((1, 2), {}))
@@ -75,17 +73,75 @@ class SimpleFunctionsTest(TestCase):
                           sig.get_normalized_args((1, 2, 3), {}))
         self.assertEquals(dict(a=1, b=2, c=3),
                           sig.get_normalized_args((1, 2), dict(c=3)))
+        self.assertEquals({'a':1, 'b':2, 'c':3, 0:4, 1:5, 'kwarg':6},
+                          sig.get_normalized_args((1, 2, 3, 4, 5), dict(kwarg=6)))
 
         with self.assertRaises(SignatureException):
             sig.get_normalized_args((1, 2), dict(a=1))
         with self.assertRaises(SignatureException):
             sig.get_normalized_args((), {})
+    def test__normalizing_args_strict_functions(self):
+        def strict_f(a, b, c):
+            pass
+        
+        strict_sig = FunctionSignature(strict_f)
+        
         with self.assertRaises(SignatureException):
             strict_sig.get_normalized_args((), {})
         with self.assertRaises(SignatureException):
             strict_sig.get_normalized_args((1, 2, 3, 4), {})
         with self.assertRaises(SignatureException):
             strict_sig.get_normalized_args((), dict(d=4))
+    def test__normalizing_method_args(self):
+        class SomeClass(object):
+            def f(self, a, b, c):
+                raise NotImplementedError()
+        class SomeOldStyleClass:
+            def f(self, a, b, c):
+                raise NotImplementedError()
+        for cls in (SomeClass, SomeOldStyleClass):
+            sig = FunctionSignature(cls.f)
+            self.assertEquals(
+                dict(a=1, b=2, c=3),
+                sig.get_normalized_args((1, 2, 3), {})
+                )
+            self.assertEquals(
+                dict(a=1, b=2, c=3),
+                sig.get_normalized_args((1,), dict(c=3, b=2))
+                )
 
-
-
+    def test__normalizing_kwargs_with_numbers(self):
+        # this is supported in python, but interferes with the arg-normalizing logic
+        sig = FunctionSignature(lambda *args, **kwargs: None)
+        with self.assertRaises(InvalidKeywordArgument):
+            sig.get_normalized_args((), {1:2})
+            
+    def test__can_be_called_as_method(self):
+        def f():
+            raise NotImplementedError()
+        def f_with_self_arg(self):
+            raise NotImplementedError()
+        self.assertFalse(FunctionSignature(f).can_be_called_as_method())
+        self.assertFalse(FunctionSignature(f_with_self_arg).can_be_called_as_method())
+        class SomeClass(object):
+            def f_without_self():
+                raise NotImplementedError()
+            def f(self):
+                raise NotImplementedError()
+            def f_with_args(self, a, b, c):
+                raise NotImplementedError()
+            def f_with_first_argument_not_self(bla):
+                raise NotImplementedError()
+        class SomeOldStyleClass:
+            def f_without_self():
+                raise NotImplementedError()
+            def f(self):
+                raise NotImplementedError()
+            def f_with_args(self, a, b, c):
+                raise NotImplementedError()
+            def f_with_first_argument_not_self(bla):
+                raise NotImplementedError()
+        for cls in (SomeClass, SomeOldStyleClass):
+            self.assertFalse(FunctionSignature(cls.f_without_self).can_be_called_as_method())
+            self.assertTrue(FunctionSignature(cls.f_with_args).can_be_called_as_method())
+            self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).can_be_called_as_method())

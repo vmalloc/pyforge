@@ -1,7 +1,7 @@
 import types
 import inspect
 import itertools
-from exceptions import SignatureException
+from exceptions import SignatureException, InvalidKeywordArgument
 from numbers import Number
 from dtypes import NOTHING
 
@@ -18,20 +18,21 @@ class FunctionSignature(object):
         super(FunctionSignature, self).__init__()
         self.func = func
         self.func_name = func.__name__
+        self._can_be_called_as_method = False
         self._build_arguments()
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
         return itertools.izip(args, filled_defaults)
 
-    def is_method(self):
+    def is_first_argument_self(self):
         return type(self.func) in (types.MethodType,)
     def can_be_called_as_method(self):
         return self._can_be_called_as_method
     def _build_arguments(self):
         self.args = []
         args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
-        if self.is_method():
+        if self.is_first_argument_self():
             self._can_be_called_as_method = len(args) > 0
             args = args[1:]
         for arg_name, default in self._iter_args_and_defaults(args, defaults):
@@ -57,6 +58,8 @@ class FunctionSignature(object):
         
     def _update_normalized_kwargs(self, returned, kwargs):
         for arg_name, arg in kwargs.iteritems():
+            if not isinstance(arg_name, basestring):
+                raise InvalidKeywordArgument("Invalid keyword argument %r" % (arg_name,))
             if arg_name in returned:
                 raise SignatureException("%s is given more than once to %s" % (arg_name, self.func_name))
             returned[arg_name] = arg
