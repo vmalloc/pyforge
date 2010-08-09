@@ -18,6 +18,9 @@ class UnauthorizedMemberAccess(ForgeException):
 class ConflictingActions(ForgeException):
     pass
 
+class MockObjectUnhashable(ForgeException):
+    pass
+
 class UnexpectedCall(ForgeException):
     def __init__(self, expected, got):
         super(UnexpectedCall, self).__init__()

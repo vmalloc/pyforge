@@ -8,6 +8,13 @@ class MockHandle(object):
         self.mock = mock
         self.mocked_class = mocked_class
         self._initialized_stubs = {}
+        self._is_hashable = False
+    def is_hashable(self):
+        return self._is_hashable
+    def enable_hashing(self):
+        self._is_hashable = True
+    def disable_hashing(self):
+        self._is_hashable = False
     def has_attribute(self, attr):
         return False
     def get_attribute(self, attr):

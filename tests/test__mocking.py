@@ -2,6 +2,7 @@ from ut_utils import ForgeTestCase
 from forge.mock_handle import MockHandle
 from forge import UnauthorizedMemberAccess
 from forge import SignatureException
+from forge import MockObjectUnhashable
 
 class MockedClass(object):
     def some_method(self):
@@ -10,6 +11,16 @@ class MockingTest(ForgeTestCase):
     def setUp(self):
         super(MockingTest, self).setUp()
         self.obj = self.forge.create_mock(MockedClass)
+    def test__mock_hashability(self):
+        self._assert_mock_not_hashable(self.obj)
+        self.obj.__forge__.enable_hashing()
+        self.assertEquals(id(self.obj), hash(self.obj))
+        self.obj.__forge__.disable_hashing()
+        self._assert_mock_not_hashable(self.obj)
+    def _assert_mock_not_hashable(self, obj):
+        with self.assertRaises(MockObjectUnhashable):
+            hash(obj)
+
     def test__mock_object_has_mock_handle(self):
         self.assertIsInstance(self.obj.__forge__, MockHandle)
         self.assertIs(self.obj.__forge__.forge, self.forge)
