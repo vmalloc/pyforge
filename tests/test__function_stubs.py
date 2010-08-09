@@ -12,6 +12,12 @@ def _func1(a, b, c=2):
 def _func2(a, b, c=2, *args, **kwargs):
     raise NotImplementedError()
 
+class Checkpoint(object):
+    called = False
+    def trigger(self):
+        self.called = True
+
+
 class FunctionStubAttributesTest(ForgeTestCase):
     def setUp(self):
         super(FunctionStubAttributesTest, self).setUp()
@@ -28,7 +34,7 @@ class FunctionStubInitializationTest(ForgeTestCase):
         self.assertIs(stub._obj, obj)
         self.assertIs(stub._original, _func1)
         self.assertIs(stub._signature.func, _func1)
-    
+
     def test__without_obj(self):
         stub = FunctionStub(self.forge, _func1)
         self.assertIsNone(stub._obj)
@@ -66,7 +72,7 @@ class FunctionStubRecordTest(ForgeTestCase):
         expected_call = self.forge.queue._queue[0]
         self.assertIs(expected_call.target, self.stub)
         self.assertIs(expected_call.args, normalized_args)
-        
+
 class FunctionStubReplayTest(ForgeTestCase):
     def setUp(self):
         super(FunctionStubReplayTest, self).setUp()
@@ -79,7 +85,7 @@ class FunctionStubReplayTest(ForgeTestCase):
     def test__record_replay_different(self):
         self.stub(1, 2, 3)
         self.forge.replay()
-        with self.assertRaises(UnexpectedCall) as caught:            
+        with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 6)
         exc = caught.exception
         self.assertEquals(exc.expected.args, {0:1, 1:2, 2:3})
@@ -88,7 +94,7 @@ class FunctionStubReplayTest(ForgeTestCase):
     def test__record_replay_different_more_args(self):
         self.stub(1, 2, 3)
         self.forge.replay()
-        with self.assertRaises(UnexpectedCall) as caught:            
+        with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 3, 4, 5)
         exc = caught.exception
         self.assertEquals(exc.expected.args, {0:1, 1:2, 2:3})
@@ -97,7 +103,7 @@ class FunctionStubReplayTest(ForgeTestCase):
     def test__record_replay_different_less_args(self):
         self.stub(1, 2, 3)
         self.forge.replay()
-        with self.assertRaises(UnexpectedCall) as caught:            
+        with self.assertRaises(UnexpectedCall) as caught:
             self.stub()
         exc = caught.exception
         self.assertEquals(exc.expected.args, {0:1, 1:2, 2:3})
@@ -106,7 +112,7 @@ class FunctionStubReplayTest(ForgeTestCase):
     def test__record_replay_no_actual_call(self):
         self.stub(1, 2, 3)
         self.forge.replay()
-        self.assertExpectedNotMet([self.stub])            
+        self.assertExpectedNotMet([self.stub])
     def assertExpectedNotMet(self, stubs):
         self.assertGreater(len(stubs), 0)
         with self.assertRaises(ExpectedCallsNotFound) as caught:
@@ -154,7 +160,29 @@ class FunctionStubReplayTest(ForgeTestCase):
                 #conflict should not affect existing expectations
         self.assertIs(expected_call._return_value, NOTHING)
         self.assertIs(expected_call._raised_exception, exc)
+    def test__and_call(self):
+        return_value = 666
+        cp = Checkpoint()
+        rv = self.stub(1, 2, 3).and_call(cp.trigger).and_return(return_value)
+        self.assertEquals(rv, return_value)
+        self.forge.replay()
+        rv = self.stub(1, 2, 3)
+        self.assertEquals(rv, return_value)
+        self.assertTrue(cp.called)
+    def test__and_call_with_args(self):
+        return_value = 666
+        cp = Checkpoint()
+        def trigger(*args, **kwargs):
+            self.assertEquals(args, (1, 2, 3))
+            self.assertEquals(kwargs, dict(d=4))
+            cp.trigger()
+        rv = self.stub(1, 2, 3, d=4).and_call_with_args(trigger).and_return(return_value)
+        self.assertEquals(rv, return_value)
+        self.forge.replay()
+        rv = self.stub(1, 2, 3, d=4)
+        self.assertEquals(rv, return_value)
+        self.assertTrue(cp.called)
 
 
 
-            
+
