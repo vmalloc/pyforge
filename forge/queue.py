@@ -11,13 +11,16 @@ class ForgeQueue(object):
     def __len__(self):
         return len(self._queue)
     def expect_call(self, target, args, kwargs):
-        self._queue.append(FunctionCall(target, args, kwargs))
+        returned = FunctionCall(target, args, kwargs)
+        self._queue.append(returned)
+        return returned
     def pop_call(self, target, args, kwargs):
         popped = self._queue[0]
         if popped.matches_call(target, args, kwargs):
             self._queue.popleft()
         else:
             raise UnexpectedCall(popped, FunctionCall(target, args, kwargs))
+        return popped
     def verify(self):
         if self._queue:
             raise ExpectedCallsNotFound(self._queue)

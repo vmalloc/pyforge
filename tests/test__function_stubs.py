@@ -110,3 +110,11 @@ class FunctionStubReplayTest(ForgeTestCase):
             expected_call = self.forge.queue._queue.pop()
             self.assertIs(expected_call.target, stub)
         self.assertEquals(len(self.forge.queue), 0)
+
+
+    def test__return_value(self):
+        rv = self.stub(1, 2, 3).and_return(666)
+        self.assertEquals(rv, 666)
+        self.forge.replay()
+        self.assertEquals(666, self.stub(1, 2, 3))
+        self.forge.verify()

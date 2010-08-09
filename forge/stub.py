@@ -14,10 +14,10 @@ class FunctionStub(object):
         if self._obj is not None and not self._signature.can_be_called_as_method():
             raise SignatureException("%s cannot be called as method!" % (self,))
         if self._forge.is_recording():
-            self._handle_recorded_call(args, kwargs)
+            return self._handle_recorded_call(args, kwargs)
         else:
-            self._handle_replay_call(args, kwargs)
+            return self._handle_replay_call(args, kwargs)
     def _handle_recorded_call(self, args, kwargs):
-        self._forge.queue.expect_call(self, args, kwargs)
+        return self._forge.queue.expect_call(self, args, kwargs)
     def _handle_replay_call(self, args, kwargs):
-        self._forge.queue.pop_call(self, args, kwargs)
+        return self._forge.queue.pop_call(self, args, kwargs).get_return_value()
