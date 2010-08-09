@@ -29,8 +29,7 @@ class FunctionCall(object):
         if self._return_value is not NOTHING:
             raise ConflictingActions()
         self._raised_exception = exc        
-        return exc
-    
+        return exc    
     def get_return_value(self):
         if self._raised_exception is not NOTHING:
             raise self._raised_exception

@@ -108,8 +108,13 @@ class FunctionStubReplayTest(ForgeTestCase):
         self.forge.replay()
         self.assertExpectedNotMet([self.stub])            
     def assertExpectedNotMet(self, stubs):
-        for stub in stubs:
+        self.assertGreater(len(stubs), 0)
+        with self.assertRaises(ExpectedCallsNotFound) as caught:
+            self.forge.verify()
+        self.assertEquals(len(caught.exception.calls), len(stubs))
+        for stub, exception_call in zip(stubs, caught.exception.calls):
             expected_call = self.forge.queue._queue.pop()
+            self.assertIs(expected_call, exception_call)
             self.assertIs(expected_call.target, stub)
         self.assertNoMoreCalls()
     def assertNoMoreCalls(self):
