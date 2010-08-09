@@ -1,3 +1,4 @@
+import time
 from ut_utils import TestCase
 from forge.signature import FunctionSignature
 from forge.exceptions import SignatureException, InvalidKeywordArgument
@@ -145,3 +146,10 @@ class SignatureTest(TestCase):
             self.assertFalse(FunctionSignature(cls.f_without_self).can_be_called_as_method())
             self.assertTrue(FunctionSignature(cls.f_with_args).can_be_called_as_method())
             self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).can_be_called_as_method())
+
+class BinaryFunctionSignatureTest(TestCase):
+    def test__dummy_signature(self):
+        sig = FunctionSignature(time.time)
+        self.assertEquals(sig.args, [])
+        self.assertTrue(sig.has_variable_args())
+        self.assertTrue(sig.has_variable_kwargs())

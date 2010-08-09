@@ -31,7 +31,13 @@ class FunctionSignature(object):
         return self._can_be_called_as_method
     def _build_arguments(self):
         self.args = []
-        args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
+        if self._can_function_be_inspected(self.func):
+            args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
+        else:
+            args = []
+            varargs_name = 'args'
+            kwargs_name = 'kwargs'
+            defaults = []
         if self.is_first_argument_self():
             self._can_be_called_as_method = len(args) > 0
             args = args[1:]
@@ -39,6 +45,11 @@ class FunctionSignature(object):
             self.args.append(Argument(arg_name, default))
         self._varargs_name = varargs_name
         self._kwargs_name = kwargs_name
+    def _can_function_be_inspected(self, func):
+        return type(func) not in [
+            types.BuiltinFunctionType,
+            types.BuiltinMethodType,
+            ]
     def has_variable_args(self):
         return self._varargs_name is not None
     def has_variable_kwargs(self):
