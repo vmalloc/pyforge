@@ -82,9 +82,9 @@ class FunctionSignature(object):
             raise SignatureException("The following arguments were not specified: %s" % ",".join(map(repr, missing_arguments)))
     def _check_unknown_arguments(self, args_dict):
         positional_arg_count = len([arg_name for arg_name in args_dict if isinstance(arg_name, Number)])
-        if positional_arg_count and not self.has_variable_kwargs():
+        if positional_arg_count and not self.has_variable_args():
             raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.func_name, len(self.args), len(self.args) + positional_arg_count))
-        unknown = set(args_dict) - set(arg.name for arg in self.args)
+        unknown = set(arg for arg in args_dict if not isinstance(arg, Number)) - set(arg.name for arg in self.args)
         if unknown and not self.has_variable_kwargs():
             raise SignatureException("%s received unknown argument(s): %s" % (self.func_name, ",".join(unknown)))
         

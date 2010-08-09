@@ -81,6 +81,11 @@ class SignatureTest(TestCase):
             sig.get_normalized_args((1, 2), dict(a=1))
         with self.assertRaises(SignatureException):
             sig.get_normalized_args((), {})
+    def test__normalizing_args_no_kwargs(self):
+        def f(a, *args):
+            raise NotImplementedError()
+        sig = FunctionSignature(f)
+        self.assertEquals({'a': 1, 0: 2}, sig.get_normalized_args((1, 2), {}))
     def test__normalizing_args_strict_functions(self):
         def strict_f(a, b, c):
             pass
