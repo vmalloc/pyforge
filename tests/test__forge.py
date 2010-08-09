@@ -20,5 +20,8 @@ class ForgeTest(TestCase):
         self.assertReplaying()
     def test__reset(self):
         self.test__replaying()
+        self.forge.queue._queue = [1, 2, 3, 4]
         self.forge.reset()
         self.assertRecording()
+        self.assertEquals(len(self.forge.queue), 0)
+        
