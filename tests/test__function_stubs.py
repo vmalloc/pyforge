@@ -3,6 +3,8 @@ from forge.stub import FunctionStub
 from forge import UnexpectedCall
 from forge import ExpectedCallsNotFound
 from forge import SignatureException
+from forge import ConflictingActions
+from forge.dtypes import NOTHING
 
 def _func1(a, b, c=2):
     raise NotImplementedError()
@@ -109,12 +111,45 @@ class FunctionStubReplayTest(ForgeTestCase):
         for stub in stubs:
             expected_call = self.forge.queue._queue.pop()
             self.assertIs(expected_call.target, stub)
+        self.assertNoMoreCalls()
+    def assertNoMoreCalls(self):
         self.assertEquals(len(self.forge.queue), 0)
-
 
     def test__return_value(self):
         rv = self.stub(1, 2, 3).and_return(666)
         self.assertEquals(rv, 666)
         self.forge.replay()
         self.assertEquals(666, self.stub(1, 2, 3))
+        self.assertNoMoreCalls()
         self.forge.verify()
+    def test__raised_exception(self):
+        raised = Exception()
+        rv = self.stub(1, 2, 3).and_raise(raised)
+        self.assertIs(rv, raised)
+        self.forge.replay()
+        with self.assertRaises(Exception) as caught:
+            self.stub(1, 2, 3)
+        self.assertIs(caught.exception, raised)
+        self.assertNoMoreCalls()
+        self.forge.verify()
+    def test__conflicting_actions(self):
+        expected_call = self.stub(1, 2, 3)
+        expected_call.and_return(2)
+        with self.assertRaises(ConflictingActions):
+            expected_call.and_raise(Exception())
+        #conflict should not affect existing expectations
+        self.assertEquals(expected_call._return_value, 2)
+        self.assertIs(expected_call._raised_exception, NOTHING)
+
+        expected_call = self.stub(1, 2, 3)
+        exc = Exception()
+        expected_call.and_raise(exc)
+        with self.assertRaises(ConflictingActions):
+            expected_call.and_return(2)
+                #conflict should not affect existing expectations
+        self.assertIs(expected_call._return_value, NOTHING)
+        self.assertIs(expected_call._raised_exception, exc)
+
+
+
+            

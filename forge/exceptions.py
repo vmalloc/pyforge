@@ -15,6 +15,9 @@ class UnauthorizedMemberAccess(ForgeException):
     def __str__(self):
         return "%s.%s was unexpectedly accessed!" % (self.object, self.attribute)
 
+class ConflictingActions(ForgeException):
+    pass
+
 class UnexpectedCall(ForgeException):
     def __init__(self, expected, got):
         super(UnexpectedCall, self).__init__()

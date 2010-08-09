@@ -1,9 +1,13 @@
+from dtypes import NOTHING
+from exceptions import ConflictingActions
+
 class FunctionCall(object):
     def __init__(self, target, args, kwargs):
         super(FunctionCall, self).__init__()
         self.target = target
         self.args = self.get_signature().get_normalized_args(args, kwargs)
-        self._return_value = None    
+        self._return_value = NOTHING
+        self._raised_exception = NOTHING
     def get_signature(self):
         return self.target._signature
     def matches_call(self, target, args, kwargs):
@@ -17,8 +21,21 @@ class FunctionCall(object):
                                                         if not isinstance(k, basestring)))
         return ", ".join(args)
     def and_return(self, rv):
-        self._return_value = rv
+        if self._raised_exception is not NOTHING:
+            raise ConflictingActions()
+        self._return_value = rv        
         return rv
+    def and_raise(self, exc):
+        if self._return_value is not NOTHING:
+            raise ConflictingActions()
+        self._raised_exception = exc        
+        return exc
+    
     def get_return_value(self):
-        return self._return_value
+        if self._raised_exception is not NOTHING:
+            raise self._raised_exception
+        if self._return_value is not NOTHING:
+            return self._return_value
+        return None
+    
         
