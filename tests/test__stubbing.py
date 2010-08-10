@@ -1,3 +1,4 @@
+import types
 from ut_utils import ForgeTestCase
 from forge.stub import FunctionStub
 import time
@@ -31,6 +32,56 @@ class StubbingObjectsTest(ForgeTestCase):
         self._test__stubbing_object(NewStyleClass(), 'method', orig_newstyle_method)
     def test__stubbing_old_style_objects(self):
         self._test__stubbing_object(OldStyleClass(), 'method', orig_oldstyle_method)
+
+class StubbedNewStyleClass(object):
+    @classmethod
+    def class_method(cls, a, b, c):
+        raise NotImplementedError()
+    @staticmethod
+    def static_method(a, b, c):
+        raise NotImplementedError()
+assert 'class_method' in dir(StubbedNewStyleClass)
+class StubbedOldStyleClass:
+    @classmethod
+    def class_method(cls, a, b, c):
+        raise NotImplementedError()
+    @staticmethod
+    def static_method(a, b, c):
+        raise NotImplementedError()
+
+
+class StubbingClassMethodTest(ForgeTestCase):
+    def test__stubbing_class_methods(self):
+        for cls in (StubbedNewStyleClass, StubbedOldStyleClass):
+            self._test__stubbing_class_methods(cls, 'class_method', False)
+    def test__stubbing_static_methods(self):
+        for cls in (StubbedNewStyleClass, StubbedOldStyleClass):
+            self._test__stubbing_class_methods(cls, 'static_method', True)
+    def _test__stubbing_class_methods(self, cls, name, is_static):
+        orig = getattr(cls, name)
+        self.forge.replace_with_stub(cls, name)
+        func = getattr(cls, name)
+        self.assertIsInstance(func, FunctionStub)
+        func(1, 2, 3)
+        self.forge.replay()
+        func = getattr(cls, name)
+        func(1, 2, 3)
+        self.forge.verify()
+        self.forge.reset()        
+        self.forge.restore_all_stubs()
+        func = getattr(cls, name)
+        if is_static:            
+            self.assertIsInstance(func, types.FunctionType)
+            self.assertIsInstance(cls.__dict__[name], staticmethod)
+            self.assertIs(func, orig)            
+        else:
+            self.assertIsInstance(cls.class_method, types.MethodType)
+            self.assertIsInstance(cls.__dict__[name], classmethod)
+            #classmethods are re-computed on every fetch
+            self.assertIsNot(func, orig)
+            self.assertIs(cls.class_method.im_self, cls)
+            self.assertIs(cls.class_method.im_func, orig.im_func)
+        
 
 
 class StubbingModulesTest(ForgeTestCase):
