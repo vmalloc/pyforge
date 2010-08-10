@@ -34,7 +34,7 @@ class SignatureTest(TestCase):
                 self.assertEquals(expected_arg.default, arg.default)
         self.assertEquals(sig.has_variable_kwargs(), has_varkwargs)
         self.assertEquals(sig.has_variable_args(), has_varargs)
-        
+
     def test__simple_functions(self):
         def f(a, b, c):
             pass
@@ -42,7 +42,7 @@ class SignatureTest(TestCase):
                                       [('a', False),
                                        ('b', False),
                                        ('c', False)])
-        
+
     def test__kwargs(self):
         def f(a, b, c=2):
             pass
@@ -62,7 +62,7 @@ class SignatureTest(TestCase):
         self._test_function_signature(f_args_kwargs, sig, has_varargs=True, has_varkwargs=True)
         self._test_function_signature(lambda_args_kwargs, sig, has_varargs=True, has_varkwargs=True)
 
-        
+
     def test__normalizing_args(self):
         def f(a, b, c=2, *args, **kwargs):
             pass
@@ -89,9 +89,9 @@ class SignatureTest(TestCase):
     def test__normalizing_args_strict_functions(self):
         def strict_f(a, b, c):
             pass
-        
+
         strict_sig = FunctionSignature(strict_f)
-        
+
         with self.assertRaises(SignatureException):
             strict_sig.get_normalized_args((), {})
         with self.assertRaises(SignatureException):
@@ -121,14 +121,14 @@ class SignatureTest(TestCase):
         sig = FunctionSignature(lambda *args, **kwargs: None)
         with self.assertRaises(InvalidKeywordArgument):
             sig.get_normalized_args((), {1:2})
-            
-    def test__can_be_called_as_method(self):
+
+    def test__is_binding_needed(self):
         def f():
             raise NotImplementedError()
         def f_with_self_arg(self):
             raise NotImplementedError()
-        self.assertFalse(FunctionSignature(f).can_be_called_as_method())
-        self.assertFalse(FunctionSignature(f_with_self_arg).can_be_called_as_method())
+        self.assertFalse(FunctionSignature(f).is_binding_needed())
+        self.assertFalse(FunctionSignature(f_with_self_arg).is_binding_needed())
         class SomeClass(object):
             def f_without_self():
                 raise NotImplementedError()
@@ -148,9 +148,9 @@ class SignatureTest(TestCase):
             def f_with_first_argument_not_self(bla):
                 raise NotImplementedError()
         for cls in (SomeClass, SomeOldStyleClass):
-            self.assertFalse(FunctionSignature(cls.f_without_self).can_be_called_as_method())
-            self.assertTrue(FunctionSignature(cls.f_with_args).can_be_called_as_method())
-            self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).can_be_called_as_method())
+            self.assertTrue(FunctionSignature(cls.f_without_self).is_binding_needed())
+            self.assertTrue(FunctionSignature(cls.f_with_args).is_binding_needed())
+            self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).is_binding_needed())
 
 class BinaryFunctionSignatureTest(TestCase):
     def test__dummy_signature(self):

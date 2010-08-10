@@ -18,17 +18,14 @@ class FunctionSignature(object):
         super(FunctionSignature, self).__init__()
         self.func = func
         self.func_name = func.__name__
-        self._can_be_called_as_method = False
         self._build_arguments()
+    def is_binding_needed(self):
+        return isinstance(self.func, types.MethodType)
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
         return itertools.izip(args, filled_defaults)
 
-    def is_first_argument_self(self):
-        return type(self.func) in (types.MethodType,)
-    def can_be_called_as_method(self):
-        return self._can_be_called_as_method
     def _build_arguments(self):
         self.args = []
         if self._can_function_be_inspected(self.func):
@@ -38,8 +35,7 @@ class FunctionSignature(object):
             varargs_name = 'args'
             kwargs_name = 'kwargs'
             defaults = []
-        if self.is_first_argument_self():
-            self._can_be_called_as_method = len(args) > 0
+        if self.is_binding_needed():
             args = args[1:]
         for arg_name, default in self._iter_args_and_defaults(args, defaults):
             self.args.append(Argument(arg_name, default))
