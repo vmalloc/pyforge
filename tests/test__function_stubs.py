@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from ut_utils import ForgeTestCase
 from forge.stub import FunctionStub
 from forge import UnexpectedCall
@@ -91,6 +92,14 @@ class FunctionStubReplayTest(ForgeTestCase):
         self.assertEquals(exc.expected.args, {0:1, 1:2, 2:3})
         self.assertEquals(exc.got.args, {0:1, 1:2, 2:6})
         self.assertExpectedNotMet([self.stub])
+    def test__replay_queue_empty(self):
+        self.stub(1, 2, 3)
+        self.forge.replay()
+        self.stub(1, 2, 3)
+        with self.assertUnexpectedCall(self.stub, None):
+            self.stub(1, 2, 3)
+        self.assertNoMoreCalls()
+        self.forge.verify()
     def test__record_replay_different_more_args(self):
         self.stub(1, 2, 3)
         self.forge.replay()
@@ -125,7 +134,15 @@ class FunctionStubReplayTest(ForgeTestCase):
         self.assertNoMoreCalls()
     def assertNoMoreCalls(self):
         self.assertEquals(len(self.forge.queue), 0)
-
+    @contextmanager
+    def assertUnexpectedCall(self, got, expected):
+        with self.assertRaises(UnexpectedCall) as caught:
+            yield caught
+        self.assertIs(caught.exception.got.target, got)
+        if expected is not None:
+            self.assertIs(caught.exception.expected.target, expected)
+        else:
+            self.assertIsNone(caught.exception.expected)
     def test__return_value(self):
         rv = self.stub(1, 2, 3).and_return(666)
         self.assertEquals(rv, 666)

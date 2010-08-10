@@ -15,8 +15,11 @@ class ForgeQueue(object):
         self._queue.append(returned)
         return returned
     def pop_call(self, target, args, kwargs):
-        popped = self._queue[0]
-        if popped.matches_call(target, args, kwargs):
+        if self._queue:
+            popped = self._queue[0]
+        else:
+            popped = None
+        if popped is not None and popped.matches_call(target, args, kwargs):
             self._queue.popleft()
         else:
             raise UnexpectedCall(popped, FunctionCall(target, args, kwargs))
