@@ -70,7 +70,7 @@ class FunctionStubRecordTest(ForgeTestCase):
         self.stub._signature.get_normalized_args = _fake_get_normalized_args
         self.stub(*args, **kwargs)
         self.assertEquals(len(self.forge.queue), 1)
-        expected_call = self.forge.queue._queue[0]
+        expected_call = self.forge.pop_expected_call()
         self.assertIs(expected_call.target, self.stub)
         self.assertIs(expected_call.args, normalized_args)
 
@@ -128,7 +128,7 @@ class FunctionStubReplayTest(ForgeTestCase):
             self.forge.verify()
         self.assertEquals(len(caught.exception.calls), len(stubs))
         for stub, exception_call in zip(stubs, caught.exception.calls):
-            expected_call = self.forge.queue._queue.pop()
+            expected_call = self.forge.pop_expected_call()
             self.assertIs(expected_call, exception_call)
             self.assertIs(expected_call.target, stub)
         self.assertNoMoreCalls()

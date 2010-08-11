@@ -29,7 +29,7 @@ class FunctionStub(object):
     def _handle_recorded_call(self, args, kwargs):
         return self._forge.queue.expect_call(self, args, kwargs)
     def _handle_replay_call(self, args, kwargs):
-        expected_call = self._forge.queue.pop_call(self, args, kwargs)
+        expected_call = self._forge.queue.pop_matching_call(self, args, kwargs)
         return_value = expected_call.get_return_value()
         #might raise...
         expected_call.do_side_effects(args, kwargs)

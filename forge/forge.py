@@ -13,10 +13,12 @@ class Forge(object):
     def is_recording(self):
         return not self.is_replaying()
     def replay(self):
-        self._is_replaying = True   
+        self._is_replaying = True
     def reset(self):
         self._is_replaying = False
         self.queue = ForgeQueue(self)
+    def pop_expected_call(self):
+        return self.queue.pop()
     def verify(self):
         self.queue.verify()
 
@@ -31,3 +33,5 @@ class Forge(object):
         return self.stubs.replace_with_stub(obj, method_name)
     def restore_all_stubs(self):
         self.stubs.restore_all_stubs()
+    def any_order(self):
+        return self.queue.get_unordered_group_context()
