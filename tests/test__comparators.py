@@ -1,41 +1,53 @@
 from ut_utils import TestCase
-from forge import Is, IsA
+from forge import Is, IsA, RegexpMatches
 import cStringIO
+import re
 
 class Compared(object):
     def __eq__(self):
         raise NotImplementedError()
     def __ne__(self):
-        raise NotImplementedError()    
+        raise NotImplementedError()
 
-class IsTest(TestCase):
+class _ComparatorTest(TestCase):
     def test__valid_equality(self):
-        c = Compared()        
-        self.assertTrue(Is(c) == c)
+        for a, b in self._get_equal_pairs():
+            self.assertTrue(a == b)
     def test__invalid_equality(self):
-        c = Compared()
-        self.assertFalse(Is(c) == Compared())
+        for a, b in self._get_unequal_pairs():
+            self.assertFalse(a == b)
     def test__valid_inequality(self):
-        c = Compared()
-        self.assertTrue(Is(c) != Compared())
+        for a, b in self._get_unequal_pairs():
+            self.assertTrue(a != b)
     def test__invalid_inequality(self):
-        c = Compared()
-        self.assertFalse(Is(c) != c)
+        for a, b in self._get_equal_pairs():
+            self.assertFalse(a != b)
 
-class IsATest(TestCase):
-    def test__valid_equality(self):
-        c = Compared()        
-        self.assertTrue(IsA(Compared) == c)
-    def test__invalid_equality(self):
+class IsTest(_ComparatorTest):
+    def _get_equal_pairs(self):
         c = Compared()
-        self.assertFalse(IsA(basestring) == c)
-    def test__valid_inequality(self):
+        yield Is(c), c
+    def _get_unequal_pairs(self):
         c = Compared()
-        self.assertTrue(IsA(basestring) != c)
-    def test__invalid_inequality(self):
-        c = Compared()
-        self.assertFalse(IsA(Compared) != c)
-    def test__special_types(self):
-        self.assertTrue(IsA(cStringIO.StringIO()) == cStringIO.StringIO())
+        yield Is(c), Compared()
+        yield Is(c), 2
 
-        
+class IsATest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        c = Compared()
+        yield IsA(Compared), c
+        yield IsA(basestring), "hey"
+        IsA(cStringIO.StringIO()), cStringIO.StringIO()
+    def _get_unequal_pairs(self):
+        yield IsA(Compared), "hey"
+        yield IsA(basestring), Compared()
+        IsA(cStringIO.StringIO()), object()
+
+class RegexpMatchesTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield RegexpMatches(".+"), "hey"
+        yield RegexpMatches(r"hey \S+"), "hey there"
+        yield RegexpMatches(r"hello", re.I), "hEllO"
+    def _get_unequal_pairs(self):
+        yield RegexpMatches(r"hello \S+"), "hey there"
+        yield RegexpMatches(r"hello"), 2

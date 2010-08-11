@@ -1,3 +1,5 @@
+import re
+
 class Comparator(object):
     def equals(self, other):
         raise NotImplementedError()
@@ -22,3 +24,13 @@ class IsA(Comparator):
             return isinstance(other, self._class)
         except TypeError:
             return type(self._class) is type(other)
+
+class RegexpMatches(Comparator):
+    def __init__(self, regexp, flags=0):
+        super(RegexpMatches, self).__init__()
+        self._regexp = regexp
+        self._flags = flags
+    def equals(self, other):
+        if not isinstance(other, basestring):
+            return False
+        return re.match(self._regexp, other, self._flags)
