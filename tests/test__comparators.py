@@ -1,7 +1,8 @@
-from ut_utils import TestCase
-from forge import Is, IsA, RegexpMatches
 import cStringIO
+import itertools
 import re
+from ut_utils import TestCase
+from forge import Is, IsA, RegexpMatches, Func, Comparator, IsAlmost
 
 class Compared(object):
     def __eq__(self):
@@ -22,6 +23,11 @@ class _ComparatorTest(TestCase):
     def test__invalid_inequality(self):
         for a, b in self._get_equal_pairs():
             self.assertFalse(a != b)
+    def test__representation(self):
+        for a, _ in itertools.chain(self._get_equal_pairs(), self._get_unequal_pairs()):
+            self.assertIsInstance(a, Comparator)
+            self.assertIsInstance(str(a), basestring)
+            self.assertEquals(str(a), repr(a))
 
 class IsTest(_ComparatorTest):
     def _get_equal_pairs(self):
@@ -51,3 +57,24 @@ class RegexpMatchesTest(_ComparatorTest):
     def _get_unequal_pairs(self):
         yield RegexpMatches(r"hello \S+"), "hey there"
         yield RegexpMatches(r"hello"), 2
+
+class FuncTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        obj = object()
+        yield Func(lambda o: o is obj), obj
+        yield Func(lambda o: True), None
+    def _get_unequal_pairs(self):
+        obj = object()
+        for other in (None, 2, "hello"):
+            yield Func(lambda o: o is obj), other
+        yield Func(lambda o: False), "hello"
+
+class IsAlmostTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield IsAlmost(3, 3), 3.0002
+        yield IsAlmost(3), 3.00000002
+    def _get_unequal_pairs(self):
+        yield IsAlmost(3, 3), 3.02
+        yield IsAlmost(3), 3.02
+        yield IsAlmost(3), "hey"
+
