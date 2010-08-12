@@ -72,3 +72,30 @@ class Contains(Comparator):
             return self._obj in other
         except TypeError:
             return False
+
+class HasKeyValue(Comparator):
+    def __init__(self, key, value):
+        super(HasKeyValue, self).__init__()
+        self._key = key
+        self._value = value
+    def equals(self, other):
+        try:
+            return other[self._key] == self._value
+        except TypeError:
+            return False
+        except KeyError:
+            return False
+
+class HasAttributeValue(Comparator):
+    def __init__(self, attr, value):
+        super(HasAttributeValue, self).__init__()
+        self._attr = attr
+        self._value = value
+    def equals(self, other):
+        try:
+            return getattr(other, self._attr) == self._value
+        except TypeError:
+            return False
+        except AttributeError:
+            return False
+

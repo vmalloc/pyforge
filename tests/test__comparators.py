@@ -88,3 +88,28 @@ class ContainsTest(_ComparatorTest):
         yield Contains("bla"), object()
         yield Contains(2), [1, 3, 5]
 
+class HasKeyValueTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield HasKeyValue('a', 1), dict(a=1, b=2)
+        yield HasKeyValue(1, 2), [0, 2, 0, 0]
+    def _get_unequal_pairs(self):
+        yield HasKeyValue('a', 1), {}
+        yield HasKeyValue('a', 1), dict(a=2)
+        yield HasKeyValue('a', 1), []
+        yield HasKeyValue('a', 1), object()
+        yield HasKeyValue(0, 1), [0, 0, 0]
+
+class HasAttributeValueTest(_ComparatorTest):
+    class Object(object):
+        a = 2
+        b = 3
+    def _get_equal_pairs(self):
+        Object = self.Object
+        yield HasAttributeValue('a', 2), Object
+        yield HasAttributeValue('b', 3), Object()
+    def _get_unequal_pairs(self):
+        Object = self.Object
+        for obj in (Object, Object()):
+            yield HasAttributeValue('a', 3), obj
+        yield HasAttributeValue('bla', 2), Object()
+        yield HasAttributeValue('bloop', 2), dict(bloop=2)
