@@ -27,7 +27,9 @@ class MockHandle(object):
             if not self.forge.is_recording():
                 raise UnauthorizedMemberAccess(self.mock, name)
             real_method = getattr(self.mocked_class, name, NOTHING)
-            returned = self.forge.create_method_stub(real_method, self)
+            returned = self.forge.create_method_stub(real_method)
+            if not returned.__forge__.is_bound():
+                returned.__forge__.bind(self.mock)
             self._initialized_stubs[name] = returned
         return returned
 

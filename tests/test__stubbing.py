@@ -22,10 +22,9 @@ class StubbingObjectsTest(ForgeTestCase):
         returned = self.forge.replace_with_stub(obj, method_name)
         self.assertIsInstance(obj.method, FunctionStub)
         self.assertIs(returned, obj.method)
-        self.assertIs(obj.method._original.im_func, expected.im_func)
-        self.assertIs(obj.method._signature.func.im_func, expected.im_func)
-        self.assertTrue(obj.method._signature.is_binding_needed())
-        self.assertTrue(obj.method._is_already_bound())
+        self.assertIs(obj.method.__forge__.original.im_func, expected.im_func)
+        self.assertIs(obj.method.__forge__.signature.func.im_func, expected.im_func)
+        self.assertTrue(obj.method.__forge__.signature.is_bound())
         self.forge.restore_all_stubs()
         self.assertIs(obj.method.im_func, expected.im_func)
     def test__stubbing_new_style_objects(self):
@@ -67,13 +66,13 @@ class StubbingClassMethodTest(ForgeTestCase):
         func = getattr(cls, name)
         func(1, 2, 3)
         self.forge.verify()
-        self.forge.reset()        
+        self.forge.reset()
         self.forge.restore_all_stubs()
         func = getattr(cls, name)
-        if is_static:            
+        if is_static:
             self.assertIsInstance(func, types.FunctionType)
             self.assertIsInstance(cls.__dict__[name], staticmethod)
-            self.assertIs(func, orig)            
+            self.assertIs(func, orig)
         else:
             self.assertIsInstance(cls.class_method, types.MethodType)
             self.assertIsInstance(cls.__dict__[name], classmethod)
@@ -81,7 +80,7 @@ class StubbingClassMethodTest(ForgeTestCase):
             self.assertIsNot(func, orig)
             self.assertIs(cls.class_method.im_self, cls)
             self.assertIs(cls.class_method.im_func, orig.im_func)
-        
+
 
 
 class StubbingModulesTest(ForgeTestCase):
@@ -97,8 +96,8 @@ class StubbingModulesTest(ForgeTestCase):
     def test__stub_module_functions(self):
         self.forge.replace_with_stub(os.path, "join")
         self.assertIsInstance(os.path.join, FunctionStub)
-        self.assertFalse(os.path.join._signature.has_variable_kwargs())
-        self.assertTrue(os.path.join._signature.has_variable_args())
+        self.assertFalse(os.path.join.__forge__.signature.has_variable_kwargs())
+        self.assertTrue(os.path.join.__forge__.signature.has_variable_args())
         return_path = "return_path"
         os.path.join("a", "b", "c").and_return(return_path)
         self.forge.replay()

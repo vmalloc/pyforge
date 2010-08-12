@@ -12,7 +12,7 @@ class StubManager(object):
 
     def _replace_object_method_with_stub(self, obj, method_name):
         return self._replace_with_stub(obj, method_name,
-                                       self.forge.create_method_stub(getattr(obj, method_name), obj))
+                                       self.forge.create_method_stub(getattr(obj, method_name)))
     def _replace_module_function_with_stub(self, module, function_name):
         return self._replace_with_stub(module, function_name,
                                        self.forge.create_function_stub(getattr(module, function_name)))

@@ -24,8 +24,8 @@ class Forge(object):
 
     def create_function_stub(self, func):
         return FunctionStub(self, func)
-    def create_method_stub(self, method, obj):
-        return FunctionStub(self, method, obj)
+    def create_method_stub(self, method):
+        return FunctionStub(self, method)
     def create_mock(self, mocked_class):
         return MockObject(self, mocked_class)
 

@@ -1,7 +1,7 @@
 import time
 from ut_utils import TestCase
 from forge.signature import FunctionSignature
-from forge.exceptions import SignatureException, InvalidKeywordArgument
+from forge.exceptions import SignatureException, InvalidKeywordArgument, FunctionCannotBeBound
 
 # no named tuples for python 2.5 compliance...
 class ExpectedArg(object):
@@ -12,7 +12,7 @@ class ExpectedArg(object):
 
 class SignatureTest(TestCase):
     def _assert_argument_names(self, sig, names):
-        self.assertEquals([arg.name for arg in sig.args], names)
+        self.assertEquals([arg.name for arg in sig._args], names)
 
     def _test_function_signature(self,
         func,
@@ -22,8 +22,9 @@ class SignatureTest(TestCase):
         ):
         sig = FunctionSignature(func)
 
-        self.assertEquals(len(expected_signature), len(sig.args))
-        for expected_arg, arg in zip(expected_signature, sig.args):
+        self.assertEquals(len(expected_signature), len(sig._args))
+        self.assertEquals(len(expected_signature), sig.get_num_args())
+        for expected_arg, arg in zip(expected_signature, sig._args):
             if isinstance(expected_arg, tuple):
                 expected_arg = ExpectedArg(*expected_arg)
             self.assertEquals(expected_arg.name,
@@ -107,14 +108,33 @@ class SignatureTest(TestCase):
                 raise NotImplementedError()
         for cls in (SomeClass, SomeOldStyleClass):
             sig = FunctionSignature(cls.f)
-            self.assertEquals(
-                dict(a=1, b=2, c=3),
+            with self.assertRaises(SignatureException):
+                # unbound method
                 sig.get_normalized_args((1, 2, 3), {})
+
+            self.assertEquals(dict(self=1, a=2, b=3, c=4),
+                              sig.get_normalized_args((1, 2, 3, 4), {}))
+
+            # but self cannot be passed as a kwarg
+            with self.assertRaises(SignatureException):
+                sig.get_normalized_args((), dict(self=1, a=2, b=3, c=4))
+
+            self.assertEquals(
+                dict(self=0, a=1, b=2, c=3),
+                sig.get_normalized_args((0, 1, 2, 3), {})
                 )
             self.assertEquals(
-                dict(a=1, b=2, c=3),
-                sig.get_normalized_args((1,), dict(c=3, b=2))
+                dict(self=0, a=1, b=2, c=3),
+                sig.get_normalized_args((0, 1,), dict(c=3, b=2))
                 )
+
+    def test__normalizing_unbound_methods(self):
+        class Blap(object):
+            def f(self):
+                raise NotImplementedError()
+        sig = FunctionSignature(Blap.f)
+        with self.assertRaises(SignatureException):
+            sig.get_normalized_args((), {})
 
     def test__normalizing_kwargs_with_numbers(self):
         # this is supported in python, but interferes with the arg-normalizing logic
@@ -122,13 +142,16 @@ class SignatureTest(TestCase):
         with self.assertRaises(InvalidKeywordArgument):
             sig.get_normalized_args((), {1:2})
 
-    def test__is_binding_needed(self):
+    def test__is_method_and_is_bound(self):
         def f():
             raise NotImplementedError()
         def f_with_self_arg(self):
             raise NotImplementedError()
-        self.assertFalse(FunctionSignature(f).is_binding_needed())
-        self.assertFalse(FunctionSignature(f_with_self_arg).is_binding_needed())
+        self.assertFalse(FunctionSignature(f).is_method())
+        self.assertFalse(FunctionSignature(f_with_self_arg).is_method())
+        self.assertFalse(FunctionSignature(f).is_bound())
+        self.assertFalse(FunctionSignature(f_with_self_arg)._args[0].has_default())
+        self.assertFalse(FunctionSignature(f_with_self_arg).is_bound())
         class SomeClass(object):
             def f_without_self():
                 raise NotImplementedError()
@@ -148,13 +171,20 @@ class SignatureTest(TestCase):
             def f_with_first_argument_not_self(bla):
                 raise NotImplementedError()
         for cls in (SomeClass, SomeOldStyleClass):
-            self.assertTrue(FunctionSignature(cls.f_without_self).is_binding_needed())
-            self.assertTrue(FunctionSignature(cls.f_with_args).is_binding_needed())
-            self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).is_binding_needed())
+            self.assertTrue(FunctionSignature(cls.f_without_self).is_method())
+            self.assertTrue(FunctionSignature(cls.f_with_args).is_method())
+            self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).is_method())
+            self.assertFalse(FunctionSignature(cls.f_with_args).is_bound())
+            self.assertFalse(FunctionSignature(cls.f_with_first_argument_not_self).is_bound())
+    def test__copy(self):
+        f = FunctionSignature(lambda a, b: 2)
+        f2 = f.copy()
+        self.assertIsNot(f, f2)
+        self.assertIsNot(f._args, f2._args)
 
 class BinaryFunctionSignatureTest(TestCase):
     def test__dummy_signature(self):
         sig = FunctionSignature(time.time)
-        self.assertEquals(sig.args, [])
+        self.assertEquals(sig._args, [])
         self.assertTrue(sig.has_variable_args())
         self.assertTrue(sig.has_variable_kwargs())

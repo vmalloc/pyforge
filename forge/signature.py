@@ -1,7 +1,8 @@
+import copy
 import types
 import inspect
 import itertools
-from exceptions import SignatureException, InvalidKeywordArgument
+from exceptions import SignatureException, InvalidKeywordArgument, FunctionCannotBeBound
 from numbers import Number
 from dtypes import NOTHING
 
@@ -19,15 +20,17 @@ class FunctionSignature(object):
         self.func = func
         self.func_name = func.__name__
         self._build_arguments()
-    def is_binding_needed(self):
+    def is_method(self):
         return isinstance(self.func, types.MethodType)
+    def is_bound(self):
+        return self.is_method() and self.func.im_self is not None
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
         return itertools.izip(args, filled_defaults)
 
     def _build_arguments(self):
-        self.args = []
+        self._args = []
         if self._can_function_be_inspected(self.func):
             args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
         else:
@@ -35,12 +38,23 @@ class FunctionSignature(object):
             varargs_name = 'args'
             kwargs_name = 'kwargs'
             defaults = []
-        if self.is_binding_needed():
-            args = args[1:]
         for arg_name, default in self._iter_args_and_defaults(args, defaults):
-            self.args.append(Argument(arg_name, default))
+            self._args.append(Argument(arg_name, default))
         self._varargs_name = varargs_name
         self._kwargs_name = kwargs_name
+    def get_args(self):
+        return itertools.islice(self._args, 1 if self.is_bound() else 0, None)
+    def get_num_args(self):
+        returned = len(self._args)
+        if self.is_bound():
+            returned = max(0, returned - 1)
+        return returned
+    def get_self_arg_name(self):
+        if self.is_method() and len(self._args) > 0:
+            return self._args[0].name
+        return None
+    def get_arg_names(self):
+        return (arg.name for arg in self.get_args())
     def _can_function_be_inspected(self, func):
         return type(func) not in [
             types.BuiltinFunctionType,
@@ -58,12 +72,14 @@ class FunctionSignature(object):
         self._check_unknown_arguments(returned)
         return returned
     def _update_normalized_positional_args(self, returned, args):
-        argument_names = [arg.name for arg in self.args]
-        argument_names.extend(range(len(args) - len(self.args)))
+        argument_names = list(self.get_arg_names())
+        argument_names.extend(range(len(args) - self.get_num_args()))
         for arg_name, given_arg in zip(argument_names, args):
             returned[arg_name] = given_arg
-        
+
     def _update_normalized_kwargs(self, returned, kwargs):
+        if self.is_method() and self.get_num_args() > 0 and self.get_self_arg_name() in kwargs:
+            raise SignatureException("First argument for bound method %s must not be a keyword arg" % self)
         for arg_name, arg in kwargs.iteritems():
             if not isinstance(arg_name, basestring):
                 raise InvalidKeywordArgument("Invalid keyword argument %r" % (arg_name,))
@@ -72,17 +88,22 @@ class FunctionSignature(object):
             returned[arg_name] = arg
 
     def _check_missing_arguments(self, args_dict):
-        required_arguments = set(arg.name for arg in self.args if not arg.has_default())
+        required_arguments = set(arg.name for arg in self.get_args() if not arg.has_default())
         missing_arguments = required_arguments - set(args_dict)
         if missing_arguments:
             raise SignatureException("The following arguments were not specified: %s" % ",".join(map(repr, missing_arguments)))
     def _check_unknown_arguments(self, args_dict):
         positional_arg_count = len([arg_name for arg_name in args_dict if isinstance(arg_name, Number)])
+        num_args = self.get_num_args()
         if positional_arg_count and not self.has_variable_args():
-            raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.func_name, len(self.args), len(self.args) + positional_arg_count))
-        unknown = set(arg for arg in args_dict if not isinstance(arg, Number)) - set(arg.name for arg in self.args)
+            raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.func_name, num_args, num_args + positional_arg_count))
+        unknown = set(arg for arg in args_dict if not isinstance(arg, Number)) - set(self.get_arg_names())
         if unknown and not self.has_variable_kwargs():
             raise SignatureException("%s received unknown argument(s): %s" % (self.func_name, ",".join(unknown)))
-        
+    def copy(self):
+        returned = copy.copy(self)
+        returned._args = copy.deepcopy(returned._args)
+        return returned
+
 
 

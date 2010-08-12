@@ -38,28 +38,31 @@ class MockingTest(ForgeTestCase):
     def test__getattr_of_nonexisting_attr_during_replay(self):
         self.forge.replay()
         with self.assertRaises(AttributeError):
-            value = self.obj.nonexisting_attr
+            self.obj.nonexisting_attr
 
         with self.assertRaises(AttributeError):
             # a private case of the above, just making a point
-            value = self.obj.nonexisting_method()
+            self.obj.nonexisting_method()
     def test__getattr_of_methods_during_replay(self):
         self.forge.replay()
         with self.assertRaises(UnauthorizedMemberAccess):
             self.obj.some_method
 
 class MockingCornerCasesTest(ForgeTestCase):
-    def test__mocking_invalid_method(self):
+    def _test__calling_method_cannot_be_called_bound(self, cls):
+        m = self.forge.create_mock(cls)
+        #obtaining the method is ok
+        method = m.invalid_method
+        with self.assertRaises(SignatureException):
+            #calling it is not ok
+            method()
+    def test__calling_new_style_method_cannot_be_called_bound(self):
         class NewStyleClass(object):
             def invalid_method():
                 raise NotImplementedError()
+        self._test__calling_method_cannot_be_called_bound(NewStyleClass)
+    def test__calling_old_style_method_cannot_be_called_bound(self):
         class OldStyleClass:
             def invalid_method():
                 raise NotImplementedError()
-        for cls in (NewStyleClass, OldStyleClass):
-            m = self.forge.create_mock(cls)
-            #obtaining the method is ok
-            method = m.invalid_method
-            with self.assertRaises(SignatureException):
-                #calling it is not
-                method()
+        self._test__calling_method_cannot_be_called_bound(OldStyleClass)

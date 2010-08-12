@@ -6,6 +6,7 @@ from forge import ExpectedCallsNotFound
 from forge import SignatureException
 from forge import ConflictingActions
 from forge.dtypes import NOTHING
+from forge.stub_handle import StubHandle
 
 def _func1(a, b, c=2):
     raise NotImplementedError()
@@ -30,15 +31,43 @@ class FunctionStubAttributesTest(ForgeTestCase):
 
 class FunctionStubInitializationTest(ForgeTestCase):
     def test__initialization(self):
-        obj = object()
-        stub = FunctionStub(self.forge, _func1, obj=obj)
-        self.assertIs(stub._obj, obj)
-        self.assertIs(stub._original, _func1)
-        self.assertIs(stub._signature.func, _func1)
-
-    def test__without_obj(self):
         stub = FunctionStub(self.forge, _func1)
-        self.assertIsNone(stub._obj)
+        self.assertIs(stub.__forge__.original, _func1)
+        self.assertIs(stub.__forge__.signature.func, _func1)
+        self.assertIsInstance(stub.__forge__, StubHandle)
+        self.assertIs(stub.__forge__.stub, stub)
+        self.assertIs(stub.__forge__.forge, self.forge)
+
+    def test__bind(self):
+        def func_with_self(self):
+            raise NotImplementedError()
+        def func_no_args():
+            raise NotImplementedError()
+        class Blap(object):
+            def already_bound(self):
+                raise NotImplementedError()
+            def boundable(self):
+                raise NotImplementedError()
+
+        some_obj = object()
+        with self.assertRaises(SignatureException):
+            FunctionStub(self.forge, func_with_self).__forge__.bind(some_obj)
+        stub = FunctionStub(self.forge, func_no_args)
+        with self.assertRaises(SignatureException):
+            stub.__forge__.bind(some_obj)
+        stub = FunctionStub(self.forge, Blap().already_bound)
+        with self.assertRaises(SignatureException):
+            stub.__forge__.bind(some_obj)
+        stub = FunctionStub(self.forge, Blap.boundable)
+        self.assertFalse(stub.__forge__.signature.is_bound())
+        with self.assertRaises(SignatureException):
+            stub()
+        stub.__forge__.bind(some_obj)
+        stub()
+        self.forge.replay()
+        stub()
+        self.forge.verify()
+        self.forge.reset()
 
 class FunctionStubRecordTest(ForgeTestCase):
     def setUp(self):
@@ -54,7 +83,7 @@ class FunctionStubRecordTest(ForgeTestCase):
             self.assertEquals(given_args, args)
             self.assertEquals(given_kwargs, kwargs)
             raise expected_failure
-        self.stub._signature.get_normalized_args = _fake_get_normalized_args
+        self.stub.__forge__.signature.get_normalized_args = _fake_get_normalized_args
         with self.assertRaises(SignatureException) as caught:
             self.stub(*args, **kwargs)
         self.assertIs(caught.exception, expected_failure)
@@ -67,7 +96,7 @@ class FunctionStubRecordTest(ForgeTestCase):
             self.assertEquals(given_args, args)
             self.assertEquals(given_kwargs, kwargs)
             return normalized_args
-        self.stub._signature.get_normalized_args = _fake_get_normalized_args
+        self.stub.__forge__.signature.get_normalized_args = _fake_get_normalized_args
         self.stub(*args, **kwargs)
         self.assertEquals(len(self.forge.queue), 1)
         expected_call = self.forge.pop_expected_call()
