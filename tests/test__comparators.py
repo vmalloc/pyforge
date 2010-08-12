@@ -2,7 +2,7 @@ import cStringIO
 import itertools
 import re
 from ut_utils import TestCase
-from forge import Is, IsA, RegexpMatches, Func, Comparator, IsAlmost
+from forge.comparators import *
 
 class Compared(object):
     def __eq__(self):
@@ -77,4 +77,14 @@ class IsAlmostTest(_ComparatorTest):
         yield IsAlmost(3, 3), 3.02
         yield IsAlmost(3), 3.02
         yield IsAlmost(3), "hey"
+
+class ContainsTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield Contains("a"), "laugh"
+        yield Contains("bl"), "able"
+        yield Contains(2), [1, 2, 3]
+    def _get_unequal_pairs(self):
+        yield Contains("a"), "hello"
+        yield Contains("bla"), object()
+        yield Contains(2), [1, 3, 5]
 

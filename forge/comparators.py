@@ -62,3 +62,13 @@ class IsAlmost(Comparator):
             return round(self._value - other, self._places) == 0
         except TypeError:
             return False
+
+class Contains(Comparator):
+    def __init__(self, obj):
+        super(Contains, self).__init__()
+        self._obj = obj
+    def equals(self, other):
+        try:
+            return self._obj in other
+        except TypeError:
+            return False
