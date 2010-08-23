@@ -18,8 +18,9 @@ class OldStyleClass:
 orig_oldstyle_method = OldStyleClass.method
 
 class StubbingObjectsTest(ForgeTestCase):
-    def _test__stubbing_object(self, obj, method_name, expected):
-        returned = self.forge.replace_with_stub(obj, method_name)
+    def _test__stubbing_object(self, obj):
+        expected = obj.method
+        returned = self.forge.replace_with_stub(obj, 'method')
         self.assertIsInstance(obj.method, FunctionStub)
         self.assertIs(returned, obj.method)
         self.assertIs(obj.method.__forge__.original.im_func, expected.im_func)
@@ -28,9 +29,9 @@ class StubbingObjectsTest(ForgeTestCase):
         self.forge.restore_all_stubs()
         self.assertIs(obj.method.im_func, expected.im_func)
     def test__stubbing_new_style_objects(self):
-        self._test__stubbing_object(NewStyleClass(), 'method', orig_newstyle_method)
+        self._test__stubbing_object(NewStyleClass())
     def test__stubbing_old_style_objects(self):
-        self._test__stubbing_object(OldStyleClass(), 'method', orig_oldstyle_method)
+        self._test__stubbing_object(OldStyleClass())
 
 class StubbedNewStyleClass(object):
     @classmethod
@@ -80,8 +81,6 @@ class StubbingClassMethodTest(ForgeTestCase):
             self.assertIsNot(func, orig)
             self.assertIs(cls.class_method.im_self, cls)
             self.assertIs(cls.class_method.im_func, orig.im_func)
-
-
 
 class StubbingModulesTest(ForgeTestCase):
     def test__stub_c_function(self):

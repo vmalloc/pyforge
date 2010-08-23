@@ -12,3 +12,5 @@ class ForgeTestCase(TestCase):
     def setUp(self):
         super(ForgeTestCase, self).setUp()
         self.forge = Forge()
+    def assertNoMoreCalls(self):
+        self.assertEquals(len(self.forge.queue), 0)
