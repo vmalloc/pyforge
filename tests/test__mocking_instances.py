@@ -30,6 +30,14 @@ class MockingTest(ForgeTestCase):
         self.assertIs(self.obj.__class__, MockedClass)
         self.assertIsInstance(self.obj, MockedClass)
         self.assertIsNot(type(self.obj), MockedClass)
+    def test__equality(self):
+        self.assertTrue(self.obj == self.obj)
+        self.assertFalse(self.obj == 2)
+        self.assertFalse(self.obj == self.forge.create_mock(MockedClass))
+    def test__inequality(self):
+        self.assertFalse(self.obj != self.obj)
+        self.assertTrue(self.obj != 2)
+        self.assertTrue(self.obj != self.forge.create_mock(MockedClass))
     def test__setting_mock_object_attributes(self):
         attr_value = self.obj.a = object()
         self.assertIs(self.obj.a, attr_value)
