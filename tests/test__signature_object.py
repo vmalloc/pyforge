@@ -103,6 +103,23 @@ class SignatureTest(TestCase):
             self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).is_method())
             self.assertFalse(FunctionSignature(cls.f_with_args).is_bound())
             self.assertFalse(FunctionSignature(cls.f_with_first_argument_not_self).is_bound())
+    def test__is_class_method(self):
+        class New(object):
+            @classmethod
+            def class_method(cls):
+                raise NotImplementedError()
+            def regular_method(self):
+                raise NotImplementedError()
+        class Old(object):
+            @classmethod
+            def class_method(cls):
+                raise NotImplementedError()
+            def regular_method(self):
+                raise NotImplementedError()
+        self.assertTrue(FunctionSignature(New.class_method).is_class_method())
+        self.assertTrue(FunctionSignature(Old.class_method).is_class_method())
+        self.assertFalse(FunctionSignature(New.regular_method).is_class_method())
+        self.assertFalse(FunctionSignature(Old.regular_method).is_class_method())
     def test__copy(self):
         f = FunctionSignature(lambda a, b: 2)
         f2 = f.copy()

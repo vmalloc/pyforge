@@ -2,7 +2,8 @@ import copy
 import types
 import inspect
 import itertools
-from exceptions import SignatureException, InvalidKeywordArgument, FunctionCannotBeBound
+from exceptions import SignatureException, InvalidKeywordArgument
+from types import ClassType
 from numbers import Number
 from dtypes import NOTHING
 
@@ -22,6 +23,11 @@ class FunctionSignature(object):
         self._build_arguments()
     def is_method(self):
         return isinstance(self.func, types.MethodType)
+    def is_class_method(self):
+        im_self = getattr(self.func, 'im_self', None)
+        if im_self is None:
+            return False
+        return type(im_self) in (type, ClassType)
     def is_bound(self):
         return self.is_method() and self.func.im_self is not None
     def _iter_args_and_defaults(self, args, defaults):
