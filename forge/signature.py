@@ -1,9 +1,8 @@
 import copy
-import types
 import inspect
 import itertools
 from exceptions import SignatureException, InvalidKeywordArgument
-from types import ClassType
+from types import ClassType, MethodType
 from numbers import Number
 from dtypes import NOTHING
 
@@ -22,7 +21,7 @@ class FunctionSignature(object):
         self.func_name = func.__name__
         self._build_arguments()
     def is_method(self):
-        return isinstance(self.func, types.MethodType)
+        return isinstance(self.func, MethodType)
     def is_class_method(self):
         im_self = getattr(self.func, 'im_self', None)
         if im_self is None:
@@ -37,9 +36,9 @@ class FunctionSignature(object):
 
     def _build_arguments(self):
         self._args = []
-        if self._can_function_be_inspected(self.func):
+        try:
             args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
-        else:
+        except TypeError:
             args = []
             varargs_name = 'args'
             kwargs_name = 'kwargs'
@@ -61,11 +60,6 @@ class FunctionSignature(object):
         return None
     def get_arg_names(self):
         return (arg.name for arg in self.get_args())
-    def _can_function_be_inspected(self, func):
-        return type(func) not in [
-            types.BuiltinFunctionType,
-            types.BuiltinMethodType,
-            ]
     def has_variable_args(self):
         return self._varargs_name is not None
     def has_variable_kwargs(self):

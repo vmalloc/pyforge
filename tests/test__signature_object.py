@@ -127,8 +127,12 @@ class SignatureTest(TestCase):
         self.assertIsNot(f._args, f2._args)
 
 class BinaryFunctionSignatureTest(TestCase):
-    def test__dummy_signature(self):
+    def test__binary_global_function(self):
         sig = FunctionSignature(time.time)
         self.assertEquals(sig._args, [])
         self.assertTrue(sig.has_variable_args())
         self.assertTrue(sig.has_variable_kwargs())
+    def test__object_method_placeholders(self):
+        class SomeObject(object):
+            pass
+        sig = FunctionSignature(SomeObject.__ge__)
