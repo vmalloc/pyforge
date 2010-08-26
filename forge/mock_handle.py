@@ -18,7 +18,9 @@ class MockHandle(object):
     def has_attribute(self, attr):
         return False
     def get_attribute(self, attr):
-        raise NotImplementedError()
+        if self.has_method(attr):
+            return self.get_method(attr)
+        raise AttributeError("%s object has no attribute %s" % (self.mocked_class, attr))
     def has_method(self, attr):
         return attr in self._initialized_stubs or hasattr(self.mocked_class, attr)
     def get_method(self, name):
@@ -31,6 +33,10 @@ class MockHandle(object):
             self._bind_if_needed(returned)
             self._initialized_stubs[name] = returned
         return returned
+    def handle_special_method_call(self, name, *args, **kwargs):
+        if not self.has_method(name):
+            raise TypeError("%s instance has no attribute %r" % (self.mocked_class, name))
+        return self.get_method(name)(*args, **kwargs)
     def _bind_if_needed(self, method_stub):
         if method_stub.__forge__.is_bound():
             return

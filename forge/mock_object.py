@@ -9,13 +9,13 @@ class MockObject(object):
     def __class__(self):
         return self.__forge__.mocked_class
     def __getattr__(self, attr):
-        if self.__forge__.has_attribute(attr):
-            return self.__forge__.get_attribute(attr)
-        if self.__forge__.has_method(attr):
-            return self.__forge__.get_method(attr)
-        raise AttributeError("%s object has no attribute %s" % (self.__forge__.mocked_class, attr))
+        return self.__forge__.get_attribute(attr)
     def __hash__(self):
         if not self.__forge__.is_hashable():
             raise MockObjectUnhashable("%s is not hashable!" % (self,))
         return id(self)
-    
+    def __len__(self):
+        return self.__forge__.handle_special_method_call('__len__')
+    def __setitem__(self, item, value):
+        return self.__forge__.handle_special_method_call('__setitem__', item, value)
+
