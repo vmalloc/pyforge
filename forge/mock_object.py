@@ -23,8 +23,11 @@ def _get_special_method_placeholder(name):
 
 
 for special_method_name in [
+    '__delitem__',
+    '__getitem__',
     '__len__',
-    '__setitem__'
+    '__setitem__',
+    '__iter__',
     ]:
     setattr(MockObject, special_method_name,
             _get_special_method_placeholder(special_method_name))

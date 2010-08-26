@@ -10,6 +10,9 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.obj = self.forge.create_mock(self.CTOR([
             Method("__len__(self)"),
             Method("__setitem__(self, item, value)"),
+            Method("__getitem__(self, item)"),
+            Method('__delitem__(self, item)'),
+            Method('__iter__(self)'),
             ]))
     def tearDown(self):
         self.forge.verify()
@@ -34,6 +37,42 @@ class _SpecialMethodsTest(ForgeTestCase):
             self.obj['a'] = 'c'
         self.assertEquals(len(self.forge.queue), 1)
         self.forge.reset()
+    def test__getitem_explicit(self):
+        self.obj.__getitem__(2).and_return(3)
+        self.forge.replay()
+        self.assertEquals(self.obj[2], 3)
+    def test__getitem_implicit(self):
+        self.obj[2].and_return(3)
+        self.forge.replay()
+        self.assertEquals(self.obj[2], 3)
+    def test__getitem_mismatch(self):
+        self.obj[2].and_return(3)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall):
+            self.obj[3]
+        self.assertEquals(len(self.forge.queue), 1)
+        self.forge.reset()
+    def test__delitem_explicit(self):
+        self.obj.__delitem__(2)
+        self.forge.replay()
+        del self.obj[2]
+    def test__delitem_implicit(self):
+        del self.obj[2]
+        self.forge.replay()
+        del self.obj[2]
+    def test__delitem_mismatch(self):
+        del self.obj[2]
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall):
+            del self.obj[3]
+        self.assertEquals(len(self.forge.queue), 1)
+        self.forge.reset()
+    def test__iter(self):
+        expected_result = [1, 3, 4, 5]
+        self.obj.__iter__().and_return(iter(expected_result))
+        self.forge.replay()
+        l = [x for x in self.obj]
+        self.assertEquals(l, expected_result)
 
 class NewStyleSpecialMethodsTest(_SpecialMethodsTest):
     CTOR = staticmethod(build_new_style_class)
@@ -45,16 +84,24 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
         self.forge.verify()
         self.assertNoMoreCalls()
         super(_SpecialMethodAbsenceTest, self).tearDown()
-    def test__len_absence(self):
-        with self.assertRaises(TypeError):
-            self.obj.__len__()
-        with self.assertRaises(TypeError):
-            len(self.obj)
-    def test__setitem_absence(self):
-        with self.assertRaises(TypeError):
-            self.obj.__setitem__('x', 'y')
-        with self.assertRaises(TypeError):
-            self.obj['x'] = 'y'
+
+    def test__special_method_absence(self):
+        for statement in self._get_invalid_statements():
+            with self.assertRaises(TypeError):
+                exec statement
+
+    def _get_invalid_statements(self):
+        return [
+            'len(self.obj)',
+            'self.obj.__setitem__(1, 2)',
+            'self.obj[1] = 2',
+            'self.obj.__getitem__(1)',
+            'self.obj[1]',
+            'del self.obj[1]',
+            'self.obj.__delitem__(1)',
+            'list(self.obj)',
+            'iter(self.obj)',
+            ]
 
 class NewStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
     def setUp(self):
