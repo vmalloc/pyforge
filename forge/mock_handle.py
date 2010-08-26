@@ -33,7 +33,7 @@ class MockHandle(object):
             self._bind_if_needed(returned)
             self._initialized_stubs[name] = returned
         return returned
-    def handle_special_method_call(self, name, *args, **kwargs):
+    def handle_special_method_call(self, name, args, kwargs):
         if not self.has_method(name):
             raise TypeError("%s instance has no attribute %r" % (self.mocked_class, name))
         return self.get_method(name)(*args, **kwargs)

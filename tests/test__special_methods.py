@@ -9,7 +9,7 @@ class _SpecialMethodsTest(ForgeTestCase):
         super(_SpecialMethodsTest, self).setUp()
         self.obj = self.forge.create_mock(self.CTOR([
             Method("__len__(self)"),
-            Method("__setitem__(self, item, value)")
+            Method("__setitem__(self, item, value)"),
             ]))
     def tearDown(self):
         self.forge.verify()

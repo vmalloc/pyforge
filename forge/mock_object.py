@@ -14,8 +14,17 @@ class MockObject(object):
         if not self.__forge__.is_hashable():
             raise MockObjectUnhashable("%s is not hashable!" % (self,))
         return id(self)
-    def __len__(self):
-        return self.__forge__.handle_special_method_call('__len__')
-    def __setitem__(self, item, value):
-        return self.__forge__.handle_special_method_call('__setitem__', item, value)
 
+def _get_special_method_placeholder(name):
+    def placeholder(self, *args, **kwargs):
+        return self.__forge__.handle_special_method_call(name, args, kwargs)
+    placeholder.__name__ = name
+    return placeholder
+
+
+for special_method_name in [
+    '__len__',
+    '__setitem__'
+    ]:
+    setattr(MockObject, special_method_name,
+            _get_special_method_placeholder(special_method_name))
