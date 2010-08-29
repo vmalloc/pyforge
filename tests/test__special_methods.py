@@ -1,3 +1,5 @@
+from cStringIO import StringIO
+from functools import partial
 from ut_utils import ForgeTestCase
 from ut_utils import build_new_style_class
 from ut_utils import build_old_style_class
@@ -125,3 +127,23 @@ class OldStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
     def setUp(self):
         super(OldStyleSpecialMethodsAbsenceTest, self).setUp()
         self.obj = self.forge.create_mock(build_old_style_class())
+
+class CallCornerCasesTest(ForgeTestCase):
+    def test__callable_metaclass(self):
+        class Object(object):
+            class __metaclass__(type):
+                def __call__(self, a, b, c):
+                    return 2
+        obj = self.forge.create_mock(Object)
+        with self.assertRaises(TypeError):
+            obj(1, 2, 3)
+    def test__non_callable_binary_classes(self):
+        obj = self.forge.create_mock(type(StringIO()))
+        with self.assertRaises(TypeError):
+            obj(1, 2, 3)
+    def test__callable_binary_classes(self):
+        obj = self.forge.create_mock(partial)
+        obj(1, 2, 3)
+        self.forge.replay()
+        obj(1, 2, 3)
+

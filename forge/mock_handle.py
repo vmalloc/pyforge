@@ -44,8 +44,15 @@ class MockHandle(object):
             if not self.has_method(name):
                 raise TypeError("%s instance has no attribute %r" % (self.mocked_class, name))
     def is_callable(self):
-        return hasattr(self.mocked_class, "__call__") and getattr(self.mocked_class.__call__, "__objclass__", None) is not type(self.mocked_class)
-
+        if not hasattr(self.mocked_class, "__call__"):
+            return False
+        call_method = self.mocked_class.__call__
+        if getattr(call_method, "__objclass__", None) is type(self.mocked_class):
+            return False
+        if getattr(call_method, "im_self", None) is not None:
+            #__call__ is already bound, for some reason
+            return False
+        return True
     def _bind_if_needed(self, method_stub):
         if method_stub.__forge__.is_bound():
             return
