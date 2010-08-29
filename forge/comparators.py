@@ -99,3 +99,6 @@ class HasAttributeValue(Comparator):
         except AttributeError:
             return False
 
+class Anything(Comparator):
+    def equals(self, other):
+        return True

@@ -113,3 +113,13 @@ class HasAttributeValueTest(_ComparatorTest):
             yield HasAttributeValue('a', 3), obj
         yield HasAttributeValue('bla', 2), Object()
         yield HasAttributeValue('bloop', 2), dict(bloop=2)
+
+class AnythingTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield Anything(), object
+        yield Anything(), object()
+        yield Anything(), 2
+        yield Anything(), "bla"
+        yield Anything(), Anything()
+    def _get_unequal_pairs(self):
+        return ()
