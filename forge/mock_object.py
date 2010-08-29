@@ -28,6 +28,7 @@ for special_method_name in [
     '__setitem__',
     '__iter__',
     '__call__',
+    '__contains__',
     ]:
     setattr(MockObject, special_method_name,
             _get_special_method_placeholder(special_method_name))

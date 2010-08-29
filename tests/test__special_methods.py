@@ -15,7 +15,8 @@ class _SpecialMethodsTest(ForgeTestCase):
             Method("__getitem__(self, item)"),
             Method('__delitem__(self, item)'),
             Method('__iter__(self)'),
-            Method('__call__(self, a, b, c)')
+            Method('__call__(self, a, b, c)'),
+            Method('__contains__(self, item)'),
             ]))
     def tearDown(self):
         self.forge.verify()
@@ -87,6 +88,20 @@ class _SpecialMethodsTest(ForgeTestCase):
             self.obj(1, 2, c=4)
         self.assertEquals(len(self.forge.queue), 1)
         self.forge.reset()
+    def test__contains_explicit(self):
+        self.obj.__contains__(2).and_return(True)
+        self.obj.__contains__(2).and_return(False)
+        self.forge.replay()
+        self.assertTrue(2 in self.obj)
+        self.assertFalse(2 in self.obj)
+    def test__contains_mismatch(self):
+        self.obj.__contains__(2).and_return(True)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall):
+            3 in self.obj
+        self.assertEquals(len(self.forge.queue), 1)
+        self.forge.reset()
+
 
 class NewStyleSpecialMethodsTest(_SpecialMethodsTest):
     CTOR = staticmethod(build_new_style_class)
@@ -116,7 +131,8 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
             'list(self.obj)',
             'iter(self.obj)',
             'self.obj(1, 2, 3)',
-            'self.obj()'
+            'self.obj()',
+            '3 in self.obj'
             ]
 
 class NewStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
