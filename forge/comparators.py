@@ -102,3 +102,26 @@ class HasAttributeValue(Comparator):
 class Anything(Comparator):
     def equals(self, other):
         return True
+
+class And(Comparator):
+    def __init__(self, *comparators):
+        super(And, self).__init__()
+        if not comparators:
+            raise TypeError("At least one comparator must be specified for And()")
+        self.comparators = comparators
+    def equals(self, other):
+        return all(c.equals(other) for c in self.comparators)
+class Or(Comparator):
+    def __init__(self, *comparators):
+        super(Or, self).__init__()
+        if not comparators:
+            raise TypeError("At least one comparator must be specified for Or()")
+        self.comparators = comparators
+    def equals(self, other):
+        return any(c.equals(other) for c in self.comparators)
+class Not(Comparator):
+    def __init__(self, comparator):
+        super(Not, self).__init__()
+        self.comparator = comparator
+    def equals(self, other):
+        return not self.comparator.equals(other)

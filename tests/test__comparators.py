@@ -123,3 +123,34 @@ class AnythingTest(_ComparatorTest):
         yield Anything(), Anything()
     def _get_unequal_pairs(self):
         return ()
+
+class AndTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield And(IsA(basestring), Contains('a')), "Boa"
+        yield And(IsA(basestring), Contains('a'), Contains('g')), "Bga"
+        yield And(IsA(int)), 2
+    def _get_unequal_pairs(self):
+        yield And(IsA(basestring), Contains('a')), 2
+        yield And(IsA(basestring), Contains('a'), Contains('g')), "Boa"
+        yield And(IsA(int)), "a"
+    def test__empty_and(self):
+        with self.assertRaises(TypeError):
+            And()
+class OrTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield Or(IsA(basestring), IsA(int)), "a"
+        yield Or(Anything(), IsA(basestring)), 2
+        yield Or(IsA(basestring), Anything()), 2
+    def _get_unequal_pairs(self):
+        yield Or(IsA(basestring), IsA(int)), 2.0
+    def test__empty_or(self):
+        with self.assertRaises(TypeError):
+            Or()
+
+class NotTest(_ComparatorTest):
+    def _get_equal_pairs(self):
+        yield Not(IsA(int)), "a"
+    def _get_unequal_pairs(self):
+        yield Not(Anything()), 2
+        yield Not(Anything()), object()
+
