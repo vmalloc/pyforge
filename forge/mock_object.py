@@ -34,6 +34,7 @@ for special_method_name in [
     '__iter__',
     '__call__',
     '__contains__',
+    '__enter__', '__exit__',
     ]:
     setattr(MockObject, special_method_name,
             _get_special_method_placeholder(special_method_name))
