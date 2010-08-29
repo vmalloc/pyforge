@@ -12,7 +12,7 @@ class FunctionCall(object):
         self._raised_exception = NOTHING
     def matches_call(self, target, args, kwargs):
         return self.target is target and self.target.__forge__.signature.get_normalized_args(args, kwargs) == self.args
-    def __str__(self):
+    def __repr__(self):
         return "<Function call: %s(%s)" % (self.target, self._get_argument_string())
     def _get_argument_string(self):
         args = ["%s=%s" % (arg_name, value) for arg_name, value in sorted(self.args.iteritems())

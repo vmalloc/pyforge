@@ -8,4 +8,6 @@ class FunctionStub(object):
         self.__doc__ = original.__doc__
     def __call__(self, *args, **kwargs):
         return self.__forge__.handle_call(args, kwargs)
+    def __repr__(self):
+        return "<Stub for function %r>" % (self.__name__,)
 

@@ -4,9 +4,9 @@ from ut_utils import ForgeTestCase
 class RecordReplayTest(ForgeTestCase):
     def setUp(self):
         super(RecordReplayTest, self).setUp()
-        def f(a, b, c):
+        def some_function(a, b, c):
             raise NotImplementedError()
-        self.stub = self.forge.create_function_stub(f)
+        self.stub = self.forge.create_function_stub(some_function)
     def tearDown(self):
         self.assertNoMoreCalls()
         super(RecordReplayTest, self).tearDown()
@@ -51,6 +51,21 @@ class RecordReplayTest(ForgeTestCase):
         self.assertIs(caught.exception.got.target, self.stub)
         self.assertNoMoreCalls()
         self.forge.verify()
+    def test__naming_stubs(self):
+        def some_other_function():
+            raise NotImplementedError()
+        stub2 = self.forge.create_function_stub(some_other_function)
+        self.stub(1, 2, 3)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall) as caught:
+            stub2()
+        exc = caught.exception
+        for r in (str, repr):
+            self.assertIn('some_function', r(exc.expected))
+            self.assertIn('some_other_function', r(exc.got))
+        self.assertIn('some_function', str(exc))
+        self.assertIn('some_other_function', str(exc))
+        self.forge.reset()
     def assertExpectedNotMet(self, stubs):
         self.assertGreater(len(stubs), 0)
         with self.assertRaises(ExpectedCallsNotFound) as caught:
