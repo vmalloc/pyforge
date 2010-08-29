@@ -13,6 +13,7 @@ class _SpecialMethodsTest(ForgeTestCase):
             Method("__getitem__(self, item)"),
             Method('__delitem__(self, item)'),
             Method('__iter__(self)'),
+            Method('__call__(self, a, b, c)')
             ]))
     def tearDown(self):
         self.forge.verify()
@@ -73,6 +74,17 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.forge.replay()
         l = [x for x in self.obj]
         self.assertEquals(l, expected_result)
+    def test__call(self):
+        self.obj(1, 2, c=3).and_return(5)
+        self.forge.replay()
+        self.assertEquals(self.obj(1, 2, c=3), 5)
+    def test__call_mismatch(self):
+        self.obj(1, 2, c=3).and_return(5)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall):
+            self.obj(1, 2, c=4)
+        self.assertEquals(len(self.forge.queue), 1)
+        self.forge.reset()
 
 class NewStyleSpecialMethodsTest(_SpecialMethodsTest):
     CTOR = staticmethod(build_new_style_class)
@@ -101,6 +113,8 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
             'self.obj.__delitem__(1)',
             'list(self.obj)',
             'iter(self.obj)',
+            'self.obj(1, 2, 3)',
+            'self.obj()'
             ]
 
 class NewStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):

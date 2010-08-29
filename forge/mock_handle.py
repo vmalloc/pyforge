@@ -34,9 +34,18 @@ class MockHandle(object):
             self._initialized_stubs[name] = returned
         return returned
     def handle_special_method_call(self, name, args, kwargs):
-        if not self.has_method(name):
-            raise TypeError("%s instance has no attribute %r" % (self.mocked_class, name))
+        self._check_special_method_call(name, args, kwargs)
         return self.get_method(name)(*args, **kwargs)
+    def _check_special_method_call(self, name, args, kwargs):
+        if name == '__call__':
+            if not self.is_callable():
+                raise TypeError("%s instance is not callable!" % (self.mocked_class,))
+        else:
+            if not self.has_method(name):
+                raise TypeError("%s instance has no attribute %r" % (self.mocked_class, name))
+    def is_callable(self):
+        return hasattr(self.mocked_class, "__call__") and getattr(self.mocked_class.__call__, "__objclass__", None) is not type(self.mocked_class)
+
     def _bind_if_needed(self, method_stub):
         if method_stub.__forge__.is_bound():
             return
