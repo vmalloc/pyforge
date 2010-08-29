@@ -17,6 +17,7 @@ class _SpecialMethodsTest(ForgeTestCase):
             Method('__iter__(self)'),
             Method('__call__(self, a, b, c)'),
             Method('__contains__(self, item)'),
+            Method('__nonzero__(self)'),
             ]))
     def tearDown(self):
         self.forge.verify()
@@ -101,6 +102,10 @@ class _SpecialMethodsTest(ForgeTestCase):
             3 in self.obj
         self.assertEquals(len(self.forge.queue), 1)
         self.forge.reset()
+    def test__boolean(self):
+        self.obj.__nonzero__().and_return(False)
+        self.forge.replay()
+        self.assertFalse(self.obj)
 
 
 class NewStyleSpecialMethodsTest(_SpecialMethodsTest):
@@ -118,6 +123,9 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
         for statement in self._get_invalid_statements():
             with self.assertRaises(TypeError):
                 exec statement
+
+    def test__boolean(self):
+        self.assertTrue(self.obj)
 
     def _get_invalid_statements(self):
         return [

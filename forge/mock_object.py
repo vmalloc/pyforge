@@ -14,6 +14,11 @@ class MockObject(object):
         if not self.__forge__.is_hashable():
             raise MockObjectUnhashable("%s is not hashable!" % (self,))
         return id(self)
+    def __nonzero__(self):
+        try:
+            return self.__forge__.handle_special_method_call('__nonzero__', (), {})
+        except TypeError:
+            return True
 def _get_special_method_placeholder(name):
     def placeholder(self, *args, **kwargs):
         return self.__forge__.handle_special_method_call(name, args, kwargs)
