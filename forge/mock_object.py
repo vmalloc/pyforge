@@ -3,14 +3,13 @@ from exceptions import MockObjectUnhashable
 from exceptions import UnexpectedCall
 
 class MockObject(object):
-    def __init__(self, forge, mocked_class):
-        super(MockObject, self).__init__()
-        self.__forge__ = MockHandle(forge, self, mocked_class)
-    @property
-    def __class__(self):
-        return self.__forge__.mocked_class
     def __getattr__(self, attr):
         return self.__forge__.get_attribute(attr)
+    def __setattr__(self, attr, value):
+        if attr == '__forge__':
+            self.__dict__[attr] = value
+        else:
+            self.__forge__.set_attribute(attr, value)
     def __hash__(self):
         if not self.__forge__.is_hashable():
             raise MockObjectUnhashable("%s is not hashable!" % (self,))

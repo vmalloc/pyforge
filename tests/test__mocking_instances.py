@@ -43,6 +43,18 @@ class MockingTest(ForgeTestCase):
         self.assertIs(self.obj.a, attr_value)
         self.forge.replay()
         self.assertIs(self.obj.a, attr_value)
+    def test__setting_mock_object_attributes_during_replay(self):
+        self.forge.replay()
+        with self.assertRaises(AttributeError):
+            self.obj.a = 2
+    def test__setting_mock_object_attributes_during_replay_even_if_set_during_record(self):
+        self.obj.a = 2
+        self.forge.replay()
+        with self.assertRaises(AttributeError):
+            self.obj.a = 2
+        with self.assertRaises(AttributeError):
+            self.obj.a = 3
+
     def test__getattr_of_nonexisting_attr_during_replay(self):
         self.forge.replay()
         with self.assertRaises(AttributeError):

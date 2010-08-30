@@ -1,6 +1,7 @@
 from .stub import FunctionStub
 from .queue import ForgeQueue
-from .mock_object import MockObject
+from .instance_mock_object import InstanceMockObject
+from .wildcard_mock_object import WildcardMockObject
 from .stub_manager import StubManager
 from .sentinel import Sentinel
 
@@ -28,7 +29,9 @@ class Forge(object):
     def create_method_stub(self, method):
         return FunctionStub(self, method)
     def create_mock(self, mocked_class):
-        return MockObject(self, mocked_class)
+        return InstanceMockObject(self, mocked_class)
+    def create_wildcard_mock(self):
+        return WildcardMockObject(self)
     def create_sentinel(self, name=None):
         return Sentinel(name)
 
