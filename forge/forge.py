@@ -2,6 +2,7 @@ from .stub import FunctionStub
 from .queue import ForgeQueue
 from .mock_object import MockObject
 from .stub_manager import StubManager
+from .sentinel import Sentinel
 
 class Forge(object):
     def __init__(self):
@@ -28,6 +29,8 @@ class Forge(object):
         return FunctionStub(self, method)
     def create_mock(self, mocked_class):
         return MockObject(self, mocked_class)
+    def create_sentinel(self, name=None):
+        return Sentinel(name)
 
     def replace_with_stub(self, obj, method_name):
         return self.stubs.replace_with_stub(obj, method_name)
