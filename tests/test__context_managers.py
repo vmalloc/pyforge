@@ -7,7 +7,6 @@ class ContextManager(object):
     def __exit__(self, t, v, tb):
         raise NotImplementedError()
 
-
 class ContextManagerTest(ForgeTestCase):
     def setUp(self):
         super(ContextManagerTest, self).setUp()
@@ -39,3 +38,19 @@ class ContextManagerTest(ForgeTestCase):
         self.assertIsNotNone(caught.got.args['tb'])
         self.assertEquals(len(self.forge.queue), 2)
         self.forge.reset()
+    def test__expecting_context_with_unexpected_call_inside(self):
+        stub = self.forge.create_function_stub(lambda arg: None)
+        with self.obj:
+            stub(1)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall) as caught:
+            with self.obj:
+                stub(2)
+        caught = caught.exception
+        self.assertIs(caught.expected.target, stub)
+        self.assertIs(caught.got.target, stub)
+        self.assertIs(caught.expected.args['arg'], 1)
+        self.assertIs(caught.got.args['arg'], 2)
+        self.assertEquals(len(self.forge.queue), 2)
+        self.forge.reset()
+

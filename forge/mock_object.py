@@ -1,5 +1,6 @@
 from mock_handle import MockHandle
 from exceptions import MockObjectUnhashable
+from exceptions import UnexpectedCall
 
 class MockObject(object):
     def __init__(self, forge, mocked_class):
@@ -19,6 +20,10 @@ class MockObject(object):
             return self.__forge__.handle_special_method_call('__nonzero__', (), {})
         except TypeError:
             return True
+    def __exit__(self, *args):
+        if self.__forge__.forge.is_replaying() and isinstance(args[1], UnexpectedCall):
+            return
+        return self.__forge__.handle_special_method_call('__exit__', args, {})
 def _get_special_method_placeholder(name):
     def placeholder(self, *args, **kwargs):
         return self.__forge__.handle_special_method_call(name, args, kwargs)
@@ -34,7 +39,7 @@ for special_method_name in [
     '__iter__',
     '__call__',
     '__contains__',
-    '__enter__', '__exit__',
+    '__enter__',
     ]:
     setattr(MockObject, special_method_name,
             _get_special_method_placeholder(special_method_name))
