@@ -1,12 +1,11 @@
 from mock_handle import MockHandle
-
-WILDCARD = lambda *args, **kwargs: None
+from dtypes import WILDCARD_FUNCTION
 
 class WildcardMockHandle(MockHandle):
     def _has_method(self, name):
         return True
     def _get_real_method(self, name):
-        return WILDCARD
+        return WILDCARD_FUNCTION
     def has_nonmethod_class_member(self, name):
         return False
 

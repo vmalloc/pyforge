@@ -6,6 +6,17 @@ class WildcardTest(ForgeTestCase):
         self.forge.verify()
         self.assertNoMoreCalls()
         super(WildcardTest, self).tearDown()
+    def test__wildcard_functions(self):
+        wcf = self.forge.create_wildcard_function_stub()
+        self._do_all_sorts_of_calls(wcf)
+        self.forge.replay()
+        self._do_all_sorts_of_calls(wcf)
+    def _do_all_sorts_of_calls(self, func):
+        func(1, 2, 3)
+        func(1, 2)
+        func()
+        func(a=2)
+        func(1, 2, a=2, d=3)
     def test__wildcard_record_replay(self):
         wc = self.forge.create_wildcard_mock()
         wc.f(1, 2, 3)

@@ -4,6 +4,7 @@ from .instance_mock_object import InstanceMockObject
 from .wildcard_mock_object import WildcardMockObject
 from .stub_manager import StubManager
 from .sentinel import Sentinel
+from .dtypes import WILDCARD_FUNCTION
 
 class Forge(object):
     def __init__(self):
@@ -26,6 +27,8 @@ class Forge(object):
 
     def create_function_stub(self, func):
         return FunctionStub(self, func)
+    def create_wildcard_function_stub(self):
+        return self.create_function_stub(WILDCARD_FUNCTION)
     def create_method_stub(self, method):
         return FunctionStub(self, method)
     def create_mock(self, mocked_class):
