@@ -45,3 +45,15 @@ class WildcardTest(ForgeTestCase):
             wc.a = 3
         with self.assertRaises(AttributeError):
             wc.b = 3
+    def test__special_methods_ok(self):
+        wc = self.forge.create_wildcard_mock()
+        f = self.forge.create_wildcard_function_stub()
+        with wc:
+            f()
+        wc.__len__().and_return(666)
+        wc.__iter__().and_return(iter(xrange(10)))
+        self.forge.replay()
+        with wc:
+            f()
+        self.assertEquals(len(wc), 666)
+        self.assertEquals([x for x in wc], range(10))

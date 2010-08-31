@@ -8,4 +8,6 @@ class WildcardMockHandle(MockHandle):
         return WILDCARD_FUNCTION
     def has_nonmethod_class_member(self, name):
         return False
+    def _check_special_method_call(self, *_, **__):
+        pass
 
