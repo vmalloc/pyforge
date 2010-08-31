@@ -7,3 +7,6 @@ class WildcardMockHandle(MockHandle):
         return True
     def _get_real_method(self, name):
         return WILDCARD
+    def has_nonmethod_class_member(self, name):
+        return False
+

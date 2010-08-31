@@ -19,6 +19,8 @@ class MockHandle(object):
     def get_attribute(self, attr):
         if attr in self._attributes:
             return self._attributes[attr]
+        if self.has_nonmethod_class_member(attr):
+            return self.get_nonmethod_class_member(attr)
         if self.has_method(attr):
             return self.get_method(attr)
         raise AttributeError("%s has no attribute %s" % (self, attr))
@@ -29,6 +31,10 @@ class MockHandle(object):
     def has_method(self, attr):
         return attr in self._initialized_stubs or self._has_method(attr)
     def _has_method(self, name):
+        raise NotImplementedError()
+    def has_nonmethod_class_member(self, name):
+        raise NotImplementedError()
+    def get_nonmethod_class_member(self, name):
         raise NotImplementedError()
     def get_method(self, name):
         returned = self._initialized_stubs.get(name)

@@ -5,6 +5,7 @@ from forge import SignatureException
 from forge import MockObjectUnhashable
 
 class MockedClass(object):
+    class_variable = 2
     def some_method(self):
         raise NotImplementedError()
 class MockingTest(ForgeTestCase):
@@ -67,7 +68,20 @@ class MockingTest(ForgeTestCase):
         self.forge.replay()
         with self.assertRaises(UnauthorizedMemberAccess):
             self.obj.some_method
-
+    def test__getattr_of_class_variables_during_record(self):
+        self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
+    def test__getattr_of_class_variables_during_replay(self):
+        self.forge.replay()
+        self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
+    def test__setattr_of_class_variables_during_record(self):
+        self.obj.class_variable = 300
+        self.assertEquals(self.obj.class_variable, 300)
+        self.forge.replay()
+        self.assertEquals(self.obj.class_variable, 300)
+    def test__setattr_of_class_variables_during_replay(self):
+        self.forge.replay()
+        with self.assertRaises(AttributeError):
+            self.obj.class_variable = 300
 class MockingCornerCasesTest(ForgeTestCase):
     def _test__calling_method_cannot_be_called_bound(self, cls):
         m = self.forge.create_mock(cls)

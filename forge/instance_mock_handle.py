@@ -1,5 +1,7 @@
 from mock_handle import MockHandle
 from .dtypes import NOTHING
+from types import FunctionType
+from types import MethodType
 
 class InstanceMockHandle(MockHandle):
     def __init__(self, forge, mock, mocked_class):
@@ -10,6 +12,13 @@ class InstanceMockHandle(MockHandle):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):
         return getattr(self.mocked_class, name, NOTHING)
+    def has_nonmethod_class_member(self, name):
+        value = getattr(self.mocked_class, name, NOTHING)
+        if value is NOTHING:
+            return False
+        return type(value) not in (FunctionType, MethodType)
+    def get_nonmethod_class_member(self, name):
+        return getattr(self.mocked_class, name)
     def _check_special_method_call(self, name, args, kwargs):
         if name == '__call__':
             if not self.is_callable():
