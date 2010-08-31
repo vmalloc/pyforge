@@ -3,6 +3,8 @@ from exceptions import MockObjectUnhashable
 from exceptions import UnexpectedCall
 
 class MockObject(object):
+    def __repr__(self):
+        return "<%s mock 0x%x>" % (self.__forge__.mocked_class, id(self))
     def __getattr__(self, attr):
         return self.__forge__.get_attribute(attr)
     def __setattr__(self, attr, value):
