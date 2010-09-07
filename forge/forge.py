@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from .stub import FunctionStub
 from .queue import ForgeQueue
 from .instance_mock_object import InstanceMockObject
@@ -20,6 +21,12 @@ class Forge(object):
     def reset(self):
         self._is_replaying = False
         self.queue = ForgeQueue(self)
+    @contextmanager
+    def verified_replay_context(self):
+        self.replay()
+        yield
+        self.verify()
+        self.reset()
     def pop_expected_call(self):
         return self.queue.pop()
     def verify(self):
@@ -37,7 +44,6 @@ class Forge(object):
         return WildcardMockObject(self)
     def create_sentinel(self, name=None):
         return Sentinel(name)
-
     def replace_with_stub(self, obj, method_name):
         return self.stubs.replace_with_stub(obj, method_name)
     def restore_all_stubs(self):

@@ -1,4 +1,5 @@
 from ut_utils import ForgeTestCase
+from ut_utils import Checkpoint
 from forge import ConflictingActions
 from forge.dtypes import NOTHING
 
@@ -62,8 +63,3 @@ class ActionsTest(ForgeTestCase):
         rv = self.stub(1, 2, 3, d=4)
         self.assertEquals(rv, return_value)
         self.assertTrue(cp.called)
-
-class Checkpoint(object):
-    called = False
-    def trigger(self):
-        self.called = True

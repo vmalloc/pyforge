@@ -53,3 +53,8 @@ def resets_forge_at_end(func):
         self.assertNoMoreCalls()
         self.forge.reset()
     return new_func
+
+class Checkpoint(object):
+    called = False
+    def trigger(self):
+        self.called = True
