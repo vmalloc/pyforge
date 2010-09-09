@@ -12,6 +12,8 @@ class InstanceMockHandle(MockHandle):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):
         return getattr(self.mocked_class, name, NOTHING)
+    def _check_unrecorded_method_getting(self, name):
+        pass # unrecorded methods can be obtained, but not called...
     def has_nonmethod_class_member(self, name):
         value = getattr(self.mocked_class, name, NOTHING)
         if value is NOTHING:

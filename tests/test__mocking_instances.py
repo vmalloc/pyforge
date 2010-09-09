@@ -64,10 +64,9 @@ class MockingTest(ForgeTestCase):
         with self.assertRaises(AttributeError):
             # a private case of the above, just making a point
             self.obj.nonexisting_method()
-    def test__getattr_of_methods_during_replay(self):
+    def test__getattr_of_real_methods_during_replay(self):
         self.forge.replay()
-        with self.assertRaises(UnauthorizedMemberAccess):
-            self.obj.some_method
+        self.obj.some_method
     def test__getattr_of_class_variables_during_record(self):
         self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
     def test__getattr_of_class_variables_during_replay(self):

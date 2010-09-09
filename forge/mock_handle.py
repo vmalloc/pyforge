@@ -39,13 +39,15 @@ class MockHandle(object):
     def get_method(self, name):
         returned = self._initialized_stubs.get(name)
         if returned is None:
-            if not self.forge.is_recording():
-                raise UnauthorizedMemberAccess(self.mock, name)
             real_method = self._get_real_method(name)
+            if not self.forge.is_recording():
+                self._check_unrecorded_method_getting(name)
             returned = self.forge.create_method_stub(real_method)
             self._bind_if_needed(returned)
             self._initialized_stubs[name] = returned
         return returned
+    def _check_unrecorded_method_getting(self, name):
+        raise NotImplementedError()
     def _get_real_method(self, name):
         raise NotImplementedError()
     def handle_special_method_call(self, name, args, kwargs):

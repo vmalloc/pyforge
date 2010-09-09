@@ -41,18 +41,10 @@ class RecordReplayTest(ForgeTestCase):
         self.forge.replay()
         self.assertExpectedNotMet([self.stub])
 
-    def test__replay_queue_empty_after_calls(self):
-        self.stub(1, 2, 3)
-        self.forge.replay()
-        self.stub(1, 2, 3)
-        with self.assertRaises(UnexpectedCall) as caught:
-            self.stub(1, 2, 3)
-        self.assertIs(caught.exception.expected, None)
-        self.assertIs(caught.exception.got.target, self.stub)
-        self.assertNoMoreCalls()
-        self.forge.verify()
     def test__replay_queue_empty(self):
+        self.stub(1, 2, 3)
         self.forge.replay()
+        self.stub(1, 2, 3)
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 3)
         self.assertIs(caught.exception.expected, None)
