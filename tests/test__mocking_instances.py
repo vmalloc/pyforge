@@ -1,6 +1,6 @@
+from numbers import Number
 from ut_utils import ForgeTestCase
 from forge.mock_handle import MockHandle
-from forge import UnauthorizedMemberAccess
 from forge import SignatureException
 from forge import MockObjectUnhashable
 
@@ -27,6 +27,7 @@ class MockingTest(ForgeTestCase):
         self.assertIs(self.obj.__forge__.forge, self.forge)
         self.assertIs(self.obj.__forge__.mock, self.obj)
         self.assertIs(self.obj.__forge__.mocked_class, MockedClass)
+        self.assertIsInstance(self.obj.__forge__.id, Number)
     def test__class_attribute(self):
         self.assertIs(self.obj.__class__, MockedClass)
         self.assertIsInstance(self.obj, MockedClass)

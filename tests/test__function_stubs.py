@@ -1,3 +1,4 @@
+from numbers import Number
 from ut_utils import ForgeTestCase
 from forge.stub import FunctionStub
 from forge.stub_handle import StubHandle
@@ -14,6 +15,8 @@ class FunctionStubAttributesTest(ForgeTestCase):
         self.assertEquals(self.stub.__name__, some_function.__name__)
     def test__doc(self):
         self.assertEquals(self.stub.__doc__, some_function.__doc__)
+    def test__stub_id(self):
+        self.assertIsInstance(self.stub.__forge__.id, Number)
     def test__str_repr(self):
         self.assertIn('some_function', str(self.stub))
         self.assertIn('some_function', repr(self.stub))

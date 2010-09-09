@@ -1,10 +1,10 @@
+from handle import ForgeHandle
 from signature import FunctionSignature
 from exceptions import SignatureException
 
-class StubHandle(object):
+class StubHandle(ForgeHandle):
     def __init__(self, forge, stub, original):
-        super(StubHandle, self).__init__()
-        self.forge = forge
+        super(StubHandle, self).__init__(forge)
         self.stub = stub
         self.original = original
         self.signature = FunctionSignature(self.original)

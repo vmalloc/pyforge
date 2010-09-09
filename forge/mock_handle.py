@@ -1,10 +1,8 @@
-from exceptions import UnauthorizedMemberAccess
+from handle import ForgeHandle
 
-class MockHandle(object):
+class MockHandle(ForgeHandle):
     def __init__(self, forge, mock):
-        super(MockHandle, self).__init__()
-        self.forge = forge
-        self.id = self.forge.get_new_mock_id()
+        super(MockHandle, self).__init__(forge)
         self.mock = mock
         self._attributes = {}
         self._is_hashable = False
