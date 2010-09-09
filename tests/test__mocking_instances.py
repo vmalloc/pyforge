@@ -45,6 +45,9 @@ class MockingTest(ForgeTestCase):
         self.assertIs(self.obj.a, attr_value)
         self.forge.replay()
         self.assertIs(self.obj.a, attr_value)
+        self.forge.reset()
+        with self.assertRaises(AttributeError):
+            self.obj.a
     def test__setting_mock_object_attributes_during_replay(self):
         self.forge.replay()
         with self.assertRaises(AttributeError):

@@ -15,8 +15,8 @@ class MockHandle(ForgeHandle):
     def has_attribute(self, attr):
         return False
     def get_attribute(self, attr):
-        if attr in self._attributes:
-            return self._attributes[attr]
+        if self.forge.attributes.has_attribute(self.mock, attr):
+            return self.forge.attributes.get_attribute(self.mock, attr)
         if self.has_nonmethod_class_member(attr):
             return self.get_nonmethod_class_member(attr)
         if self.has_method(attr):
@@ -25,7 +25,7 @@ class MockHandle(ForgeHandle):
     def set_attribute(self, attr, value):
         if not self.forge.is_recording():
             raise AttributeError("Cannot set attribute %r" % (attr,))
-        self._attributes[attr] = value
+        self.forge.attributes.set_attribute(self.mock, attr, value)
     def has_method(self, attr):
         return self.forge.stubs.has_initialized_method_stub(self.mock, attr) or self._has_method(attr)
     def _has_method(self, name):

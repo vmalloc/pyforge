@@ -6,6 +6,7 @@ from .instance_mock_object import InstanceMockObject
 from .wildcard_mock_object import WildcardMockObject
 from .stub_installer import StubInstaller
 from .stub_manager import StubManager
+from .attribute_manager import AttributeManager
 from .sentinel import Sentinel
 from .dtypes import WILDCARD_FUNCTION
 
@@ -27,6 +28,7 @@ class Forge(object):
         self._is_replaying = False
         self.queue = ForgeQueue(self)
         self.stubs = StubManager(self)
+        self.attributes = AttributeManager(self)
     @contextmanager
     def verified_replay_context(self):
         self.replay()
