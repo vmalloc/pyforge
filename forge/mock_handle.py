@@ -4,6 +4,7 @@ class MockHandle(object):
     def __init__(self, forge, mock):
         super(MockHandle, self).__init__()
         self.forge = forge
+        self.id = self.forge.get_new_mock_id()
         self.mock = mock
         self._initialized_stubs = {}
         self._attributes = {}

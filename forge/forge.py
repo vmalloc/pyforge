@@ -1,3 +1,4 @@
+import itertools
 from contextlib import contextmanager
 from .stub import FunctionStub
 from .queue import ForgeQueue
@@ -12,6 +13,9 @@ class Forge(object):
         super(Forge, self).__init__()
         self.stubs = StubManager(self)
         self.reset()
+        self._id_allocator = itertools.count()
+    def get_new_mock_id(self):
+        return self._id_allocator.next()
     def is_replaying(self):
         return self._is_replaying
     def is_recording(self):
