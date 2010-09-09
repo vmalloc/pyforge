@@ -17,7 +17,9 @@ class StubHandle(ForgeHandle):
         self._obj = obj
     def handle_call(self, args, kwargs):
         if self.forge.is_recording():
-            return self._handle_recorded_call(args, kwargs)
+            returned = self._handle_recorded_call(args, kwargs)
+            self.forge.stubs.mark_stub_recorded(self.stub)
+            return returned
         else:
             return self._handle_replay_call(args, kwargs)
     def _handle_recorded_call(self, args, kwargs):
@@ -36,3 +38,6 @@ class StubHandle(ForgeHandle):
         return args, kwargs
     def is_bound(self):
         return self._obj is not None or self.signature.is_bound()
+    def has_recorded_calls(self):
+        return self.forge.stubs.was_stub_recorded(self.stub)
+

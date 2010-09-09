@@ -27,4 +27,15 @@ class FunctionStubAttributesTest(ForgeTestCase):
         self.assertIsInstance(stub.__forge__, StubHandle)
         self.assertIs(stub.__forge__.stub, stub)
         self.assertIs(stub.__forge__.forge, self.forge)
-
+    def test__stub_record_marker(self):
+        stub = FunctionStub(self.forge, some_function)
+        self.assertFalse(stub.__forge__.has_recorded_calls())
+        stub()
+        self.assertTrue(stub.__forge__.has_recorded_calls())
+        self.forge.replay()
+        stub()
+        self.assertTrue(stub.__forge__.has_recorded_calls())
+        self.forge.verify()
+        self.assertTrue(stub.__forge__.has_recorded_calls())
+        self.forge.reset()
+        self.assertFalse(stub.__forge__.has_recorded_calls())
