@@ -69,6 +69,10 @@ When expecting a call on a stub, you can control what happens *when* the call ta
 
    my_stub(1, 2, 3).and_call(callback)
 
+- calling another function with certain arguments/keyword arguments::
+
+   my_stub(1, 2, 3).and_call(callback, args=(100, 200), kwargs={'some_arg':20})
+
 - calling another function (with the arguments of the call)::
 
    my_stub(1, 2, 3).and_call_with_args(callback)

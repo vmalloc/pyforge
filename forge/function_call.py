@@ -21,8 +21,10 @@ class FunctionCall(object):
                                                         if not isinstance(k, basestring)))
         return ", ".join(args)
 
-    def and_call(self, func):
-        self._call_funcs.append(func)
+    def and_call(self, func, args=(), kwargs=None):
+        if kwargs is None:
+            kwargs = {}
+        self._call_funcs.append((func, list(args), kwargs))
         return self
     def and_call_with_args(self, func):
         self._call_funcs_with_args.append(func)
@@ -39,8 +41,8 @@ class FunctionCall(object):
         self._return_value = rv
         return rv
     def do_side_effects(self, args, kwargs):
-        for call_func in self._call_funcs:
-            call_func()
+        for call_func, args, kwargs in self._call_funcs:
+            call_func(*args, **kwargs)
         for call_func in self._call_funcs_with_args:
             call_func(*args, **kwargs)
         if self._raised_exception is not NOTHING:

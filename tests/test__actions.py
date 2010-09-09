@@ -50,6 +50,19 @@ class ActionsTest(ForgeTestCase):
         rv = self.stub(1, 2, 3)
         self.assertEquals(rv, return_value)
         self.assertTrue(cp.called)
+    def test__and_call__specify_args_kwargs(self):
+        return_value = 666
+        cp = Checkpoint()
+        def callback(a, b, c, d):
+            self.assertEquals((a, b, c, d), (1, 2, 3, 4))
+            cp.trigger()
+        rv = self.stub(1, 2, 3).and_call(callback, args=(1, 2, 3), kwargs=dict(d=4)).and_return(return_value)
+        self.assertEquals(rv, return_value)
+        self.forge.replay()
+        rv = self.stub(1, 2, 3)
+        self.assertEquals(rv, return_value)
+        self.assertTrue(cp.called)
+
     def test__and_call_with_args(self):
         return_value = 666
         cp = Checkpoint()
