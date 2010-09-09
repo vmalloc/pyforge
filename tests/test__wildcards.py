@@ -1,5 +1,4 @@
 from ut_utils import ForgeTestCase
-from forge import UnauthorizedMemberAccess
 
 class WildcardTest(ForgeTestCase):
     def tearDown(self):
@@ -27,13 +26,14 @@ class WildcardTest(ForgeTestCase):
     def test__wildcard_access_to_unrecorded_methods(self):
         wc = self.forge.create_wildcard_mock()
         self.forge.replay()
-        with self.assertRaises(UnauthorizedMemberAccess):
+        with self.assertRaises(AttributeError):
             wc.f
     def test__wildcard_access_to_unrecorded_methods_getattr_in_record(self):
         wc = self.forge.create_wildcard_mock()
         wc.f # no call!
         self.forge.replay()
-        wc.f # todo: this shouldn't be ok... to be solved when setattr expectations are added
+        with self.assertRaises(AttributeError):
+            wc.f # todo: this shouldn't be ok... to be solved when setattr expectations are added
     def test__setattr_forbidden(self):
         wc = self.forge.create_wildcard_mock()
         wc.a = 2

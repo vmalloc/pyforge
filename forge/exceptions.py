@@ -10,15 +10,6 @@ class InvalidKeywordArgument(SignatureException):
 class FunctionCannotBeBound(SignatureException):
     pass
 
-class UnauthorizedMemberAccess(ForgeException):
-    def __init__(self, object, attribute):
-        super(UnauthorizedMemberAccess, self).__init__()
-        self.object = object
-        self.attribute = attribute
-    def __str__(self):
-        return "%s.%s was unexpectedly accessed!" % (self.object, self.attribute)
-
-
 class ConflictingActions(ForgeException):
     pass
 

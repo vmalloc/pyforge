@@ -1,4 +1,3 @@
-from mock_handle import MockHandle
 from exceptions import MockObjectUnhashable
 from exceptions import UnexpectedCall
 

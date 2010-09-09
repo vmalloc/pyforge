@@ -43,8 +43,12 @@ class MockHandle(ForgeHandle):
             returned = self.forge.create_method_stub(real_method)
             self._bind_if_needed(returned)
             self.forge.stubs.add_initialized_method_stub(self.mock, name, returned)
+        elif self.forge.is_replaying() and not returned.__forge__.has_recorded_calls():
+            self._check_getting_method_stub_without_recorded_calls(name, returned)
         return returned
     def _check_unrecorded_method_getting(self, name):
+        raise NotImplementedError()
+    def _check_getting_method_stub_without_recorded_calls(self, name, stub):
         raise NotImplementedError()
     def _get_real_method(self, name):
         raise NotImplementedError()
