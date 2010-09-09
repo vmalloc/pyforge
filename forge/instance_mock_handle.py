@@ -7,7 +7,6 @@ class InstanceMockHandle(MockHandle):
     def __init__(self, forge, mock, mocked_class):
         super(InstanceMockHandle, self).__init__(forge, mock)
         self.mocked_class = mocked_class
-        self._initialized_stubs = {}
     def _has_method(self, name):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):

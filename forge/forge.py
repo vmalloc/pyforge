@@ -5,6 +5,7 @@ from .queue import ForgeQueue
 from .instance_mock_object import InstanceMockObject
 from .wildcard_mock_object import WildcardMockObject
 from .stub_manager import StubManager
+from .mock_method_manager import MockMethodManager
 from .sentinel import Sentinel
 from .dtypes import WILDCARD_FUNCTION
 
@@ -25,6 +26,7 @@ class Forge(object):
     def reset(self):
         self._is_replaying = False
         self.queue = ForgeQueue(self)
+        self.methods = MockMethodManager(self)
     @contextmanager
     def verified_replay_context(self):
         self.replay()

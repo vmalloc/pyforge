@@ -6,7 +6,6 @@ class MockHandle(object):
         self.forge = forge
         self.id = self.forge.get_new_mock_id()
         self.mock = mock
-        self._initialized_stubs = {}
         self._attributes = {}
         self._is_hashable = False
     def is_hashable(self):
@@ -30,7 +29,7 @@ class MockHandle(object):
             raise AttributeError("Cannot set attribute %r" % (attr,))
         self._attributes[attr] = value
     def has_method(self, attr):
-        return attr in self._initialized_stubs or self._has_method(attr)
+        return self.forge.methods.has_initialized_method_stub(self.mock, attr) or self._has_method(attr)
     def _has_method(self, name):
         raise NotImplementedError()
     def has_nonmethod_class_member(self, name):
@@ -38,14 +37,14 @@ class MockHandle(object):
     def get_nonmethod_class_member(self, name):
         raise NotImplementedError()
     def get_method(self, name):
-        returned = self._initialized_stubs.get(name)
+        returned = self.forge.methods.get_initialized_method_stub_or_none(self.mock, name)
         if returned is None:
             real_method = self._get_real_method(name)
             if not self.forge.is_recording():
                 self._check_unrecorded_method_getting(name)
             returned = self.forge.create_method_stub(real_method)
             self._bind_if_needed(returned)
-            self._initialized_stubs[name] = returned
+            self.forge.methods.add_initialized_method_stub(self.mock, name, returned)
         return returned
     def _check_unrecorded_method_getting(self, name):
         raise NotImplementedError()
