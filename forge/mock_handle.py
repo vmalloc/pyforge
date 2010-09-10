@@ -1,9 +1,10 @@
 from handle import ForgeHandle
 
 class MockHandle(ForgeHandle):
-    def __init__(self, forge, mock):
+    def __init__(self, forge, mock, behave_as_instance=True):
         super(MockHandle, self).__init__(forge)
         self.mock = mock
+        self.behaves_as_instance = behave_as_instance
         self._attributes = {}
         self._is_hashable = False
     def is_hashable(self):
@@ -41,7 +42,7 @@ class MockHandle(ForgeHandle):
             if not self.forge.is_recording():
                 self._check_unrecorded_method_getting(name)
             returned = self.forge.create_method_stub(real_method)
-            self._bind_if_needed(returned)
+            self._bind_if_needed(name, returned)
             self.forge.stubs.add_initialized_method_stub(self.mock, name, returned)
         elif self.forge.is_replaying() and not returned.__forge__.has_recorded_calls():
             self._check_getting_method_stub_without_recorded_calls(name, returned)
@@ -59,11 +60,9 @@ class MockHandle(ForgeHandle):
         raise NotImplementedError()
     def is_callable(self):
         raise NotImplementedError()
-    def _bind_if_needed(self, method_stub):
-        if method_stub.__forge__.is_bound():
-            return
-        if method_stub.__forge__.signature.is_class_method():
-            method_stub.__forge__.bind(self.mocked_class)
-        elif method_stub.__forge__.signature.is_method():
-            method_stub.__forge__.bind(self.mock)
-
+    def _bind_if_needed(self, name, method_stub):
+        bind_needed, bind_target = self._is_binding_needed(name, method_stub)
+        if bind_needed:
+            method_stub.__forge__.bind(bind_target)
+    def _is_binding_needed(self, name, method_stub):
+        raise NotImplementedError()

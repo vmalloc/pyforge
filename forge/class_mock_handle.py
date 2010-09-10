@@ -3,13 +3,15 @@ from .dtypes import NOTHING
 from types import FunctionType
 from types import MethodType
 
-class InstanceMockHandle(MockHandle):
-    def __init__(self, forge, mock, mocked_class):
-        super(InstanceMockHandle, self).__init__(forge, mock)
+class ClassMockHandle(MockHandle):
+    def __init__(self, forge, mock, mocked_class, behave_as_instance):
+        super(ClassMockHandle, self).__init__(forge, mock, behave_as_instance)
         self.mocked_class = mocked_class
     def _has_method(self, name):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):
+        if name == '__call__' and not self.behaves_as_instance:
+            return self.mocked_class.__init__
         return getattr(self.mocked_class, name, NOTHING)
     def _check_unrecorded_method_getting(self, name):
         pass # unrecorded methods can be obtained, but not called...
@@ -39,4 +41,15 @@ class InstanceMockHandle(MockHandle):
             #__call__ is already bound, for some reason
             return False
         return True
+    def _is_binding_needed(self, name, method_stub):
+        if not method_stub.__forge__.is_bound():
+            if name == '__call__' and not self.behaves_as_instance:
+                # constructors are normally bound...
+                return True, NOTHING
+            if method_stub.__forge__.signature.is_class_method():
+                return True, self.mocked_class
+            if self.behaves_as_instance and method_stub.__forge__.signature.is_method():
+                return True, self.mock
+        return False, None
+
 

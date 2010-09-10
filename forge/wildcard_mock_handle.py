@@ -16,4 +16,6 @@ class WildcardMockHandle(MockHandle):
         return False
     def _check_special_method_call(self, *_, **__):
         pass
+    def _is_binding_needed(self, name, stub):
+        return False, None
 

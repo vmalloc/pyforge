@@ -2,7 +2,7 @@ import itertools
 from contextlib import contextmanager
 from .stub import FunctionStub
 from .queue import ForgeQueue
-from .instance_mock_object import InstanceMockObject
+from .class_mock import ClassMockObject
 from .wildcard_mock_object import WildcardMockObject
 from .stub_installer import StubInstaller
 from .stub_manager import StubManager
@@ -47,7 +47,9 @@ class Forge(object):
     def create_method_stub(self, method):
         return FunctionStub(self, method)
     def create_mock(self, mocked_class):
-        return InstanceMockObject(self, mocked_class)
+        return ClassMockObject(self, mocked_class, behave_as_instance=True)
+    def create_class_mock(self, mocked_class):
+        return ClassMockObject(self, mocked_class, behave_as_instance=False)
     def create_wildcard_mock(self):
         return WildcardMockObject(self)
     def create_sentinel(self, name=None):
