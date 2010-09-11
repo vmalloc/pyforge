@@ -1,12 +1,16 @@
+import functools
 from mock_handle import MockHandle
 from .dtypes import NOTHING
 from types import FunctionType
 from types import MethodType
+from .exceptions import InvalidEntryPoint
+from .signature import FunctionSignature
 
 class ClassMockHandle(MockHandle):
-    def __init__(self, forge, mock, mocked_class, behave_as_instance):
+    def __init__(self, forge, mock, mocked_class, behave_as_instance, hybrid):
         super(ClassMockHandle, self).__init__(forge, mock, behave_as_instance)
         self.mocked_class = mocked_class
+        self._hybrid = hybrid
     def _has_method(self, name):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):
@@ -24,6 +28,19 @@ class ClassMockHandle(MockHandle):
         return type(value) not in (FunctionType, MethodType)
     def get_nonmethod_class_member(self, name):
         return getattr(self.mocked_class, name)
+    def get_method(self, name):
+        if self._hybrid:
+            if self.forge.is_replaying() and not self.forge.stubs.has_initialized_method_stub(self.mock, name):
+                return self._build_hybrid_method(name)
+        return super(ClassMockHandle, self).get_method(name)
+    def _build_hybrid_method(self, name):
+        real_method = self._get_real_method(name)
+        if not self._can_use_as_entry_point(real_method):
+            raise InvalidEntryPoint("%s is not a method that can be used as a hybrid entry pont" % (name,))
+        return functools.partial(self._get_real_method(name).im_func, self.mock)
+    def _can_use_as_entry_point(self, method):
+        sig = FunctionSignature(method)
+        return sig.is_method() and not sig.is_class_method()
     def _check_special_method_call(self, name, args, kwargs):
         if name == '__call__':
             if not self.is_callable():

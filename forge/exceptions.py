@@ -34,3 +34,6 @@ class ExpectedCallsNotFound(ForgeException):
     def __str__(self):
         return "Expected calls not found:\n%s" % "\n".join(map(str, self.calls))
 
+class InvalidEntryPoint(ForgeException):
+    pass
+
