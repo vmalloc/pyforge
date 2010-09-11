@@ -66,6 +66,15 @@ class RecordReplayTest(ForgeTestCase):
         self.assertIn('some_function', str(exc))
         self.assertIn('some_other_function', str(exc))
         self.forge.reset()
+    def test__record_self_argument(self):
+        def some_func(bla, self, bla2):
+            pass
+        stub = self.forge.create_function_stub(some_func)
+        stub(bla=1, self=2, bla2=3)
+        stub(1, 2, 3)
+        self.forge.replay()
+        stub(bla=1, self=2, bla2=3)
+        stub(1, 2, 3)
     def assertExpectedNotMet(self, stubs):
         self.assertGreater(len(stubs), 0)
         with self.assertRaises(ExpectedCallsNotFound) as caught:
