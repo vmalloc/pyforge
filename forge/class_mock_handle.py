@@ -1,3 +1,4 @@
+import types
 import functools
 from mock_handle import MockHandle
 from .dtypes import NOTHING
@@ -15,8 +16,17 @@ class ClassMockHandle(MockHandle):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):
         if name == '__call__' and not self.behaves_as_instance:
-            return self.mocked_class.__init__
+            return self._get_constructor_method()
         return getattr(self.mocked_class, name, NOTHING)
+    def _get_constructor_method(self):
+        returned = getattr(self.mocked_class, "__init__", object.__init__)
+        if type(returned) is type(object.__init__) and returned.__objclass__ is object:
+            # in some cases where the class doesn't have a constructor,
+            # simulate an empty ctor...
+            fake_constructor = lambda self: None
+            fake_constructor.__name__ = "__init__"
+            returned = types.MethodType(fake_constructor, None, self.mocked_class)
+        return returned
     def _check_unrecorded_method_getting(self, name):
         pass # unrecorded methods can be obtained, but not called...
     def _check_getting_method_stub_without_recorded_calls(self, name, stub):
@@ -43,7 +53,7 @@ class ClassMockHandle(MockHandle):
         return sig.is_method() and not sig.is_class_method()
     def _check_special_method_call(self, name, args, kwargs):
         if name == '__call__':
-            if not self.is_callable():
+            if self.behaves_as_instance and not self.is_callable():
                 raise TypeError("%s instance is not callable!" % (self.mocked_class,))
         else:
             if not self.has_method(name):
