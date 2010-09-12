@@ -17,43 +17,42 @@ Basics
 ------
 Forge mostly creates mock objects and function stubs, but in a variety of flavors. Using Forge always starts with creating a mock manager, called a Manager, which is created with the Forge class::
 
- from forge import Forge
- ...
- f = Forge()
+ >>> from forge import Forge
+ >>> forge_manager = Forge()
 
 There shouldn't be a real reason for keeping more than one forge manager. What it is typically used for is creating mocks::
 
- class SomeClass(object):
-     def f(self, a, b, c):
-         ...
-
- f = Forge()
- mock = f.create_mock(SomeClass)
+ >>> class SomeClass(object): 
+ ...     def f(self, a, b, c):
+ ...         pass    
+ >>> mock = forge_manager.create_mock(SomeClass)
 
 Mock tests usually act in a record-replay manner. You record what you expect your mock to do, and then replay it, while Forge tracks what happens and makes sure it is correct::
 
- f.is_recording() # --> True
- mock.f(1, 2, 3)
- mock.f(3, 4, 5)
-
- f.replay()
- f.is_recording() # --> False
- f.is_replaying() # --> True
- mock.f(1, 2, 3)
- mock.f(3, 4, 5)
-
- f.verify() # this verifies no more calls are expected
+ >>> forge_manager.is_recording() 
+ True
+ >>> mock.f(1, 2, 3) # doctest: +ELLIPSIS
+ <...>
+ >>> mock.f(3, 4, 5) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> forge_manager.is_recording()
+ False
+ >>> forge_manager.is_replaying()
+ True
+ >>> mock.f(1, 2, 3)
+ >>> mock.f(3, 4, 5)
+ >>> forge_manager.verify() # this verifies no more calls are expected
 
 To start over working from scratch, you can always perform::
 
- f.reset()
+ >>> forge_manager.reset()
 
 Just like classes yield mocks, regular functions yield stubs, through the use of *Forge.create_function_stub*::
 
- def some_func(a, b, c):
-     pass
-
- stub = f.create_function_stub(some_func)
+ >>> def some_func(a, b, c):
+ ...     pass
+ >>> stub = forge_manager.create_function_stub(some_func)
 
 As methods and functions are recorded, their signature is verified against the recorded calls. Upon replay the call must match the original call, so you shouldn't worry too much about accidents concerning the function signature.
  
@@ -102,29 +101,46 @@ Many comparators exist in Forge:
 * ``Anything()``: always compares true
 * ``And(...), Or(...), Not(c)``: and, or and a negator for other comparators
 
+Ordinary Function Stubs
+-----------------------
+You can easily create stubs for global functions using the *create_function_stub* API::
+
+ >>> fake_isinstance = forge_manager.create_function_stub(isinstance)
+
+Replacing Methods and Functions with Stubs
+------------------------------------------
+Forge includes a mechanism for installing (and later removing) stubs instead of ordinary methods and functions
+
 Ordering
 --------
 By default, forge verifies that the order in which calls are made in practice is the same as the record flow.
 You can, however, control it and create groups in which order does not matter::
 
- forge = Forge()
- mock = forge.create_mock(SomeClass)
- 
- mock.func(1)
- mock.func(2)
- mock.func(3) # so far order must be kept
- with forge.any_order():
-     mock.func(4)
-     mock.func(5)
- mock.func(6)
-
- forge.replay()
- mock.func(1)
- mock.func(2)
- mock.func(3)
- mock.func(5) # ok!
- mock.func(4) # also ok!
- mock.func(6)
+ >>> class SomeClass(object):
+ ...     def func(self, arg):
+ ...        pass
+ >>> mock = forge_manager.create_mock(SomeClass)
+ >>> mock.func(1) # doctest: +ELLIPSIS
+ <...>
+ >>> mock.func(2) # doctest: +ELLIPSIS
+ <...>
+ >>> mock.func(3) # doctest: +ELLIPSIS
+ ... # so far order must be kept
+ <...>
+ >>> with forge_manager.any_order(): # doctest: +ELLIPSIS
+ ...     mock.func(4)
+ ...     mock.func(5)
+ <...>
+ <...>
+ >>> mock.func(6) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> mock.func(1)
+ >>> mock.func(2)
+ >>> mock.func(3)
+ >>> mock.func(5) # ok!
+ >>> mock.func(4) # also ok!
+ >>> mock.func(6)
 
 Wildcard Mocks
 --------------
@@ -139,3 +155,43 @@ Although not recommended, sometimes you just want a mock that accepts anything d
  
  forge.replay()
  ...
+
+Class Mocks
+-----------
+Sometimes you would like to simulate the behavior of a class, and not an object. Forge allows to do this with the *create_class_mock* API::
+
+ class_mock = forge.create_class_mock(MyClass)
+ class_mock.regular_method() # <-- will raise an exception, because regular methods cannot
+                             #     be called directly on classes
+ class_mock.some_class_method() # ok
+ class_mock.some_static_method() # also ok
+ class_mock(1, 2, 3).and_return(...) # will check the signature against the class constructor
+
+Hybrid Mocks
+------------
+Suppose you have a class like the following::
+
+ class File(object):
+     def __init__(self, filename):
+         self.f = open(filename, "rb")
+     def read(self, size):
+         ...
+     def log(self, buffer):
+         ...
+     def read_and_log(self, size):
+         data = self.read(size)
+         self.log(data)
+         return data
+
+Now, suppose you want to write a test for read_and_log, while mimicking the behavior of read() and log(). This is quite common, because sometimes methods in your classes have lots of side effects which are hard to plumb during test writing. One easy approach would be to create a File object and to replace read() and log() with stubs (see above). This is fine, but the problem is with the class construction, which opens a file for reading.
+
+In some cases, constructors (especially in legacy code to which you add tests) do lots of things that are hard to stub, or that are likely to change thus breaking any stubbing work you might install. For this case Forge has hybrid mocks::
+
+ mock = forge.create_hybrid_mock(File)
+ mock.read(20).and_return("data")
+ mock.log(data)
+ forge.replay()
+ assert mock.read_and_log(20) == "data"
+ forge.verify()
+
+Hybrid mocks are, well, hybrid. They behave as regular mocks during record, but calling any method during replay that hasn't been recorded will invoke the original method on the mock, thus testing it in an isolated environment.
