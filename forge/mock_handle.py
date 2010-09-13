@@ -24,8 +24,16 @@ class MockHandle(ForgeHandle):
             return self.get_method(attr)
         raise AttributeError("%s has no attribute %s" % (self, attr))
     def set_attribute(self, attr, value):
-        if not self.forge.is_recording():
-            raise AttributeError("Cannot set attribute %r" % (attr,))
+        if self.forge.is_recording():
+            self._set_attribute(attr, value)
+        else:
+            self._set_attribute_during_replay(attr, value)
+    def expect_setattr(self, attr, value):
+        return self.forge.queue.push_setattr(self.mock, attr, value)
+    def _set_attribute_during_replay(self, attr, value):
+        self.forge.queue.pop_matching_setattr(self.mock, attr, value)
+        self._set_attribute(attr, value)
+    def _set_attribute(self, attr, value):
         self.forge.attributes.set_attribute(self.mock, attr, value)
     def has_method(self, attr):
         return self.forge.stubs.has_initialized_method_stub(self.mock, attr) or self._has_method(attr)

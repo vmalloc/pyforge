@@ -21,16 +21,24 @@ class CannotMockException(ForgeException):
 class CannotMockFunctions(CannotMockException):
     pass
 
-class UnexpectedCall(ForgeException):
+class UnexpectedEvent(ForgeException):
     def __init__(self, expected, got):
-        super(UnexpectedCall, self).__init__()
+        super(UnexpectedEvent, self).__init__()
         self.expected = expected
         self.got = got
     def __str__(self):
-        returned = "Unexpected method or function called!"
+        returned = self._getTitle()
         returned += "\n Expected: %s" % (self.expected,)
         returned += "\n Got: %s" % (self.got,)
         return returned
+class UnexpectedCall(UnexpectedEvent):
+    @classmethod
+    def _getTitle(cls):
+        return "Unexpected function called!"
+class UnexpectedSetattr(UnexpectedEvent):
+    @classmethod
+    def _getTitle(cls):
+        return "Unexpected attribute set!"
 
 class ExpectedCallsNotFound(ForgeException):
     def __init__(self, calls):

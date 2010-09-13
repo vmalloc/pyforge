@@ -1,7 +1,9 @@
 from contextlib import contextmanager
 from collections import deque
 from .function_call import FunctionCall
+from .setattr import Setattr
 from .exceptions import UnexpectedCall
+from .exceptions import UnexpectedSetattr
 from .exceptions import ExpectedCallsNotFound
 from .utils import renumerate
 
@@ -16,8 +18,12 @@ class ForgeQueue(object):
         return sum(len(group) for group in self._order_groups)
     def push_call(self, target, args, kwargs):
         return self._push(FunctionCall(target, args, kwargs))
+    def push_setattr(self, target, name, value):
+        return self._push(Setattr(target, name, value))
     def pop_matching_call(self, target, args, kwargs):
         return self._pop_matching(FunctionCall(target, args, kwargs), UnexpectedCall)
+    def pop_matching_setattr(self, target, name, value):
+        return self._pop_matching(Setattr(target, name, value), UnexpectedSetattr)
     def _push(self, queued_object):
         return self._get_recording_group().push(queued_object)
     def _pop_matching(self, queued_object, unexpected_class):

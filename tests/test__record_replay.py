@@ -86,6 +86,3 @@ class RecordReplayTest(ForgeTestCase):
             self.assertIs(expected_call.target, stub)
         self.assertNoMoreCalls()
 
-
-
-

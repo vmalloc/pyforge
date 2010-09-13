@@ -1,4 +1,5 @@
 from ut_utils import ForgeTestCase
+from forge import UnexpectedSetattr
 
 class WildcardTest(ForgeTestCase):
     def tearDown(self):
@@ -39,12 +40,18 @@ class WildcardTest(ForgeTestCase):
         wc.a = 2
         self.forge.replay()
         self.assertEquals(wc.a, 2)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(UnexpectedSetattr):
             wc.a = 2
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(UnexpectedSetattr):
             wc.a = 3
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(UnexpectedSetattr):
             wc.b = 3
+    def test__expect_setattr(self):
+        wc = self.forge.create_wildcard_mock()
+        wc.__forge__.expect_setattr("a", 2)
+        self.forge.replay()
+        wc.a = 2
+        self.assertEquals(wc.a, 2)
     def test__special_methods_ok(self):
         wc = self.forge.create_wildcard_mock()
         f = self.forge.create_wildcard_function_stub()

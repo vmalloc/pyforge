@@ -6,7 +6,6 @@ from forge import MockObjectUnhashable
 from forge import CannotMockFunctions
 
 class MockedClass(object):
-    class_variable = 2
     def some_method(self):
         raise NotImplementedError()
 
@@ -42,51 +41,7 @@ class MockingTest(ForgeTestCase):
         self.assertFalse(self.obj != self.obj)
         self.assertTrue(self.obj != 2)
         self.assertTrue(self.obj != self.forge.create_mock(MockedClass))
-    def test__setting_mock_object_attributes(self):
-        attr_value = self.obj.a = object()
-        self.assertIs(self.obj.a, attr_value)
-        self.forge.replay()
-        self.assertIs(self.obj.a, attr_value)
-        self.forge.reset()
-        with self.assertRaises(AttributeError):
-            self.obj.a
-    def test__setting_mock_object_attributes_during_replay(self):
-        self.forge.replay()
-        with self.assertRaises(AttributeError):
-            self.obj.a = 2
-    def test__setting_mock_object_attributes_during_replay_even_if_set_during_record(self):
-        self.obj.a = 2
-        self.forge.replay()
-        with self.assertRaises(AttributeError):
-            self.obj.a = 2
-        with self.assertRaises(AttributeError):
-            self.obj.a = 3
 
-    def test__getattr_of_nonexisting_attr_during_replay(self):
-        self.forge.replay()
-        with self.assertRaises(AttributeError):
-            self.obj.nonexisting_attr
-
-        with self.assertRaises(AttributeError):
-            # a private case of the above, just making a point
-            self.obj.nonexisting_method()
-    def test__getattr_of_real_methods_during_replay(self):
-        self.forge.replay()
-        self.obj.some_method
-    def test__getattr_of_class_variables_during_record(self):
-        self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
-    def test__getattr_of_class_variables_during_replay(self):
-        self.forge.replay()
-        self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
-    def test__setattr_of_class_variables_during_record(self):
-        self.obj.class_variable = 300
-        self.assertEquals(self.obj.class_variable, 300)
-        self.forge.replay()
-        self.assertEquals(self.obj.class_variable, 300)
-    def test__setattr_of_class_variables_during_replay(self):
-        self.forge.replay()
-        with self.assertRaises(AttributeError):
-            self.obj.class_variable = 300
 class MockingCornerCasesTest(ForgeTestCase):
     def _test__calling_method_cannot_be_called_bound(self, cls):
         m = self.forge.create_mock(cls)
