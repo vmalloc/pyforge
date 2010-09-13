@@ -9,13 +9,22 @@ orig_os_path_join = os.path.join
 class NewStyleClass(object):
     def method(self, a, b, c):
         raise NotImplementedError()
+    @property
+    def some_property(self):
+        return 2
 
 orig_newstyle_method = NewStyleClass.method
+orig_newstyle_property = NewStyleClass.some_property
 
 class OldStyleClass:
     def method(self, a, b, c):
         raise NotImplementedError()
+    @property
+    def some_property(self):
+        return 2
+
 orig_oldstyle_method = OldStyleClass.method
+orig_oldstyle_property = OldStyleClass.some_property
 
 class StubbingObjectsTest(ForgeTestCase):
     def _test__stubbing_object(self, obj):
@@ -105,6 +114,26 @@ class StubbingModulesTest(ForgeTestCase):
         self.forge.restore_all_stubs()
         self.assertIs(os.path.join, orig_os_path_join)
 
+class ReplacingTest(ForgeTestCase):
+    def test__replacing_simple_attributes(self):
+        s = self.forge.create_sentinel()
+        s.a = 2
+        self.forge.stub_installer.replace(s, "a", 3)
+        self.assertEquals(s.a, 3)
+        self.forge.restore_all_stubs()
+        self.assertEquals(s.a, 2)
+    def test__replacing_properties__new_style(self):
+        self._test__replacing_properties(NewStyleClass, orig_newstyle_property)
+    def test__replacing_properties__old_style(self):
+        self._test__replacing_properties(OldStyleClass, orig_oldstyle_property)
+    def _test__replacing_properties(self, cls, orig):
+        self.forge.stub_installer.replace(cls, "some_property", 3)
+        self.assertEquals(cls.some_property, 3)
+        self.assertEquals(cls().some_property, 3)
+        self.forge.restore_all_stubs()
+        self.assertIs(cls.some_property, orig)
+        self.assertIs(cls().some_property, 2)
+
 class MultipleStubbingTest(ForgeTestCase):
     def test__multiple_stubbing(self):
         self.forge.replace_with_stub(self.forge, "replace_with_stub")
@@ -124,4 +153,3 @@ class MultipleStubbingTest(ForgeTestCase):
         self.forge.verify()
         self.assertNoMoreCalls()
         self.forge.reset()
-        

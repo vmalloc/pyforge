@@ -11,12 +11,12 @@ class StubInstaller(object):
         return self._replace_object_method_with_stub(obj, method_name)
 
     def _replace_object_method_with_stub(self, obj, method_name):
-        return self._replace_with_stub(obj, method_name,
+        return self.replace(obj, method_name,
                                        self.forge.create_method_stub(getattr(obj, method_name)))
     def _replace_module_function_with_stub(self, module, function_name):
-        return self._replace_with_stub(module, function_name,
+        return self.replace(module, function_name,
                                        self.forge.create_function_stub(getattr(module, function_name)))
-    def _replace_with_stub(self, obj, attr_name, stub):
+    def replace(self, obj, attr_name, stub):
         orig = getattr(obj, attr_name)
         self._stubs.append(InstalledStub(obj, attr_name, stub))
         setattr(obj, attr_name, stub)

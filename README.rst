@@ -141,6 +141,18 @@ Forge includes a mechanism for installing (and later removing) stubs instead of 
  >>> forge_manager.restore_all_stubs()
  >>> forge_manager.reset()
 
+One can also use the same install mechanism to set a custom value and have it restored along with all stubs::
+
+ >>> class SomeClass(object):
+ ...     x = 2
+ >>> forge_manager.stub_installer.replace(SomeClass, "x", 3)
+ 3
+ >>> SomeClass.x
+ 3
+ >>> forge_manager.restore_all_stubs()
+ >>> SomeClass.x
+ 2
+ 
 Ordering
 --------
 By default, forge verifies that the order in which calls are made in practice is the same as the record flow.
