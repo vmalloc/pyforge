@@ -101,12 +101,6 @@ Many comparators exist in Forge:
 * ``Anything()``: always compares true
 * ``And(...), Or(...), Not(c)``: and, or and a negator for other comparators
 
-Ordinary Function Stubs
------------------------
-You can easily create stubs for global functions using the *create_function_stub* API::
-
- >>> fake_isinstance = forge_manager.create_function_stub(isinstance)
-
 Replacing Methods and Functions with Stubs
 ------------------------------------------
 Forge includes a mechanism for installing (and later removing) stubs instead of ordinary methods and functions::
