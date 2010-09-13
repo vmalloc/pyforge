@@ -109,7 +109,37 @@ You can easily create stubs for global functions using the *create_function_stub
 
 Replacing Methods and Functions with Stubs
 ------------------------------------------
-Forge includes a mechanism for installing (and later removing) stubs instead of ordinary methods and functions
+Forge includes a mechanism for installing (and later removing) stubs instead of ordinary methods and functions::
+
+ >>> import time
+ >>> forge_manager.replace_with_stub(time, "time") # doctest: +ELLIPSIS
+ <...>
+ >>> time.time().and_return(2)
+ 2
+ >>> forge_manager.replay()
+ >>> time.time()
+ 2
+ >>> forge_manager.verify()
+ >>> forge_manager.restore_all_stubs()
+ >>> forge_manager.reset()
+
+ This also works, of course, on methods:
+
+ >>> class MyClass(object):
+ ...     def f(self):
+ ...         self.g()
+ ...     def g(self):
+ ...         raise NotImplementedError()
+ >>> instance = MyClass()
+ >>> forge_manager.replace_with_stub(instance, "g") # doctest: +ELLIPSIS
+ <...>
+ >>> instance.g() # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> instance.f()
+ >>> forge_manager.verify()
+ >>> forge_manager.restore_all_stubs()
+ >>> forge_manager.reset()
 
 Ordering
 --------
@@ -141,6 +171,8 @@ You can, however, control it and create groups in which order does not matter::
  >>> mock.func(5) # ok!
  >>> mock.func(4) # also ok!
  >>> mock.func(6)
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
 
 Wildcard Mocks
 --------------
@@ -160,38 +192,62 @@ Class Mocks
 -----------
 Sometimes you would like to simulate the behavior of a class, and not an object. Forge allows to do this with the *create_class_mock* API::
 
- class_mock = forge.create_class_mock(MyClass)
- class_mock.regular_method() # <-- will raise an exception, because regular methods cannot
-                             #     be called directly on classes
- class_mock.some_class_method() # ok
- class_mock.some_static_method() # also ok
- class_mock(1, 2, 3).and_return(...) # will check the signature against the class constructor
+ >>> class MyClass(object):
+ ...     def __init__(self, a, b, c):
+ ...         pass
+ ...     def regular_method(self):
+ ...         pass
+ ...     @classmethod
+ ...     def some_class_method(cls):
+ ...         pass
+ ...     @staticmethod
+ ...     def some_static_method():
+ ...         pass
+ >>> class_mock = forge_manager.create_class_mock(MyClass)
+ >>> class_mock.regular_method() # doctest: +IGNORE_EXCEPTION_DETAIL
+ Traceback (most recent call last):
+ SignatureException: ...
+ >>> class_mock.some_class_method() # doctest: +ELLIPSIS
+ <...>
+ >>> class_mock.some_static_method() # doctest: +ELLIPSIS
+ <...>
+ >>> fake_new_instance = forge_manager.create_mock(MyClass)
+ >>> class_mock(1, 2, 3).and_return(fake_new_instance) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> class_mock.some_class_method()
+ >>> class_mock.some_static_method()
+ >>> assert class_mock(1, 2, 3) is fake_new_instance
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
 
 Hybrid Mocks
 ------------
 Suppose you have a class like the following::
 
- class File(object):
-     def __init__(self, filename):
-         self.f = open(filename, "rb")
-     def read(self, size):
-         ...
-     def log(self, buffer):
-         ...
-     def read_and_log(self, size):
-         data = self.read(size)
-         self.log(data)
-         return data
+ >>> class File(object):
+ ...     def __init__(self, filename):
+ ...         self.f = open(filename, "rb")
+ ...     def read(self, size):
+ ...         raise NotImplementedError()
+ ...     def log(self, buffer):
+ ...         raise NotImplementedError()
+ ...     def read_and_log(self, size):
+ ...         data = self.read(size)
+ ...         self.log(data)
+ ...         return data
 
 Now, suppose you want to write a test for read_and_log, while mimicking the behavior of read() and log(). This is quite common, because sometimes methods in your classes have lots of side effects which are hard to plumb during test writing. One easy approach would be to create a File object and to replace read() and log() with stubs (see above). This is fine, but the problem is with the class construction, which opens a file for reading.
 
 In some cases, constructors (especially in legacy code to which you add tests) do lots of things that are hard to stub, or that are likely to change thus breaking any stubbing work you might install. For this case Forge has hybrid mocks::
 
- mock = forge.create_hybrid_mock(File)
- mock.read(20).and_return("data")
- mock.log(data)
- forge.replay()
- assert mock.read_and_log(20) == "data"
- forge.verify()
+ >>> mock = forge_manager.create_hybrid_mock(File)
+ >>> mock.read(20).and_return("data") # doctest: +ELLIPSIS
+ '...'
+ >>> mock.log("data") # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> assert mock.read_and_log(20) == "data"
+ >>> forge_manager.verify()
 
 Hybrid mocks are, well, hybrid. They behave as regular mocks during record, but calling any method during replay that hasn't been recorded will invoke the original method on the mock, thus testing it in an isolated environment.
