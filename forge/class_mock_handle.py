@@ -5,13 +5,18 @@ from .dtypes import NOTHING
 from types import FunctionType
 from types import MethodType
 from .exceptions import InvalidEntryPoint
+from .exceptions import CannotMockFunctions
 from .signature import FunctionSignature
 
 class ClassMockHandle(MockHandle):
     def __init__(self, forge, mock, mocked_class, behave_as_instance, hybrid):
         super(ClassMockHandle, self).__init__(forge, mock, behave_as_instance)
+        self._assert_is_not_function(mocked_class)
         self.mocked_class = mocked_class
         self._hybrid = hybrid
+    def _assert_is_not_function(self, mocked_class):
+        if type(mocked_class) in (types.FunctionType, types.MethodType):
+            raise CannotMockFunctions("Cannot mock functions as classes. Use create_function_stub instead.")
     def _has_method(self, name):
         return hasattr(self.mocked_class, name)
     def _get_real_method(self, name):

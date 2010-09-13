@@ -3,11 +3,13 @@ from ut_utils import ForgeTestCase
 from forge.mock_handle import MockHandle
 from forge import SignatureException
 from forge import MockObjectUnhashable
+from forge import CannotMockFunctions
 
 class MockedClass(object):
     class_variable = 2
     def some_method(self):
         raise NotImplementedError()
+
 class MockingTest(ForgeTestCase):
     def setUp(self):
         super(MockingTest, self).setUp()
@@ -103,3 +105,15 @@ class MockingCornerCasesTest(ForgeTestCase):
             def invalid_method():
                 raise NotImplementedError()
         self._test__calling_method_cannot_be_called_bound(OldStyleClass)
+
+class InvalidMockingTest(ForgeTestCase):
+    def test__cannot_mock_functions(self):
+        for invalid_target in self._get_function_variants():
+            with self.assertRaises(CannotMockFunctions):
+                self.forge.create_mock(invalid_target)
+    def _get_function_variants(self):
+        yield lambda *args: None
+        yield self._get_function_variants
+        def some_function():
+            pass
+        yield some_function

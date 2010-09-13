@@ -16,6 +16,11 @@ class ConflictingActions(ForgeException):
 class MockObjectUnhashable(ForgeException):
     pass
 
+class CannotMockException(ForgeException):
+    pass
+class CannotMockFunctions(CannotMockException):
+    pass
+
 class UnexpectedCall(ForgeException):
     def __init__(self, expected, got):
         super(UnexpectedCall, self).__init__()
