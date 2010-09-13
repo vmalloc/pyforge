@@ -58,6 +58,9 @@ class Forge(object):
         return Sentinel(name)
     def replace_with_stub(self, obj, method_name):
         return self.stub_installer.replace_with_stub(obj, method_name)
+    def replace_with_stubs(self, obj, *method_names):
+        return [self.replace_with_stub(obj, method_name)
+                for method_name in method_names]
     def restore_all_stubs(self):
         self.stub_installer.restore_all_stubs()
     def any_order(self):

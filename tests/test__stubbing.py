@@ -104,3 +104,24 @@ class StubbingModulesTest(ForgeTestCase):
         self.forge.verify()
         self.forge.restore_all_stubs()
         self.assertIs(os.path.join, orig_os_path_join)
+
+class MultipleStubbingTest(ForgeTestCase):
+    def test__multiple_stubbing(self):
+        self.forge.replace_with_stub(self.forge, "replace_with_stub")
+
+        some_object = self.forge.create_sentinel()
+
+        expected_results = [
+            self.forge.replace_with_stub(some_object, x).and_return(object())
+            for x in ["a", "b", "c"]
+            ]
+
+        self.forge.replay()
+
+        returned = self.forge.replace_with_stubs(some_object, "a", "b", "c")
+        self.assertEquals(returned, expected_results)
+        self.forge.restore_all_stubs()
+        self.forge.verify()
+        self.assertNoMoreCalls()
+        self.forge.reset()
+        
