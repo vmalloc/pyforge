@@ -24,7 +24,7 @@ class StubHandle(ForgeHandle):
             return self._handle_replay_call(args, kwargs)
     def _handle_recorded_call(self, args, kwargs):
         args, kwargs = self._update_bound_args_kwargs(args, kwargs)
-        return self.forge.queue.expect_call(self.stub, args, kwargs)
+        return self.forge.queue.push_call(self.stub, args, kwargs)
     def _handle_replay_call(self, args, kwargs):
         args, kwargs = self._update_bound_args_kwargs(args, kwargs)
         expected_call = self.forge.queue.pop_matching_call(self.stub, args, kwargs)

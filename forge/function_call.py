@@ -1,7 +1,8 @@
 from dtypes import NOTHING
 from exceptions import ConflictingActions
+from queued_object import QueuedObject
 
-class FunctionCall(object):
+class FunctionCall(QueuedObject):
     def __init__(self, target, args, kwargs):
         super(FunctionCall, self).__init__()
         self.target = target
@@ -10,8 +11,10 @@ class FunctionCall(object):
         self._call_funcs_with_args = []
         self._return_value = NOTHING
         self._raised_exception = NOTHING
-    def matches_call(self, target, args, kwargs):
-        return self.target is target and self.target.__forge__.signature.get_normalized_args(args, kwargs) == self.args
+    def matches(self, call):
+        if not isinstance(call, FunctionCall):
+            return False
+        return self.target is call.target and self.args == call.args
     def __repr__(self):
         return "<Function call: %s(%s)>" % (self.target, self._get_argument_string())
     def _get_argument_string(self):

@@ -14,24 +14,29 @@ class ForgeQueue(object):
         if not self._order_groups:
             return 0
         return sum(len(group) for group in self._order_groups)
-    def expect_call(self, target, args, kwargs):
-        return self._get_recording_group().expect_call(target, args, kwargs)
+    def push_call(self, target, args, kwargs):
+        return self._push(FunctionCall(target, args, kwargs))
     def pop_matching_call(self, target, args, kwargs):
+        return self._pop_matching(FunctionCall(target, args, kwargs), UnexpectedCall)
+    def _push(self, queued_object):
+        return self._get_recording_group().push(queued_object)
+    def _pop_matching(self, queued_object, unexpected_class):
         with self._get_cleanup_context():
             current_group = self._get_replay_group()
-            popped = current_group.pop_matching_call(target, args, kwargs)
+            popped = current_group.pop_matching(queued_object)
             if popped is None:
-                raise UnexpectedCall(self._get_replay_group().get_expected(), FunctionCall(target, args, kwargs))
+                raise unexpected_class(self._get_replay_group().get_expected(), queued_object)
             return popped
+    def pop(self):
+        return self._get_recording_group().pop()
+    def get_expected(self):
+        return self._get_replay_group().get_expected()
     @contextmanager
     def _get_cleanup_context(self):
         yield None
         for index, group in renumerate(self._order_groups):
             if group.is_empty() and index != 0:
                 self._order_groups.pop(index)
-    def pop(self):
-        with self._get_cleanup_context():
-            return self._get_replay_group().pop()
     def _get_recording_group(self):
         return self._order_groups[-1]
     def _get_replay_group(self):
@@ -52,15 +57,12 @@ class ForgeQueue(object):
             raise ExpectedCallsNotFound(expected_calls)
 
 class OrderingGroup(object):
-    def _append(self, call):
-        self._collection.append(call)
-    def expect_call(self, target, args, kwargs):
-        returned = FunctionCall(target, args, kwargs)
-        self._append(returned)
-        return returned
+    def push(self, obj):
+        self._collection.append(obj)
+        return obj
     def pop(self):
         return self._collection.pop()
-    def pop_matching_call(self, target, args, kwargs):
+    def pop_matching(self, obj):
         raise NotImplementedError()
     def get_expected(self):
         raise NotImplementedError()
@@ -75,11 +77,11 @@ class OrderedGroup(OrderingGroup):
     def __init__(self):
         super(OrderedGroup, self).__init__()
         self._collection = deque()
-    def pop_matching_call(self, target, args, kwargs):
+    def pop_matching(self, obj):
         if not self._collection:
             return None
         popped = self._collection[0]
-        if popped is not None and popped.matches_call(target, args, kwargs):
+        if popped is not None and popped.matches(obj):
             return self._collection.popleft()
         return None
     def get_expected(self):
@@ -89,9 +91,9 @@ class UnorderedGroup(OrderingGroup):
     def __init__(self):
         super(UnorderedGroup, self).__init__()
         self._collection = []
-    def pop_matching_call(self, target, args, kwargs):
+    def pop_matching(self, obj):
         for index, expected in enumerate(self._collection):
-            if expected.matches_call(target, args, kwargs):
+            if expected.matches(obj):
                 self._collection.pop(index)
                 return expected
         return None
