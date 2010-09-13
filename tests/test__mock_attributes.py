@@ -1,5 +1,6 @@
 from ut_utils import ForgeTestCase
 from forge import UnexpectedSetattr
+from forge import ExpectedEventsNotFound
 from contextlib import contextmanager
 
 class MockedClass(object):
@@ -67,6 +68,16 @@ class MockAttributesTest(ForgeTestCase):
             self.obj.a
         self.obj.a = 666
         self.assertEquals(self.obj.a, 666)
+    def test__expect_setattr_not_happening(self):
+        self.obj.__forge__.expect_setattr("a", 666)
+        self.forge.replay()
+        with self.assertRaises(ExpectedEventsNotFound) as caught:
+            self.forge.verify()
+        self.assertEquals(len(caught.exception.events), 1)
+        self.assertIs(caught.exception.events[0].target, self.obj)
+        self.assertEquals(caught.exception.events[0].name, "a")
+        self.assertEquals(caught.exception.events[0].value, 666)
+        self.forge.reset()
     @contextmanager
     def assertUnexpectedSetattr(self, target, name, value):
         with self.assertRaises(UnexpectedSetattr) as caught:

@@ -4,7 +4,7 @@ from .function_call import FunctionCall
 from .setattr import Setattr
 from .exceptions import UnexpectedCall
 from .exceptions import UnexpectedSetattr
-from .exceptions import ExpectedCallsNotFound
+from .exceptions import ExpectedEventsNotFound
 from .utils import renumerate
 
 class ForgeQueue(object):
@@ -56,11 +56,11 @@ class ForgeQueue(object):
         yield
         self._order_groups.append(OrderedGroup())
     def verify(self):
-        expected_calls = [call
-                          for group in self._order_groups
-                          for call in group]
-        if expected_calls:
-            raise ExpectedCallsNotFound(expected_calls)
+        expected_events = [event
+                           for group in self._order_groups
+                           for event in group]
+        if expected_events:
+            raise ExpectedEventsNotFound(expected_events)
 
 class OrderingGroup(object):
     def push(self, obj):

@@ -1,4 +1,4 @@
-from forge import UnexpectedCall, ExpectedCallsNotFound, SignatureException
+from forge import UnexpectedCall, ExpectedEventsNotFound, SignatureException
 from ut_utils import ForgeTestCase
 
 class RecordReplayTest(ForgeTestCase):
@@ -77,10 +77,10 @@ class RecordReplayTest(ForgeTestCase):
         stub(1, 2, 3)
     def assertExpectedNotMet(self, stubs):
         self.assertGreater(len(stubs), 0)
-        with self.assertRaises(ExpectedCallsNotFound) as caught:
+        with self.assertRaises(ExpectedEventsNotFound) as caught:
             self.forge.verify()
-        self.assertEquals(len(caught.exception.calls), len(stubs))
-        for stub, exception_call in zip(stubs, caught.exception.calls):
+        self.assertEquals(len(caught.exception.events), len(stubs))
+        for stub, exception_call in zip(stubs, caught.exception.events):
             expected_call = self.forge.pop_expected_call()
             self.assertIs(expected_call, exception_call)
             self.assertIs(expected_call.target, stub)
