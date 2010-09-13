@@ -40,12 +40,12 @@ class Forge(object):
     def verify(self):
         self.queue.verify()
 
-    def create_function_stub(self, func):
-        return FunctionStub(self, func)
+    def create_function_stub(self, func, name=None):
+        return FunctionStub(self, func, name=name)
     def create_wildcard_function_stub(self):
         return self.create_function_stub(WILDCARD_FUNCTION)
-    def create_method_stub(self, method):
-        return FunctionStub(self, method)
+    def create_method_stub(self, method, name=None):
+        return FunctionStub(self, method, name=name)
     def create_mock(self, mocked_class):
         return ClassMockObject(self, mocked_class, behave_as_instance=True, hybrid=False)
     def create_hybrid_mock(self, mocked_class):

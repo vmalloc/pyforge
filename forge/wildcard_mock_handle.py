@@ -6,6 +6,8 @@ class WildcardMockHandle(MockHandle):
         return True
     def _get_real_method(self, name):
         return WILDCARD_FUNCTION
+    def _construct_stub(self, name, real_method):
+        return self.forge.create_method_stub(real_method, name=name)
     def _check_unrecorded_method_getting(self, name):
         self._raise_attribute_error(name)
     def _check_getting_method_stub_without_recorded_calls(self, name, stub):

@@ -1,10 +1,10 @@
 from .stub_handle import StubHandle
 
 class FunctionStub(object):
-    def __init__(self, forge, original):
+    def __init__(self, forge, original, name=None):
         super(FunctionStub, self).__init__()
         self.__forge__ = StubHandle(forge, self, original)
-        self.__name__ = original.__name__
+        self.__name__ = original.__name__ if name is None else name
         self.__doc__ = original.__doc__
     def __call__(*args, **kwargs):
         # we use args[0] instead of 'self' to enable functions with a 'self' argument

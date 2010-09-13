@@ -52,6 +52,11 @@ class WildcardTest(ForgeTestCase):
         self.forge.replay()
         wc.a = 2
         self.assertEquals(wc.a, 2)
+    def test__method_repr(self):
+        wc = self.forge.create_wildcard_mock()
+        m = wc.method_with_specific_name
+        self.assertTrue("method_with_specific_name" in repr(m))
+        self.assertTrue("method_with_specific_name" in str(m))
     def test__special_methods_ok(self):
         wc = self.forge.create_wildcard_mock()
         f = self.forge.create_wildcard_function_stub()
