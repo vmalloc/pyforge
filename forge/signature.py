@@ -2,9 +2,11 @@ import copy
 import inspect
 import itertools
 from exceptions import SignatureException, InvalidKeywordArgument
-from types import ClassType, MethodType
+from .utils import is_method
+from .utils import is_bound_method
+from .utils import is_class_method
 from numbers import Number
-from dtypes import NOTHING
+from .dtypes import NOTHING
 
 class Argument(object):
     def __init__(self, name, default=NOTHING):
@@ -21,14 +23,11 @@ class FunctionSignature(object):
         self.func_name = func.__name__
         self._build_arguments()
     def is_method(self):
-        return isinstance(self.func, MethodType)
-    def is_class_method(self):
-        im_self = getattr(self.func, 'im_self', None)
-        if im_self is None:
-            return False
-        return type(im_self) in (type, ClassType)
+        return is_method(self.func)
     def is_bound(self):
-        return self.is_method() and self.func.im_self is not None
+        return is_bound_method(self.func)
+    def is_class_method(self):
+        return is_class_method(self.func)
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)

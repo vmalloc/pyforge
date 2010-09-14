@@ -1,6 +1,7 @@
 import types
 from ut_utils import ForgeTestCase
 from forge.stub import FunctionStub
+from forge.class_mock import ClassMockObject
 import time
 orig_time_sleep = time.sleep
 import os
@@ -133,6 +134,46 @@ class ReplacingTest(ForgeTestCase):
         self.forge.restore_all_replacements()
         self.assertIs(cls.some_property, orig)
         self.assertIs(cls().some_property, 2)
+
+class NonFunctionStubbingTest(ForgeTestCase):
+    def setUp(self):
+        super(NonFunctionStubbingTest, self).setUp()
+        self.x = self.forge.create_sentinel()
+    def test__replacing_new_style_class_objects(self):
+        class MyClass(object):
+            pass
+        self._test__replacing_objects(MyClass(), MyClass)
+    def test__replacing_old_style_class_objects(self):
+        class MyClass:
+            pass
+        self._test__replacing_objects(MyClass(), MyClass)
+    def test__replacing_builtin_objects(self):
+        from cStringIO import StringIO
+        self._test__replacing_objects(StringIO(), type(StringIO()))
+    def _test__replacing_objects(self, obj, cls):
+        orig = self.x.obj = obj
+        self.forge.replace(self.x, 'obj')
+        self.assertIsInstance(self.x.obj, ClassMockObject)
+        self.assertTrue(self.x.obj.__forge__.behaves_as_instance)
+        self.assertIs(self.x.obj.__forge__.mocked_class, cls)
+        self.forge.restore_all_replacements()
+        self.assertIs(self.x.obj, orig)
+    def test__replacing_new_style_classes(self):
+        class MyClass(object):
+            pass
+        self._test__replacing_classes(MyClass)
+    def test__stubbing_old_new_style_classes(self):
+        class MyClass:
+            pass
+        self._test__replacing_classes(MyClass)
+    def _test__replacing_classes(self, cls):
+        self.x.cls = cls
+        self.forge.replace(self.x, 'cls')
+        self.assertIsInstance(self.x.cls, ClassMockObject)
+        self.assertIs(self.x.cls.__forge__.mocked_class, cls)
+        self.assertFalse(self.x.cls.__forge__.behaves_as_instance)
+        self.forge.restore_all_replacements()
+        self.assertIs(self.x.cls, cls)
 
 class MultipleStubbingTest(ForgeTestCase):
     def test__multiple_stubbing(self):

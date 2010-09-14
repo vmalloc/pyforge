@@ -1,4 +1,6 @@
-import types
+from .utils import is_class
+from .utils import is_method
+from .utils import is_function
 
 class Replacer(object):
     def __init__(self, forge):
@@ -6,10 +8,20 @@ class Replacer(object):
         self.forge = forge
         self._stubs = []
     def replace(self, obj, attr_name):
-        if isinstance(obj, types.ModuleType):
-            return self._replace_module_function_with_stub(obj, attr_name)
-        return self._replace_object_method_with_stub(obj, attr_name)
+        replaced = getattr(obj, attr_name)
+        replacement = self._get_replacement(replaced)
+        return self.replace_with(obj, attr_name, replacement)
 
+    def _get_replacement(self, replaced):
+        if is_class(replaced):
+            return self.forge.create_class_mock(replaced)
+        if is_method(replaced):
+            return self.forge.create_method_stub(replaced)
+        if is_function(replaced):
+            return self.forge.create_function_stub(replaced)
+        return self.forge.create_mock(self._get_class(replaced))
+    def _get_class(self, obj):
+        return getattr(obj, "__class__", type(obj))
     def _replace_object_method_with_stub(self, obj, method_name):
         return self.replace_with(obj, method_name,
                                  self.forge.create_method_stub(getattr(obj, method_name)))
