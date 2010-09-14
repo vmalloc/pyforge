@@ -1,27 +1,26 @@
 import types
 
-class StubInstaller(object):
+class Replacer(object):
     def __init__(self, forge):
-        super(StubInstaller, self).__init__()
+        super(Replacer, self).__init__()
         self.forge = forge
         self._stubs = []
-    def replace_with_stub(self, obj, method_name):
+    def replace(self, obj, attr_name):
         if isinstance(obj, types.ModuleType):
-            return self._replace_module_function_with_stub(obj, method_name)
-        return self._replace_object_method_with_stub(obj, method_name)
+            return self._replace_module_function_with_stub(obj, attr_name)
+        return self._replace_object_method_with_stub(obj, attr_name)
 
     def _replace_object_method_with_stub(self, obj, method_name):
-        return self.replace(obj, method_name,
-                                       self.forge.create_method_stub(getattr(obj, method_name)))
+        return self.replace_with(obj, method_name,
+                                 self.forge.create_method_stub(getattr(obj, method_name)))
     def _replace_module_function_with_stub(self, module, function_name):
-        return self.replace(module, function_name,
+        return self.replace_with(module, function_name,
                                        self.forge.create_function_stub(getattr(module, function_name)))
-    def replace(self, obj, attr_name, stub):
-        orig = getattr(obj, attr_name)
+    def replace_with(self, obj, attr_name, stub):
         self._stubs.append(InstalledStub(obj, attr_name, stub))
         setattr(obj, attr_name, stub)
         return stub
-    def restore_all_stubs(self):
+    def restore_all(self):
         while self._stubs:
             installed = self._stubs.pop(-1)
             installed.restore()

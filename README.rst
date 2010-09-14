@@ -106,7 +106,7 @@ Replacing Methods and Functions with Stubs
 Forge includes a mechanism for installing (and later removing) stubs instead of ordinary methods and functions::
 
  >>> import time
- >>> forge_manager.replace_with_stub(time, "time") # doctest: +ELLIPSIS
+ >>> forge_manager.replace(time, "time") # doctest: +ELLIPSIS
  <...>
  >>> time.time().and_return(2)
  2
@@ -114,7 +114,7 @@ Forge includes a mechanism for installing (and later removing) stubs instead of 
  >>> time.time()
  2
  >>> forge_manager.verify()
- >>> forge_manager.restore_all_stubs()
+ >>> forge_manager.restore_all_replacements()
  >>> forge_manager.reset()
 
  This also works, of course, on methods:
@@ -125,25 +125,25 @@ Forge includes a mechanism for installing (and later removing) stubs instead of 
  ...     def g(self):
  ...         raise NotImplementedError()
  >>> instance = MyClass()
- >>> forge_manager.replace_with_stub(instance, "g") # doctest: +ELLIPSIS
+ >>> forge_manager.replace(instance, "g") # doctest: +ELLIPSIS
  <...>
  >>> instance.g() # doctest: +ELLIPSIS
  <...>
  >>> forge_manager.replay()
  >>> instance.f()
  >>> forge_manager.verify()
- >>> forge_manager.restore_all_stubs()
+ >>> forge_manager.restore_all_replacements()
  >>> forge_manager.reset()
 
 One can also use the same install mechanism to set a custom value and have it restored along with all stubs::
 
  >>> class SomeClass(object):
  ...     x = 2
- >>> forge_manager.stub_installer.replace(SomeClass, "x", 3)
+ >>> forge_manager.replace_with(SomeClass, "x", 3)
  3
  >>> SomeClass.x
  3
- >>> forge_manager.restore_all_stubs()
+ >>> forge_manager.restore_all_replacements()
  >>> SomeClass.x
  2
  

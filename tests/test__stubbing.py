@@ -29,13 +29,13 @@ orig_oldstyle_property = OldStyleClass.some_property
 class StubbingObjectsTest(ForgeTestCase):
     def _test__stubbing_object(self, obj):
         expected = obj.method
-        returned = self.forge.replace_with_stub(obj, 'method')
+        returned = self.forge.replace(obj, 'method')
         self.assertIsInstance(obj.method, FunctionStub)
         self.assertIs(returned, obj.method)
         self.assertIs(obj.method.__forge__.original.im_func, expected.im_func)
         self.assertIs(obj.method.__forge__.signature.func.im_func, expected.im_func)
         self.assertTrue(obj.method.__forge__.signature.is_bound())
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         self.assertIs(obj.method.im_func, expected.im_func)
     def test__stubbing_new_style_objects(self):
         self._test__stubbing_object(NewStyleClass())
@@ -68,7 +68,7 @@ class StubbingClassMethodTest(ForgeTestCase):
             self._test__stubbing_class_methods(cls, 'static_method', True)
     def _test__stubbing_class_methods(self, cls, name, is_static):
         orig = getattr(cls, name)
-        self.forge.replace_with_stub(cls, name)
+        self.forge.replace(cls, name)
         func = getattr(cls, name)
         self.assertIsInstance(func, FunctionStub)
         func(1, 2, 3)
@@ -77,7 +77,7 @@ class StubbingClassMethodTest(ForgeTestCase):
         func(1, 2, 3)
         self.forge.verify()
         self.forge.reset()
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         func = getattr(cls, name)
         if is_static:
             self.assertIsInstance(func, types.FunctionType)
@@ -93,16 +93,16 @@ class StubbingClassMethodTest(ForgeTestCase):
 
 class StubbingModulesTest(ForgeTestCase):
     def test__stub_c_function(self):
-        self.forge.replace_with_stub(time, "sleep")
+        self.forge.replace(time, "sleep")
         self.assertIsInstance(time.sleep, FunctionStub)
         expected_result = 666
         time.sleep(10).and_return(expected_result)
         self.forge.replay()
         self.assertEquals(time.sleep(10), expected_result)
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         self.assertIs(time.sleep, orig_time_sleep)
     def test__stub_module_functions(self):
-        self.forge.replace_with_stub(os.path, "join")
+        self.forge.replace(os.path, "join")
         self.assertIsInstance(os.path.join, FunctionStub)
         self.assertFalse(os.path.join.__forge__.signature.has_variable_kwargs())
         self.assertTrue(os.path.join.__forge__.signature.has_variable_args())
@@ -111,45 +111,45 @@ class StubbingModulesTest(ForgeTestCase):
         self.forge.replay()
         self.assertEquals(return_path, os.path.join("a", "b", "c"))
         self.forge.verify()
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         self.assertIs(os.path.join, orig_os_path_join)
 
 class ReplacingTest(ForgeTestCase):
     def test__replacing_simple_attributes(self):
         s = self.forge.create_sentinel()
         s.a = 2
-        self.forge.stub_installer.replace(s, "a", 3)
+        self.forge.replace_with(s, "a", 3)
         self.assertEquals(s.a, 3)
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         self.assertEquals(s.a, 2)
     def test__replacing_properties__new_style(self):
         self._test__replacing_properties(NewStyleClass, orig_newstyle_property)
     def test__replacing_properties__old_style(self):
         self._test__replacing_properties(OldStyleClass, orig_oldstyle_property)
     def _test__replacing_properties(self, cls, orig):
-        self.forge.stub_installer.replace(cls, "some_property", 3)
+        self.forge.replace_with(cls, "some_property", 3)
         self.assertEquals(cls.some_property, 3)
         self.assertEquals(cls().some_property, 3)
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         self.assertIs(cls.some_property, orig)
         self.assertIs(cls().some_property, 2)
 
 class MultipleStubbingTest(ForgeTestCase):
     def test__multiple_stubbing(self):
-        self.forge.replace_with_stub(self.forge, "replace_with_stub")
+        self.forge.replace(self.forge, "replace")
 
         some_object = self.forge.create_sentinel()
 
         expected_results = [
-            self.forge.replace_with_stub(some_object, x).and_return(object())
+            self.forge.replace(some_object, x).and_return(object())
             for x in ["a", "b", "c"]
             ]
 
         self.forge.replay()
 
-        returned = self.forge.replace_with_stubs(some_object, "a", "b", "c")
+        returned = self.forge.replace_many(some_object, "a", "b", "c")
         self.assertEquals(returned, expected_results)
-        self.forge.restore_all_stubs()
+        self.forge.restore_all_replacements()
         self.forge.verify()
         self.assertNoMoreCalls()
         self.forge.reset()
