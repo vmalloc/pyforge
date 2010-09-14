@@ -55,7 +55,21 @@ Just like classes yield mocks, regular functions yield stubs, through the use of
  >>> stub = forge_manager.create_function_stub(some_func)
 
 As methods and functions are recorded, their signature is verified against the recorded calls. Upon replay the call must match the original call, so you shouldn't worry too much about accidents concerning the function signature.
- 
+
+Expecting Attribute Setting
+---------------------------
+Setting attributes for mock object is allowed only during record mode. By default, attributes set during replay will trigger an exception.
+
+However, in some cases you want to *expect* an attribute being set at some point of the replay. Due to the hackish nature of the Forge setattr/getattr mechanism, the way to do this is with a dedicated API through the __forge__ handle:
+
+>>> mock = forge_manager.create_mock(SomeClass)
+>>> mock.__forge__.expect_setattr("length", 20) # doctest: +ELLIPSIS
+setattr(...)
+>>> forge_manager.replay()
+>>> mock.length = 20
+>>> forge_manager.verify()
+>>> forge_manager.reset()
+
 Actions
 -------
 When expecting a call on a stub, you can control what happens *when* the call takes place. Supported cases are:
