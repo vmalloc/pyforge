@@ -22,7 +22,7 @@ class MockHandle(ForgeHandle):
             return self.get_nonmethod_class_member(attr)
         if self.has_method(attr):
             return self.get_method(attr)
-        raise AttributeError("%s has no attribute %s" % (self, attr))
+        raise AttributeError("%s has no attribute %r" % (self.mock, attr))
     def set_attribute(self, attr, value):
         if self.forge.is_recording():
             self._set_attribute(attr, value)
