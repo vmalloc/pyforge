@@ -159,7 +159,16 @@ class ClassMockConstructionTest(ForgeTestCase):
         self.forge.replay()
         self.assertIs(result_1, mock(1, 2, 3))
         self.assertIs(result_2, mock(1, 2, 3, 4))
-
+    def test__construction_only_kwarg(self):
+        class MyClass(object):
+            def __init__(self, a=None, b=None, c=None):
+                pass
+        mock = self.forge.create_class_mock(MyClass)
+        expected = self.forge.create_mock(MyClass)
+        mock(b=2).and_return(expected)
+        self.forge.replay()
+        returned = mock(b=2)
+        self.assertIs(returned, expected)
 
 
 
