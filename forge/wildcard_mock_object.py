@@ -6,4 +6,4 @@ class WildcardMockObject(MockObject):
         super(WildcardMockObject, self).__init__()
         self.__forge__ = WildcardMockHandle(forge, self)
     def __repr__(self):
-        return "<Wildcard mock 0x%x>" % (id(self),)
+        return "<Wildcard mock>"

@@ -210,15 +210,26 @@ Wildcard Mocks
 --------------
 Although not recommended, sometimes you just want a mock that accepts anything during record, and just verifies that you stick to it in replay. This is useful for prototyping an interface that doesn't exist yet. This is done in Forge by using *wildcard mocks*::
 
- mock = forge.create_wildcard_mock()
- stub = forge.create_wildcard_function_stub()
- mock.f()
- mock.g(1, 2, 3, d=4) # ok - mock is a wildcard
- stub()
- stub(1, 2, 3, d=4)
- 
- forge.replay()
- ...
+ >>> mock = forge_manager.create_wildcard_mock()
+ >>> mock
+ <Wildcard mock>
+ >>> stub = forge_manager.create_wildcard_function_stub()
+ >>> stub
+ <Stub for '*wildcard*'>
+ >>> mock.f() # doctest: +ELLIPSIS
+ <...>
+ >>> mock.g(1, 2, 3, d=4) # doctest: +ELLIPSIS
+ <...>
+ >>> stub() # doctest: +ELLIPSIS
+ <...>
+ >>> stub(1, 2, 3, d=4) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay() 
+ >>> mock.f() 
+ >>> mock.g(1, 2, 3, d=4) 
+ >>> stub() 
+ >>> stub(1, 2, 3, d=4) 
+ >>> forge_manager.reset() 
 
 Class Mocks
 -----------

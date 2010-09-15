@@ -1,14 +1,22 @@
 from handle import ForgeHandle
 from signature import FunctionSignature
 from exceptions import SignatureException
+from .dtypes import WILDCARD_FUNCTION
 
 class StubHandle(ForgeHandle):
-    def __init__(self, forge, stub, original):
+    def __init__(self, forge, stub, original, name=None):
         super(StubHandle, self).__init__(forge)
         self.stub = stub
         self.original = original
         self.signature = FunctionSignature(self.original)
+        self.name = name
         self._obj = None
+    def get_name(self):
+        if self.name is not None:
+            return self.name
+        if self.original is WILDCARD_FUNCTION:
+            return '*wildcard*'
+        return self.original.__name__
     def bind(self, obj):
         if not self.signature.is_method():
             raise SignatureException("%s cannot be bound!" % self.stub)
