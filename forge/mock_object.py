@@ -3,7 +3,15 @@ from exceptions import UnexpectedCall
 
 class MockObject(object):
     def __repr__(self):
-        return "<%s mock 0x%x>" % (self.__forge__.mocked_class, id(self))
+        desc = self._get_class_description()
+        type_str = 'Mock' if self.__forge__.behaves_as_instance else 'Class mock'
+        return "<%s of %r>" % (type_str, desc)
+    def _get_class_description(self):
+        c = self.__forge__.mocked_class
+        return "%s.%s" % (
+            getattr(c, '__module__', '?'),
+            getattr(c, '__name__', '?')
+        )
     def __getattr__(self, attr):
         return self.__forge__.get_attribute(attr)
     def __setattr__(self, attr, value):
