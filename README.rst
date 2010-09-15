@@ -70,6 +70,16 @@ setattr(...)
 >>> forge_manager.verify()
 >>> forge_manager.reset()
 
+If you want to simulate a *mock structure*, that is, an object with attributes which are in turn other objects, you can use the *create_mock_with_attrs* API. This is especially concise if you create a shortcut for it:
+
+>>> class A(object): pass
+>>> class B(object): pass
+>>> class C(object): pass
+>>> MOCK = forge_manager.create_mock_with_attrs
+>>> result = MOCK(A, b=MOCK(B, c=MOCK(C)))
+>>> result.b.c # doctest: +ELLIPSIS
+<<class '__main__.C'> mock ...>
+
 Actions
 -------
 When expecting a call on a stub, you can control what happens *when* the call takes place. Supported cases are:

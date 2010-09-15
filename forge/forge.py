@@ -56,6 +56,11 @@ class Forge(object):
         return WildcardMockObject(self)
     def create_sentinel(self, name=None):
         return Sentinel(name)
+    def create_mock_with_attrs(self, mocked_class, **attrs):
+        returned = self.create_mock(mocked_class)
+        for attr, value in attrs.iteritems():
+            setattr(returned, attr, value)
+        return returned
     def replace(self, obj, attr_name):
         return self.replacer.replace(obj, attr_name)
     def replace_many(self, obj, *attr_names):
