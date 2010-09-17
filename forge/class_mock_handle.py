@@ -14,7 +14,7 @@ class ClassMockHandle(MockHandle):
         self._assert_is_not_function(mocked_class)
         self.mocked_class = mocked_class
         self._hybrid = hybrid
-    def describe(self):
+    def _describe(self):
         desc = self._get_class_description()
         type_str = 'Mock' if self.behaves_as_instance else 'Class mock'
         return "<%s of %r>" % (type_str, desc)

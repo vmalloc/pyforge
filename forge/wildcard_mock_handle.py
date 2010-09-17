@@ -1,11 +1,12 @@
 from mock_handle import MockHandle
+from constants import WILDCARD_DESCRIPTION
 from dtypes import WILDCARD_FUNCTION
 
 class WildcardMockHandle(MockHandle):
     def _has_method(self, name):
         return True
-    def describe(self):
-        return "<<Wildcard>>"
+    def _describe(self):
+        return WILDCARD_DESCRIPTION
     def _get_real_method(self, name):
         return WILDCARD_FUNCTION
     def _construct_stub(self, name, real_method):

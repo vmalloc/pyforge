@@ -22,7 +22,6 @@ class FunctionCall(QueuedObject):
             self.target.__forge__.describe(),
             self._get_argument_string(),
             )
-
     def _get_argument_string(self):
         args = ["%s=%s" % (arg_name, value) for arg_name, value in sorted(self.args.iteritems())
                 if isinstance(arg_name, basestring)]

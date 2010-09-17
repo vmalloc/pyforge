@@ -9,20 +9,7 @@ class StubHandle(ForgeHandle):
         self.stub = stub
         self.original = original
         self.signature = FunctionSignature(self.original)
-        self.name = name
-        self.parent = parent
-    def describe(self):
-        if self.parent is not None:
-            returned = "%s." % (self.parent.__forge__.describe())
-        else:
-            returned = ""
-        returned += self.get_name()
-        return returned
-    def get_name(self):
-        if self.name is not None:
-            return self.name
-        if self.original is WILDCARD_FUNCTION:
-            return '*wildcard*'
+    def _describe(self):
         return self.original.__name__
     def bind(self, obj):
         self.signature = BoundSignatureAdapter(self.signature, obj)

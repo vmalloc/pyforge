@@ -215,7 +215,7 @@ Although not recommended, sometimes you just want a mock that accepts anything d
  <Wildcard mock>
  >>> stub = forge_manager.create_wildcard_function_stub()
  >>> stub
- <Stub for '*wildcard*'>
+ <Stub for '<<Wildcard>>'>
  >>> mock.f() # doctest: +ELLIPSIS
  <...>
  >>> mock.g(1, 2, 3, d=4) # doctest: +ELLIPSIS

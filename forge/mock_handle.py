@@ -7,8 +7,6 @@ class MockHandle(ForgeHandle):
         self.behaves_as_instance = behave_as_instance
         self._attributes = {}
         self._is_hashable = False
-    def describe(self):
-        raise NotImplementedError()
     def is_hashable(self):
         return self._is_hashable
     def enable_hashing(self):
@@ -54,9 +52,14 @@ class MockHandle(ForgeHandle):
             returned = self._construct_stub(name, real_method)
             self._bind_if_needed(name, returned)
             self.forge.stubs.add_initialized_method_stub(self.mock, name, returned)
+            self._set_method_description(returned, name)
         elif self.forge.is_replaying() and not returned.__forge__.has_recorded_calls():
             self._check_getting_method_stub_without_recorded_calls(name, returned)
         return returned
+    def _set_method_description(self, method, name):
+        method.__forge__.set_description("%s.%s" % (
+            self.describe(), name
+            ))
     def _construct_stub(self, name, real_method):
         return self.forge.create_method_stub(real_method, parent=self.mock)
     def _check_unrecorded_method_getting(self, name):

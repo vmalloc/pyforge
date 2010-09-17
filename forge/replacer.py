@@ -10,6 +10,7 @@ class Replacer(object):
     def replace(self, obj, attr_name):
         replaced = getattr(obj, attr_name)
         replacement = self._get_replacement(replaced)
+        replacement.__forge__.set_description("%s.%s" % (obj, attr_name))
         return self.replace_with(obj, attr_name, replacement)
 
     def _get_replacement(self, replaced):
