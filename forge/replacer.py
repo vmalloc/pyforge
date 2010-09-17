@@ -1,3 +1,4 @@
+from types import ModuleType
 from .utils import is_class
 from .utils import is_method
 from .utils import is_function
@@ -10,9 +11,8 @@ class Replacer(object):
     def replace(self, obj, attr_name):
         replaced = getattr(obj, attr_name)
         replacement = self._get_replacement(replaced)
-        replacement.__forge__.set_description("%s.%s" % (obj, attr_name))
+        self._set_replacement_description(replacement, obj, attr_name)
         return self.replace_with(obj, attr_name, replacement)
-
     def _get_replacement(self, replaced):
         if is_class(replaced):
             return self.forge.create_class_mock(replaced)
@@ -23,6 +23,12 @@ class Replacer(object):
         return self.forge.create_mock(self._get_class(replaced))
     def _get_class(self, obj):
         return getattr(obj, "__class__", type(obj))
+    def _set_replacement_description(self, replacement, obj, attr_name):
+        if isinstance(obj, ModuleType):
+            obj_name = obj.__name__
+        else:
+            obj_name = str(obj)
+        replacement.__forge__.set_description("%s.%s" % (obj_name, attr_name))
     def _replace_object_method_with_stub(self, obj, method_name):
         return self.replace_with(obj, method_name,
                                  self.forge.create_method_stub(getattr(obj, method_name)))

@@ -1,3 +1,4 @@
+from types import ModuleType
 from contextlib import contextmanager
 from ut_utils import ForgeTestCase
 from forge import UnexpectedCall
@@ -76,6 +77,17 @@ class ErrorsInRegularStubs(ForgeTestCase):
         self.forge.replay()
         with self.assertUnexpectedMethodCall('method', str(self.obj)):
             self.obj.method(1, 2, 4)
+    def test__replaced_module_clarity(self):
+        module_name = 'some_module_name'
+        module = ModuleType(module_name)
+        def f(a, b, c):
+            raise NotImplementedError()
+        module.f = f
+        self.forge.replace(module, 'f')
+        module.f(1, 2, 3)
+        self.forge.replay()
+        with self.assertUnexpectedMethodCall('f', module_name):
+            module.f(1, 2, 4)
     def assertUnexpectedMethodCall(self, method_name, obj_name="<Mock of 'SomeClass'>"):
         spaces = (len(method_name) + len(obj_name)) * " "
         return self.assertUnexpectedCall("""
