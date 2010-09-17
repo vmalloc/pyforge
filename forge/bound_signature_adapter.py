@@ -18,4 +18,7 @@ class BoundSignatureAdapter(object):
         returned.pop(self._get_self_arg_name())
         return returned
     def _get_self_arg_name(self):
-        return self._signature.get_arg_names().next()
+        arg_names = list(self._signature.get_arg_names())
+        if arg_names:
+            return arg_names[0]
+        return 0

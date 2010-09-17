@@ -11,6 +11,7 @@ METHODS = [
     ClassMethod('class_method(cls, a, b, c)'),
     StaticMethod('static_method(a, b, c)'),
     Method('without_self()'),
+    Method('with_varargs_self(*args)'),
     Method('__len__(self)'),
     ]
 
@@ -36,6 +37,12 @@ class MockInstanceMethodTest(ForgeTestCase):
         self._test__recording_and_calling('class_method')
     def test__calling_static_methods(self):
         self._test__recording_and_calling('static_method')
+    def test__calling_methods_with_varargs_self(self):
+        self._test__recording_and_calling('with_varargs_self')
+    def test__calling_method_without_self(self):
+        for mock in self.mocks:
+            with self.assertRaises(SignatureException):
+                mock.without_self()
     @for_each_mock
     def test__static_method_signature_checking(self, obj):
         with self.assertRaises(SignatureException):
