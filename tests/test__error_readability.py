@@ -20,6 +20,8 @@ class ErrorsInRegularStubs(ForgeTestCase):
             def class_method(cls, a, b, c):
                 raise NotImplementedError()
         self.mock = self.forge.create_mock(SomeClass)
+        self.obj = SomeClass()
+        self.forge.replace(self.obj, 'method')
         self.class_mock = self.forge.create_class_mock(SomeClass)
     @contextmanager
     def assertUnexpectedCall(self, diff_str):
@@ -69,10 +71,15 @@ class ErrorsInRegularStubs(ForgeTestCase):
         self.forge.replay()
         with self.assertUnexpectedMethodCall('__call__'):
             self.mock(1, 2, 4)
-    def assertUnexpectedMethodCall(self, name, class_name="<Mock of 'SomeClass'>"):
-        spaces = (len(name) + len(class_name)) * " "
+    def test__replaced_method_clarity(self):
+        self.obj.method(1, 2, 3)
+        self.forge.replay()
+        with self.assertUnexpectedMethodCall('method', str(self.obj)):
+            self.obj.method(1, 2, 4)
+    def assertUnexpectedMethodCall(self, method_name, obj_name="<Mock of 'SomeClass'>"):
+        spaces = (len(method_name) + len(obj_name)) * " "
         return self.assertUnexpectedCall("""
 - %s.%s(a=1, b=2, c=4)
 ? %s              ^
 + %s.%s(a=1, b=2, c=3)
-? %s              ^""" % ((class_name, name, spaces) * 2))
+? %s              ^""" % ((obj_name, method_name, spaces) * 2))
