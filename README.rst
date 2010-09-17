@@ -27,7 +27,7 @@ There shouldn't be a real reason for keeping more than one forge manager. What i
  ...         pass    
  >>> mock = forge_manager.create_mock(SomeClass)
  >>> mock
- <Mock of '__main__.SomeClass'>
+ <Mock of 'SomeClass'>
 
 Mock tests usually act in a record-replay manner. You record what you expect your mock to do, and then replay it, while Forge tracks what happens and makes sure it is correct::
 
@@ -80,7 +80,7 @@ If you want to simulate a *mock structure*, that is, an object with attributes w
 >>> MOCK = forge_manager.create_mock_with_attrs
 >>> result = MOCK(A, b=MOCK(B, c=MOCK(C)))
 >>> result.b.c # doctest: +ELLIPSIS
-<Mock of '__main__.C'>
+<Mock of 'C'>
 
 Actions
 -------
@@ -248,7 +248,7 @@ Sometimes you would like to simulate the behavior of a class, and not an object.
  ...         pass
  >>> class_mock = forge_manager.create_class_mock(MyClass)
  >>> class_mock
- <Class mock of '__main__.MyClass'>
+ <Class mock of 'MyClass'>
  >>> class_mock.regular_method() # doctest: +IGNORE_EXCEPTION_DETAIL
  Traceback (most recent call last):
  SignatureException: ...

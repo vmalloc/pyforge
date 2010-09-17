@@ -4,12 +4,20 @@ from .dtypes import WILDCARD_FUNCTION
 from .bound_signature_adapter import BoundSignatureAdapter
 
 class StubHandle(ForgeHandle):
-    def __init__(self, forge, stub, original, name=None):
+    def __init__(self, forge, stub, original, name=None, parent=None):
         super(StubHandle, self).__init__(forge)
         self.stub = stub
         self.original = original
         self.signature = FunctionSignature(self.original)
         self.name = name
+        self.parent = parent
+    def describe(self):
+        if self.parent is not None:
+            returned = "%s." % (self.parent.__forge__.describe())
+        else:
+            returned = ""
+        returned += self.get_name()
+        return returned
     def get_name(self):
         if self.name is not None:
             return self.name

@@ -17,6 +17,12 @@ class FunctionCall(QueuedObject):
         return self.target is call.target and self.args == call.args
     def __repr__(self):
         return "<Function call: %s(%s)>" % (self.target, self._get_argument_string())
+    def describe(self):
+        return "%s(%s)" % (
+            self.target.__forge__.describe(),
+            self._get_argument_string(),
+            )
+
     def _get_argument_string(self):
         args = ["%s=%s" % (arg_name, value) for arg_name, value in sorted(self.args.iteritems())
                 if isinstance(arg_name, basestring)]

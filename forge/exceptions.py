@@ -1,3 +1,6 @@
+from difflib import Differ
+from queued_object import QueuedObject
+
 class ForgeException(Exception):
     pass
 
@@ -28,9 +31,25 @@ class UnexpectedEvent(ForgeException):
         self.got = got
     def __str__(self):
         returned = self._getTitle()
-        returned += "\n Expected: %s" % (self.expected,)
-        returned += "\n Got: %s" % (self.got,)
+        returned += " (Expected: +, Got: -)\n"
+        returned += self._get_diff_string()
         return returned
+    def _get_diff_string(self):
+        diff = Differ().compare(
+            [self._get_got_string()],
+            [self._get_expected_string()],
+            )
+        return "\n".join(line.strip() for line in diff)
+    def _get_expected_string(self):
+        return self._get_description_string(self.expected)
+    def _get_got_string(self):
+        return self._get_description_string(self.got)
+    def _get_description_string(self, x):
+        if x is None:
+            return "<< None >>"
+        if not isinstance(x, QueuedObject):
+            return str(x)
+        return x.describe()
 class UnexpectedCall(UnexpectedEvent):
     @classmethod
     def _getTitle(cls):
