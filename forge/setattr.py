@@ -10,5 +10,6 @@ class Setattr(QueuedObject):
         if not isinstance(other, Setattr):
             return False
         return other.target is self.target and other.name == self.name and other.value == self.value
-    def __repr__(self):
+    def describe(self):
         return "setattr(%r, %r, %r)" % (self.target, self.name, self.value)
+    

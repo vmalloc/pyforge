@@ -15,8 +15,6 @@ class FunctionCall(QueuedObject):
         if not isinstance(call, FunctionCall):
             return False
         return self.target is call.target and self.args == call.args
-    def __repr__(self):
-        return "<Function call: %s(%s)>" % (self.target, self._get_argument_string())
     def describe(self):
         return "%s(%s)" % (
             self.target.__forge__.describe(),

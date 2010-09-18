@@ -66,7 +66,7 @@ However, in some cases you want to *expect* an attribute being set at some point
 
 >>> mock = forge_manager.create_mock(SomeClass)
 >>> mock.__forge__.expect_setattr("length", 20) # doctest: +ELLIPSIS
-setattr(...)
+<...>
 >>> forge_manager.replay()
 >>> mock.length = 20
 >>> forge_manager.verify()

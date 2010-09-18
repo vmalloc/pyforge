@@ -1,8 +1,9 @@
+import sys
 from difflib import Differ
 from types import ModuleType
 from contextlib import contextmanager
 from ut_utils import ForgeTestCase
-from forge import UnexpectedCall
+from forge import UnexpectedCall, UnexpectedSetattr
 
 class ErrorClarityTest(ForgeTestCase):
     pass
@@ -34,7 +35,7 @@ class ErrorsInRegularStubs(ForgeTestCase):
 
     def test__function_error_clarity_no_expected(self):
         self.forge.replay()
-        with self.assertUnexpectedCall("<< None >>",
+        with self.assertUnexpectedEvent("<< None >>",
                                        "some_function(a=1, b=2, c=4)"):
             self.stub(1, 2, 4)
     def test__method_clarity(self):
@@ -79,28 +80,40 @@ class ErrorsInRegularStubs(ForgeTestCase):
             module.f(1, 2, 4)
     def test__debug_info(self):
         self.forge.debug.enable()
+        record_lineno = self._get_lineno() + 1
         self.stub(1, 2, 3)
         self.forge.replay()
         file_name = __file__
         if file_name.endswith(".pyc"):
             file_name = file_name[:-1]
-        prologue = "Recorded from %s:82::test__debug_info" % file_name
-        prologue += "\nReplayed from %s:91::test__debug_info" % file_name
+        replay_lineno = self._get_lineno() + 5
+        prologue = "Recorded from %s:%s::test__debug_info" % (file_name, record_lineno)
+        prologue += "\nReplayed from %s:%s::test__debug_info" % (file_name, replay_lineno)
         with self.assertUnexpectedCommonCase('some_function',
                                              prologue=prologue):
             self.stub(1, 2, 4)
+    def _get_lineno(self):
+        return sys._getframe(1).f_lineno
+    def test__setattr_clarity(self):
+        self.mock.__forge__.expect_setattr('a', 2)
+        self.forge.replay()
+        with self.assertUnexpectedEvent("setattr(%s, 'a', 2)" % self.mock,
+                                        "setattr(%s, 'a', 3)" % self.mock,
+                                        message="Unexpected attribute set!",
+                                        cls=UnexpectedSetattr):
+            self.mock.a = 3
     def assertUnexpectedCommonCase(self, function_name, prologue=None):
-        return self.assertUnexpectedCall('%s(a=1, b=2, c=3)' % function_name,
+        return self.assertUnexpectedEvent('%s(a=1, b=2, c=3)' % function_name,
                                          '%s(a=1, b=2, c=4)' % function_name,
                                          prologue=prologue)
     @contextmanager
-    def assertUnexpectedCall(self, expected, found, prologue=None):
-        diff_str = "Unexpected function called! (Expected: +, Got: -)\n"
+    def assertUnexpectedEvent(self, expected, found, prologue=None, cls=UnexpectedCall, message="Unexpected function called!"):
+        diff_str = "%s (Expected: +, Got: -)\n" % message
         if prologue:
             diff_str += prologue
             diff_str += "\n"
         diff_str += "\n".join(map(str.strip, Differ().compare([found], [expected])))
-        with self.assertRaises(UnexpectedCall) as caught:
+        with self.assertRaises(cls) as caught:
             yield None
 
         self.assertMultiLineEqual(str(caught.exception),

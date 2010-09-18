@@ -6,3 +6,5 @@ class QueuedObject(object):
         raise NotImplementedError()
     def describe(self):
         raise NotImplementedError()
+    def __repr__(self):
+        return "<%s>" % self.describe()
