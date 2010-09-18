@@ -15,17 +15,17 @@ class StubHandle(ForgeHandle):
         self.signature = BoundSignatureAdapter(self.signature, obj)
     def is_bound(self):
         return self.signature.is_bound()
-    def handle_call(self, args, kwargs):
+    def handle_call(self, args, kwargs, caller_info):
         if self.forge.is_recording():
-            returned = self._handle_recorded_call(args, kwargs)
+            returned = self._handle_recorded_call(args, kwargs, caller_info)
             self.forge.stubs.mark_stub_recorded(self.stub)
             return returned
         else:
-            return self._handle_replay_call(args, kwargs)
-    def _handle_recorded_call(self, args, kwargs):
-        return self.forge.queue.push_call(self.stub, args, kwargs)
-    def _handle_replay_call(self, args, kwargs):
-        expected_call = self.forge.queue.pop_matching_call(self.stub, args, kwargs)
+            return self._handle_replay_call(args, kwargs, caller_info)
+    def _handle_recorded_call(self, args, kwargs, caller_info):
+        return self.forge.queue.push_call(self.stub, args, kwargs, caller_info)
+    def _handle_replay_call(self, args, kwargs, caller_info):
+        expected_call = self.forge.queue.pop_matching_call(self.stub, args, kwargs, caller_info)
         return_value = expected_call.get_return_value()
         #might raise...
         expected_call.do_side_effects(args, kwargs)

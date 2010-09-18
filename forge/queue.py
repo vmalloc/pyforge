@@ -16,14 +16,14 @@ class ForgeQueue(object):
         if not self._order_groups:
             return 0
         return sum(len(group) for group in self._order_groups)
-    def push_call(self, target, args, kwargs):
-        return self._push(FunctionCall(target, args, kwargs))
-    def push_setattr(self, target, name, value):
-        return self._push(Setattr(target, name, value))
-    def pop_matching_call(self, target, args, kwargs):
-        return self._pop_matching(FunctionCall(target, args, kwargs), UnexpectedCall)
-    def pop_matching_setattr(self, target, name, value):
-        return self._pop_matching(Setattr(target, name, value), UnexpectedSetattr)
+    def push_call(self, target, args, kwargs, caller_info):
+        return self._push(FunctionCall(target, args, kwargs, caller_info))
+    def push_setattr(self, target, name, value, caller_info):
+        return self._push(Setattr(target, name, value, caller_info))
+    def pop_matching_call(self, target, args, kwargs, caller_info):
+        return self._pop_matching(FunctionCall(target, args, kwargs, caller_info), UnexpectedCall)
+    def pop_matching_setattr(self, target, name, value, caller_info):
+        return self._pop_matching(Setattr(target, name, value, caller_info), UnexpectedSetattr)
     def _push(self, queued_object):
         return self._get_recording_group().push(queued_object)
     def _pop_matching(self, queued_object, unexpected_class):

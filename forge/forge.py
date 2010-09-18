@@ -9,6 +9,7 @@ from .stub_manager import StubManager
 from .attribute_manager import AttributeManager
 from .sentinel import Sentinel
 from .dtypes import WILDCARD_FUNCTION
+from .debug import ForgeDebug
 
 class Forge(object):
     def __init__(self):
@@ -16,6 +17,7 @@ class Forge(object):
         self.replacer = Replacer(self)
         self.reset()
         self._id_allocator = itertools.count()
+        self.debug = ForgeDebug(self)
     def get_new_handle_id(self):
         return self._id_allocator.next()
     def is_replaying(self):

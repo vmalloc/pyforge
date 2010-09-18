@@ -3,8 +3,8 @@ from exceptions import ConflictingActions
 from queued_object import QueuedObject
 
 class FunctionCall(QueuedObject):
-    def __init__(self, target, args, kwargs):
-        super(FunctionCall, self).__init__()
+    def __init__(self, target, args, kwargs, caller_info):
+        super(FunctionCall, self).__init__(caller_info)
         self.target = target
         self.args = target.__forge__.signature.get_normalized_args(args, kwargs)
         self._call_funcs = []

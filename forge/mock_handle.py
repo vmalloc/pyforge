@@ -23,15 +23,15 @@ class MockHandle(ForgeHandle):
         if self.has_method(attr):
             return self.get_method(attr)
         raise AttributeError("%s has no attribute %r" % (self.mock, attr))
-    def set_attribute(self, attr, value):
+    def set_attribute(self, attr, value, caller_info):
         if self.forge.is_recording():
             self._set_attribute(attr, value)
         else:
-            self._set_attribute_during_replay(attr, value)
+            self._set_attribute_during_replay(attr, value, caller_info)
     def expect_setattr(self, attr, value):
-        return self.forge.queue.push_setattr(self.mock, attr, value)
-    def _set_attribute_during_replay(self, attr, value):
-        self.forge.queue.pop_matching_setattr(self.mock, attr, value)
+        return self.forge.queue.push_setattr(self.mock, attr, value, caller_info=self.forge.debug.get_caller_info())
+    def _set_attribute_during_replay(self, attr, value, caller_info):
+        self.forge.queue.pop_matching_setattr(self.mock, attr, value, caller_info)
         self._set_attribute(attr, value)
     def _set_attribute(self, attr, value):
         self.forge.attributes.set_attribute(self.mock, attr, value)
@@ -68,9 +68,9 @@ class MockHandle(ForgeHandle):
         raise NotImplementedError()
     def _get_real_method(self, name):
         raise NotImplementedError()
-    def handle_special_method_call(self, name, args, kwargs):
+    def handle_special_method_call(self, name, args, kwargs, caller_info):
         self._check_special_method_call(name, args, kwargs)
-        return self.get_method(name)(*args, **kwargs)
+        return self.get_method(name).__forge__.handle_call(args, kwargs, caller_info)
     def _check_special_method_call(self, name, args, kwargs):
         raise NotImplementedError()
     def is_callable(self):

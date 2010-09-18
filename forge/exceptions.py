@@ -32,7 +32,17 @@ class UnexpectedEvent(ForgeException):
     def __str__(self):
         returned = self._getTitle()
         returned += " (Expected: +, Got: -)\n"
+        debug_info = self._get_debug_info()
+        if debug_info:
+            returned += debug_info
         returned += self._get_diff_string()
+        return returned
+    def _get_debug_info(self):
+        returned = ""
+        if self.expected and self.expected.caller_info:
+            returned += "Recorded from %s\n" % self.expected.caller_info
+        if self.got and self.got.caller_info:
+            returned += "Replayed from %s\n" % self.got.caller_info
         return returned
     def _get_diff_string(self):
         diff = Differ().compare(

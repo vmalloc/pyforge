@@ -1,8 +1,8 @@
 from queued_object import QueuedObject
 
 class Setattr(QueuedObject):
-    def __init__(self, target, name, value):
-        super(Setattr, self).__init__()
+    def __init__(self, target, name, value, caller_info):
+        super(Setattr, self).__init__(caller_info)
         self.target = target
         self.name = name
         self.value = value

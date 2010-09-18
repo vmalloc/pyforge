@@ -8,8 +8,9 @@ class FunctionStub(object):
         self.__name__ = original.__name__ if name is None else name
         self.__doc__ = original.__doc__
     def __call__(*args, **kwargs):
-        # we use args[0] instead of 'self' to enable functions with a 'self' argument
-        return args[0].__forge__.handle_call(args[1:], kwargs)
+        self = args[0]
+        caller_info = self.__forge__.forge.debug.get_caller_info()
+        return self.__forge__.handle_call(args[1:], kwargs, caller_info=caller_info)
     def __repr__(self):
         return '<Stub for %r>' % self.__forge__.describe()
 
