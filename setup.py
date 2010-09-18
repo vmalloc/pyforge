@@ -12,7 +12,7 @@ setup(name="pyforge",
       license="BSD",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
-      url="http://github.com/vmalloc/forge",
-      version="0.1",
+      url="http://github.com/vmalloc/pyforge",
+      version="0.2",
       packages=["forge"]
       )
