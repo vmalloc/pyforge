@@ -8,6 +8,8 @@ class TestedClass(object):
         self.h(a=1, b=2)
         self.class_method()
         self.static_method()
+    def set_value(self):
+        self.value = 2
     def f(self):
         raise NotImplementedError()
     @classmethod
@@ -28,6 +30,10 @@ class TestedClass(object):
         pass
 
 class HybridMockTest(ForgeTestCase):
+    def tearDown(self):
+        self.forge.verify()
+        self.assertNoMoreCalls()
+        super(HybridMockTest, self).tearDown()
     def test__hybrid_mock(self):
         hm = self.forge.create_hybrid_mock(TestedClass)
         # these will be stubbed
@@ -49,4 +55,9 @@ class HybridMockTest(ForgeTestCase):
         self.forge.replay()
         with self.assertRaises(InvalidEntryPoint):
             hm.static_method_entry_point()
-
+    def test__hybrid_mocks_setting_values(self):
+        hm = self.forge.create_hybrid_mock(TestedClass)
+        hm.__forge__.enable_setattr_during_replay()
+        self.forge.replay()
+        hm.set_value()
+        self.assertEquals(hm.value, 2)
