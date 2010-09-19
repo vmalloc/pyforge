@@ -13,6 +13,6 @@ setup(name="pyforge",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
       url="http://github.com/vmalloc/pyforge",
-      version="0.2",
+      version="0.3",
       packages=["forge"]
       )
