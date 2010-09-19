@@ -21,7 +21,7 @@ class ClassMockHandle(MockHandle):
     def _get_class_description(self):
         return getattr(self.mocked_class, '__name__', '?')
     def _assert_is_not_function(self, mocked_class):
-        if type(mocked_class) in (types.FunctionType, types.MethodType):
+        if type(mocked_class) in (types.FunctionType, types.MethodType, types.BuiltinFunctionType):
             raise CannotMockFunctions("Cannot mock functions as classes. Use create_function_stub instead.")
     def _has_method(self, name):
         return hasattr(self.mocked_class, name)

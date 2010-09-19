@@ -72,3 +72,4 @@ class InvalidMockingTest(ForgeTestCase):
         def some_function():
             pass
         yield some_function
+        yield isinstance
