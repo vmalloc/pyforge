@@ -15,6 +15,7 @@ class Forge(object):
     def __init__(self):
         super(Forge, self).__init__()
         self.replacer = Replacer(self)
+        self.attributes = AttributeManager(self)
         self.reset()
         self._id_allocator = itertools.count()
         self.debug = ForgeDebug(self)
@@ -30,7 +31,7 @@ class Forge(object):
         self._is_replaying = False
         self.queue = ForgeQueue(self)
         self.stubs = StubManager(self)
-        self.attributes = AttributeManager(self)
+        self.attributes.reset_replay_attributes()
     @contextmanager
     def verified_replay_context(self):
         self.replay()

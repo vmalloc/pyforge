@@ -22,8 +22,7 @@ class MockAttributesTest(ForgeTestCase):
         self.forge.replay()
         self.assertIs(self.obj.a, attr_value)
         self.forge.reset()
-        with self.assertRaises(AttributeError):
-            self.obj.a
+        self.assertEquals(self.obj.a, attr_value)
     def test__setting_mock_object_attributes_during_replay(self):
         self.forge.replay()
         with self.assertUnexpectedSetattr(self.obj, "a", 2):
@@ -33,6 +32,9 @@ class MockAttributesTest(ForgeTestCase):
         self.forge.replay()
         self.obj.a = 2
         self.assertEquals(self.obj.a, 2)
+        self.forge.reset()
+        with self.assertRaises(AttributeError):
+            self.obj.a
     def test__setting_mock_object_attributes_during_replay_enabled_explicitly_and_disabled_again(self):
         self.obj.__forge__.enable_setattr_during_replay()
         self.obj.__forge__.disable_setattr_during_replay()
