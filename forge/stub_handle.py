@@ -4,12 +4,15 @@ from .dtypes import WILDCARD_FUNCTION
 from .bound_signature_adapter import BoundSignatureAdapter
 
 class StubHandle(ForgeHandle):
-    def __init__(self, forge, stub, original, name=None, parent=None):
+    def __init__(self, forge, stub, original, name=None):
         super(StubHandle, self).__init__(forge)
         self.stub = stub
+        self.name = name
         self.original = original
         self.signature = FunctionSignature(self.original)
     def _describe(self):
+        if self.name is not None:
+            return self.name
         return self.original.__name__
     def bind(self, obj):
         self.signature = BoundSignatureAdapter(self.signature, obj)

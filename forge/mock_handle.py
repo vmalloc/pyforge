@@ -61,7 +61,7 @@ class MockHandle(ForgeHandle):
             self.describe(), name
             ))
     def _construct_stub(self, name, real_method):
-        return self.forge.create_method_stub(real_method, parent=self.mock)
+        return self.forge.create_method_stub(real_method)
     def _check_unrecorded_method_getting(self, name):
         raise NotImplementedError()
     def _check_getting_method_stub_without_recorded_calls(self, name, stub):

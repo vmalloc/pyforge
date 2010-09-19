@@ -2,9 +2,9 @@ from .stub_handle import StubHandle
 from .dtypes import WILDCARD_FUNCTION
 
 class FunctionStub(object):
-    def __init__(self, forge, original, name=None, parent=None):
+    def __init__(self, forge, original, name=None):
         super(FunctionStub, self).__init__()
-        self.__forge__ = StubHandle(forge, self, original, name=name, parent=parent)
+        self.__forge__ = StubHandle(forge, self, original, name=name)
         self.__name__ = original.__name__ if name is None else name
         self.__doc__ = original.__doc__
     def __call__(*args, **kwargs):

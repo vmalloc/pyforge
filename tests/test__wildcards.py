@@ -24,6 +24,10 @@ class WildcardTest(ForgeTestCase):
         self.forge.replay()
         wc.f(1, 2, 3)
         wc.g(1, 2, 3, d=4)
+    def test__wildcard_function_names(self):
+        wc = self.forge.create_wildcard_function_stub('some_name')
+        self.assertIn('some_name', str(wc))
+        self.assertIn('some_name', repr(wc))
     def test__wildcard_access_to_unrecorded_methods(self):
         wc = self.forge.create_wildcard_mock()
         self.forge.replay()
