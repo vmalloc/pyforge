@@ -28,6 +28,15 @@ class MockAttributesTest(ForgeTestCase):
         self.forge.replay()
         with self.assertUnexpectedSetattr(self.obj, "a", 2):
             self.obj.a = 2
+    def test__setting_mock_object_attributes_during_replay_enabled_explicitly(self):
+        self.obj.__forge__.enable_setattr_during_replay()
+        self.forge.replay()
+        self.obj.a = 2
+        self.assertEquals(self.obj.a, 2)
+    def test__setting_mock_object_attributes_during_replay_enabled_explicitly_and_disabled_again(self):
+        self.obj.__forge__.enable_setattr_during_replay()
+        self.obj.__forge__.disable_setattr_during_replay()
+        self.test__setting_mock_object_attributes_during_replay()
     def test__setting_mock_object_attributes_during_replay_even_if_set_during_record(self):
         self.obj.a = 2
         self.forge.replay()

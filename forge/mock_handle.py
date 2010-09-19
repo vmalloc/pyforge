@@ -7,12 +7,19 @@ class MockHandle(ForgeHandle):
         self.behaves_as_instance = behave_as_instance
         self._attributes = {}
         self._is_hashable = False
+        self._is_setattr_enabled_in_replay = False
     def is_hashable(self):
         return self._is_hashable
     def enable_hashing(self):
         self._is_hashable = True
     def disable_hashing(self):
         self._is_hashable = False
+    def enable_setattr_during_replay(self):
+        self._is_setattr_enabled_in_replay = True
+    def disable_setattr_during_replay(self):
+        self._is_setattr_enabled_in_replay = False
+    def is_setattr_enabled_in_replay(self):
+        return self._is_setattr_enabled_in_replay
     def has_attribute(self, attr):
         return False
     def get_attribute(self, attr):
@@ -24,7 +31,7 @@ class MockHandle(ForgeHandle):
             return self.get_method(attr)
         raise AttributeError("%s has no attribute %r" % (self.mock, attr))
     def set_attribute(self, attr, value, caller_info):
-        if self.forge.is_recording():
+        if self.forge.is_recording() or self.is_setattr_enabled_in_replay():
             self._set_attribute(attr, value)
         else:
             self._set_attribute_during_replay(attr, value, caller_info)

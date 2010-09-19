@@ -112,6 +112,13 @@ However, in some cases you want to *expect* an attribute being set at some point
 >>> forge_manager.verify()
 >>> forge_manager.reset()
 
+You can also set mock object to ignore attribute setting (thus allow all setattrs regardless of nature). This is not recommended, but might sometimes be useful::
+
+>>> mock.__forge__.enable_setattr_during_replay()
+>>> forge_manager.replay()
+>>> mock.a = 2 # works!
+>>> forge_manager.reset()
+
 If you want to simulate a *mock structure*, that is, an object with attributes which are in turn other objects, you can use the *create_mock_with_attrs* API. This is especially concise if you create a shortcut for it:
 
 >>> class A(object): pass
