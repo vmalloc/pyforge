@@ -58,6 +58,46 @@ Just like classes yield mocks, regular functions yield stubs, through the use of
 
 As methods and functions are recorded, their signature is verified against the recorded calls. Upon replay the call must match the original call, so you shouldn't worry too much about accidents concerning the function signature.
 
+Failures and Unexpected Events
+------------------------------
+Whenever an event occurs that was not expected, an exception is raised, explaining what happend::
+
+ >>> stub = forge_manager.create_function_stub(some_func)
+ >>> stub(1, 2, 3) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> stub(1, 2, 4) # doctest: +IGNORE_EXCEPTION_DETAIL
+ Traceback (most recent call last):
+  ...
+ UnexpectedCall: Unexpected function called! (Expected: +, Got: -)
+ - some_func(a=1, b=2, c=4)
+ ?                       ^
+ + some_func(a=1, b=2, c=3)
+ ?                       ^
+ >>> forge_manager.reset()
+
+In some cases this is sufficient, but in case you want a bit more info as to where the calls were recorded and replayed, you can turn on debug info:
+
+ >>> forge_manager.debug.enable()
+ >>> stub = forge_manager.create_function_stub(some_func)
+ >>> stub(1, 2, 3) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> stub(1, 2, 4) # doctest: +IGNORE_EXCEPTION_DETAIL
+ Traceback (most recent call last):
+  ...
+ UnexpectedCall: Unexpected function called! (Expected: +, Got: -)
+ Recorded from ...
+ Replayed from ...
+ - some_func(a=1, b=2, c=4)
+ ?                       ^
+ + some_func(a=1, b=2, c=3)
+ ?                       ^
+ >>> forge_manager.reset()
+ >>> forge_manager.debug.disable()
+
+Since sometimes this is a very common patter, you can also turn on debugging through environment variables, by setting the FORGE_DEBUG environment variable to anything when running your tests.
+
 Expecting Attribute Setting
 ---------------------------
 Setting attributes for mock object is allowed only during record mode. By default, attributes set during replay will trigger an exception.
