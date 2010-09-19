@@ -4,6 +4,8 @@ from mock_handle import MockHandle
 from .dtypes import NOTHING
 from types import FunctionType
 from types import MethodType
+from types import BuiltinMethodType
+from .dtypes import MethodDescriptorType
 from .exceptions import InvalidEntryPoint
 from .exceptions import CannotMockFunctions
 from .signature import FunctionSignature
@@ -46,7 +48,7 @@ class ClassMockHandle(MockHandle):
         value = getattr(self.mocked_class, name, NOTHING)
         if value is NOTHING:
             return False
-        return type(value) not in (FunctionType, MethodType)
+        return type(value) not in (FunctionType, MethodType, BuiltinMethodType, MethodDescriptorType)
     def get_nonmethod_class_member(self, name):
         return getattr(self.mocked_class, name)
     def get_method(self, name):

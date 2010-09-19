@@ -43,6 +43,10 @@ class MockingTest(ForgeTestCase):
         self.assertTrue(self.obj != self.forge.create_mock(MockedClass))
 
 class MockingCornerCasesTest(ForgeTestCase):
+    def tearDown(self):
+        self.forge.verify()
+        self.assertNoMoreCalls()
+        super(MockingCornerCasesTest, self).tearDown()
     def _test__calling_method_cannot_be_called_bound(self, cls):
         m = self.forge.create_mock(cls)
         #obtaining the method is ok
@@ -60,6 +64,15 @@ class MockingCornerCasesTest(ForgeTestCase):
             def invalid_method():
                 raise NotImplementedError()
         self._test__calling_method_cannot_be_called_bound(OldStyleClass)
+    def test__mocking_with_method_placeholders(self):
+        mock = self.forge.create_mock(dict)
+        mock.get(2, 3).and_return(4)
+        mock[6].and_return(7)
+        with self.assertRaises(AttributeError):
+            mock.gettt
+        self.forge.replay()
+        self.assertEquals(mock.get(2, 3), 4)
+        self.assertEquals(mock[6], 7)
 
 class InvalidMockingTest(ForgeTestCase):
     def test__cannot_mock_functions(self):
