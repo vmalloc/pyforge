@@ -5,5 +5,8 @@ class Sentinel(object):
         for attr, value in attrs.iteritems():
             setattr(self, attr, value)
     def __repr__(self):
-        return "<Sentinel %s>" % (self.__forge__name if self.__forge__name is not None else '?')
+        name = self.__forge__name
+        if name is None:
+            name = "0x%x" % id(self)
+        return "<Sentinel %s>" % name
 
