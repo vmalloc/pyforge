@@ -27,7 +27,7 @@ class Replacer(object):
         if isinstance(obj, ModuleType):
             obj_name = obj.__name__
         else:
-            obj_name = str(obj)
+            obj_name = "<%s instance>" % (type(obj).__name__,)
         replacement.__forge__.set_description("%s.%s" % (obj_name, attr_name))
     def _replace_object_method_with_stub(self, obj, method_name):
         return self.replace_with(obj, method_name,

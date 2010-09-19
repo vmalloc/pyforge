@@ -65,7 +65,7 @@ class ErrorsInRegularStubs(ForgeTestCase):
     def test__replaced_method_clarity(self):
         self.obj.method(1, 2, 3)
         self.forge.replay()
-        with self.assertUnexpectedCommonCase('%s.method' % self.obj):
+        with self.assertUnexpectedCommonCase('<SomeClass instance>.method'):
             self.obj.method(1, 2, 4)
     def test__replaced_module_clarity(self):
         module_name = 'some_module_name'
