@@ -24,6 +24,10 @@ class CannotMockException(ForgeException):
 class CannotMockFunctions(CannotMockException):
     pass
 
+UNEXPECTED_FUNCTION_CALLED_STR = "Unexpected function called!"
+UNEXPECTED_SETATTR_STR = "Unexpected attribute set!"
+DIFF_DESCRIPTION_STR = "(Expected: +, Got: -)"
+
 class UnexpectedEvent(ForgeException):
     def __init__(self, expected, got):
         super(UnexpectedEvent, self).__init__()
@@ -31,7 +35,7 @@ class UnexpectedEvent(ForgeException):
         self.got = got
     def __str__(self):
         returned = self._getTitle()
-        returned += " (Expected: +, Got: -)\n"
+        returned += " %s\n" % DIFF_DESCRIPTION_STR
         debug_info = self._get_debug_info()
         if debug_info:
             returned += debug_info
@@ -45,6 +49,10 @@ class UnexpectedEvent(ForgeException):
             returned += "Replayed from %s\n" % self.got.caller_info
         return returned
     def _get_diff_string(self):
+        got_string = self._get_got_string()
+        expected_string = self._get_expected_string()
+        if got_string == expected_string:
+            return "- %s\n+ %s" % (expected_string, got_string)
         diff = Differ().compare(
             [self._get_got_string()],
             [self._get_expected_string()],
@@ -63,11 +71,11 @@ class UnexpectedEvent(ForgeException):
 class UnexpectedCall(UnexpectedEvent):
     @classmethod
     def _getTitle(cls):
-        return "Unexpected function called!"
+        return UNEXPECTED_FUNCTION_CALLED_STR
 class UnexpectedSetattr(UnexpectedEvent):
     @classmethod
     def _getTitle(cls):
-        return "Unexpected attribute set!"
+        return UNEXPECTED_SETATTR_STR
 
 class ExpectedEventsNotFound(ForgeException):
     def __init__(self, events):

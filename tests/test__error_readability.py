@@ -8,6 +8,10 @@ from forge import UnexpectedCall, UnexpectedSetattr
 class ErrorClarityTest(ForgeTestCase):
     pass
 
+from forge.exceptions import UNEXPECTED_FUNCTION_CALLED_STR
+from forge.exceptions import UNEXPECTED_SETATTR_STR
+from forge.exceptions import DIFF_DESCRIPTION_STR
+
 class ErrorsInRegularStubs(ForgeTestCase):
     def setUp(self):
         super(ErrorsInRegularStubs, self).setUp()
@@ -99,16 +103,27 @@ class ErrorsInRegularStubs(ForgeTestCase):
         self.forge.replay()
         with self.assertUnexpectedEvent("setattr(%s, 'a', 2)" % self.mock,
                                         "setattr(%s, 'a', 3)" % self.mock,
-                                        message="Unexpected attribute set!",
+                                        message=UNEXPECTED_SETATTR_STR,
                                         cls=UnexpectedSetattr):
             self.mock.a = 3
+    def test__identical_expectations_clarity(self):
+        wc1 = self.forge.create_wildcard_function_stub()
+        wc2 = self.forge.create_wildcard_function_stub()
+        wc1()
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall) as caught:
+            wc2()
+        self.assertMultiLineEqual(str(caught.exception),
+                                  """%s %s
+- <<Wildcard>>()
++ <<Wildcard>>()""" % (UNEXPECTED_FUNCTION_CALLED_STR, DIFF_DESCRIPTION_STR))
     def assertUnexpectedCommonCase(self, function_name, prologue=None):
         return self.assertUnexpectedEvent('%s(a=1, b=2, c=3)' % function_name,
                                          '%s(a=1, b=2, c=4)' % function_name,
                                          prologue=prologue)
     @contextmanager
-    def assertUnexpectedEvent(self, expected, found, prologue=None, cls=UnexpectedCall, message="Unexpected function called!"):
-        diff_str = "%s (Expected: +, Got: -)\n" % message
+    def assertUnexpectedEvent(self, expected, found, prologue=None, cls=UnexpectedCall, message=UNEXPECTED_FUNCTION_CALLED_STR):
+        diff_str = "%s %s\n" % (message, DIFF_DESCRIPTION_STR)
         if prologue:
             diff_str += prologue
             diff_str += "\n"
