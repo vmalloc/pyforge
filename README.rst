@@ -76,7 +76,7 @@ Whenever an event occurs that was not expected, an exception is raised, explaini
  ?                       ^
  >>> forge_manager.reset()
 
-In some cases this is sufficient, but in case you want a bit more info as to where the calls were recorded and replayed, you can turn on debug info:
+In some cases this is sufficient, but in case you want a bit more info as to where the calls were recorded and replayed, you can turn on debug info::
 
  >>> forge_manager.debug.enable()
  >>> stub = forge_manager.create_function_stub(some_func)
