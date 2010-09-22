@@ -1,5 +1,6 @@
 from ut_utils import ForgeTestCase
 from forge import UnexpectedCall
+from forge import UnexpectedSetattr
 
 class ContextManager(object):
     def __enter__(self):
@@ -52,5 +53,21 @@ class ContextManagerTest(ForgeTestCase):
         self.assertIs(caught.expected.args['arg'], 1)
         self.assertIs(caught.got.args['arg'], 2)
         self.assertEquals(len(self.forge.queue), 2)
+        self.forge.reset()
+    def test__expecting_context_with_unexpected_setattr_inside(self):
+        with self.obj:
+            pass
+        self.forge.replay()
+        with self.assertRaises(UnexpectedSetattr) as caught:
+            with self.obj:
+                self.obj.a = 2
+        caught = caught.exception
+        self.assertIs(caught.expected.target, self.obj.__forge__.get_attribute('__exit__'))
+        self.assertEquals(len(caught.expected.args), 3)
+        self.assertTrue(all(x is None for x in caught.expected.args.itervalues()))
+        self.assertIs(caught.got.target, self.obj)
+        self.assertEquals(caught.got.name, 'a')
+        self.assertEquals(caught.got.value, 2)
+        self.assertEquals(len(self.forge.queue), 1)
         self.forge.reset()
 
