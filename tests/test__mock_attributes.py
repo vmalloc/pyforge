@@ -27,6 +27,11 @@ class MockAttributesTest(ForgeTestCase):
         self.forge.replay()
         with self.assertUnexpectedSetattr(self.obj, "a", 2):
             self.obj.a = 2
+        with self.assertRaises(AttributeError):
+            self.obj.a
+        self.forge.reset()
+        with self.assertRaises(AttributeError):
+            self.obj.a
     def test__setting_mock_object_attributes_during_replay_enabled_explicitly(self):
         self.obj.__forge__.enable_setattr_during_replay()
         self.forge.replay()
@@ -46,7 +51,10 @@ class MockAttributesTest(ForgeTestCase):
             self.obj.a = 2
         with self.assertUnexpectedSetattr(self.obj, "a", 3):
             self.obj.a = 3
-
+        self.assertNoMoreCalls()
+        self.assertEquals(self.obj.a, 2)
+        self.forge.reset()
+        self.assertEquals(self.obj.a, 2)
     def test__getattr_of_nonexisting_attr_during_replay(self):
         self.forge.replay()
         with self.assertRaises(AttributeError):
@@ -79,6 +87,18 @@ class MockAttributesTest(ForgeTestCase):
             self.obj.a
         self.obj.a = 666
         self.assertEquals(self.obj.a, 666)
+    def test__expect_setattr_previous_value(self):
+        self.obj.a = 1
+        self.assertEquals(self.obj.a, 1)
+        self.obj.__forge__.expect_setattr("a", 2)
+        self.assertEquals(self.obj.a, 1)
+        self.forge.replay()
+        self.assertEquals(self.obj.a, 1)
+        self.obj.a = 2
+        self.assertEquals(self.obj.a, 2)
+        self.assertNoMoreCalls()
+        self.forge.reset()
+        self.assertEquals(self.obj.a, 1)
     def test__expect_setattr_not_happening(self):
         self.obj.__forge__.expect_setattr("a", 666)
         self.forge.replay()
