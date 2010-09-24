@@ -14,6 +14,19 @@ class StrictOrderingTest(OrderingTest):
             self.stub(2)
         self.assertIs(caught.exception.got.target, self.stub)
         self.assertIs(caught.exception.expected.target, self.stub)
+class EmptyGroupTest(OrderingTest):
+    def test__empty_group(self):
+        self.stub(0)
+        with self.forge.any_order():
+            pass
+        self.stub(1)
+        self.stub(2)
+        self.forge.replay()
+        self.stub(0)
+        with self.assertRaises(UnexpectedCall):
+            self.stub(2)
+        self.forge.reset()
+
 class OrderGroupsTest(OrderingTest):
     def setUp(self):
         super(OrderGroupsTest, self).setUp()
@@ -38,4 +51,3 @@ class OrderGroupsTest(OrderingTest):
         self.stub(5)
         self.stub(4)
         self.forge.verify()
-
