@@ -70,4 +70,12 @@ class ContextManagerTest(ForgeTestCase):
         self.assertEquals(caught.got.value, 2)
         self.assertEquals(len(self.forge.queue), 1)
         self.forge.reset()
+    def test__enter_returning_value(self):
+        self.obj.__enter__().and_return(2)
+        self.checkpoint()
+        self.obj.__exit__(None, None, None)
+        self.forge.replay()
+        with self.obj as value:
+            self.checkpoint()
+        self.assertEquals(value, 2)
 
