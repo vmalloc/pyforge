@@ -1,3 +1,4 @@
+from numbers import Number
 from dtypes import NOTHING
 from exceptions import ConflictingActions
 from queued_object import QueuedObject
@@ -21,10 +22,11 @@ class FunctionCall(QueuedObject):
             self._get_argument_string(),
             )
     def _get_argument_string(self):
-        args = ["%s=%s" % (arg_name, value) for arg_name, value in sorted(self.args.iteritems())
-                if isinstance(arg_name, basestring)]
-        args.extend(str(value) for arg_name, value in sorted((k, v) for k, v in self.args.iteritems()
-                                                        if not isinstance(k, basestring)))
+        positional_args = sorted(k for k in self.args if isinstance(k, Number))
+        keyword_args = sorted(k for k in self.args if not isinstance(k, Number))
+        args = [str(self.args[arg_index]) for arg_index in positional_args]
+        args.extend("%s=%s" % (arg_name, self.args[arg_name])
+                    for arg_name in keyword_args)
         return ", ".join(args)
 
     def and_call(self, func, args=(), kwargs=None):
