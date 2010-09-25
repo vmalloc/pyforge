@@ -1,34 +1,27 @@
 from ut_utils import *
 from forge import SignatureException
 
-METHODS = [
-    ClassMethod('class_method(cls, a, b, c, d=5)'),
-    StaticMethod('static_method(a, b, c, d=5)'),
-    Method('regular_method(self, a, b, c, d=5)'),
-    ]
+class MockedClass:
+    @classmethod
+    def class_method(cls, a, b, c, d=5):
+        pass
+    @staticmethod
+    def static_method(a, b, c, d=5):
+        pass
+    def regular_method(self, a, b, c, d=5):
+        pass
 
-class _ClassMockTest(ForgeTestCase):
+class ClassMockTest(ForgeTestCase):
     def setUp(self):
-        super(_ClassMockTest, self).setUp()
-        factory = self._get_class_factory()
-        methods = self._get_methods()
-        self.mocked_class = factory(methods)
+        super(ClassMockTest, self).setUp()
+        self.mocked_class = MockedClass
         self.mock = self.forge.create_class_mock(self.mocked_class)
     def tearDown(self):
         self.forge.verify()
         self.assertNoMoreCalls()
-        super(_ClassMockTest, self).tearDown()
+        super(ClassMockTest, self).tearDown()
 
-class _OldStyleTest(object):
-    def _get_class_factory(self):
-        return build_old_style_class
-class _NewStyleTest(object):
-    def _get_class_factory(Self):
-        return build_new_style_class
-
-class _BasicClassMockTest(_ClassMockTest):
-    def _get_methods(self):
-        return METHODS
+class BasicClassMockTest(ClassMockTest):
     def test__isinstance(self):
         self.assertFalse(isinstance(self.mock, self.mocked_class))
         self.assertTrue(isinstance(self.mock, type(self.mocked_class)))
@@ -66,12 +59,6 @@ class _BasicClassMockTest(_ClassMockTest):
             self.mock.regular_method(1, 2)
         with self.assertRaises(SignatureException):
             self.mock.regular_method(d=10)
-
-class OldStyleBasicTest(_BasicClassMockTest, _OldStyleTest):
-    pass
-class NewStyleBasicTest(_BasicClassMockTest, _NewStyleTest):
-    pass
-
 
 class ClassMockConstructionTest(ForgeTestCase):
     def tearDown(self):

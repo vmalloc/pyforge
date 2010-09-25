@@ -1,4 +1,4 @@
-from constants import WILDCARD_DESCRIPTION
+from .constants import WILDCARD_DESCRIPTION
 
 NOTHING = object()
 

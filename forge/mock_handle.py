@@ -1,4 +1,4 @@
-from handle import ForgeHandle
+from .handle import ForgeHandle
 
 class MockHandle(ForgeHandle):
     def __init__(self, forge, mock, behave_as_instance=True):

@@ -1,4 +1,4 @@
-from queued_object import QueuedObject
+from .queued_object import QueuedObject
 
 class Setattr(QueuedObject):
     def __init__(self, target, name, value, caller_info):

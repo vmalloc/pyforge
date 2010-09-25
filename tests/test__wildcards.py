@@ -67,9 +67,9 @@ class WildcardTest(ForgeTestCase):
         with wc:
             f()
         wc.__len__().and_return(666)
-        wc.__iter__().and_return(iter(xrange(10)))
+        wc.__iter__().and_return(iter(range(10)))
         self.forge.replay()
         with wc:
             f()
         self.assertEquals(len(wc), 666)
-        self.assertEquals([x for x in wc], range(10))
+        self.assertEquals([x for x in wc], list(range(10)))

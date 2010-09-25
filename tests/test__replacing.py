@@ -33,11 +33,11 @@ class StubbingObjectsTest(ForgeTestCase):
         returned = self.forge.replace(obj, 'method')
         self.assertIsInstance(obj.method, FunctionStub)
         self.assertIs(returned, obj.method)
-        self.assertIs(obj.method.__forge__.original.im_func, expected.im_func)
-        self.assertIs(obj.method.__forge__.signature.func.im_func, expected.im_func)
+        self.assertIs(obj.method.__forge__.original.__func__, expected.__func__)
+        self.assertIs(obj.method.__forge__.signature.func.__func__, expected.__func__)
         self.assertTrue(obj.method.__forge__.is_bound())
         self.forge.restore_all_replacements()
-        self.assertIs(obj.method.im_func, expected.im_func)
+        self.assertIs(obj.method.__func__, expected.__func__)
     def test__stubbing_new_style_objects(self):
         self._test__stubbing_object(NewStyleClass())
     def test__stubbing_old_style_objects(self):
@@ -89,8 +89,8 @@ class StubbingClassMethodTest(ForgeTestCase):
             self.assertIsInstance(cls.__dict__[name], classmethod)
             #classmethods are re-computed on every fetch
             self.assertIsNot(func, orig)
-            self.assertIs(cls.class_method.im_self, cls)
-            self.assertIs(cls.class_method.im_func, orig.im_func)
+            self.assertIs(cls.class_method.__self__, cls)
+            self.assertIs(cls.class_method.__func__, orig.__func__)
 
 class StubbingModulesTest(ForgeTestCase):
     def test__stub_c_function(self):
@@ -148,7 +148,7 @@ class NonFunctionStubbingTest(ForgeTestCase):
             pass
         self._test__replacing_objects(MyClass(), MyClass)
     def test__replacing_builtin_objects(self):
-        from cStringIO import StringIO
+        from io import StringIO
         self._test__replacing_objects(StringIO(), type(StringIO()))
     def _test__replacing_objects(self, obj, cls):
         orig = self.x.obj = obj

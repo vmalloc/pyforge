@@ -1,6 +1,6 @@
 import types
 import functools
-from mock_handle import MockHandle
+from .mock_handle import MockHandle
 from .dtypes import NOTHING
 from types import FunctionType
 from types import MethodType
@@ -38,7 +38,7 @@ class ClassMockHandle(MockHandle):
             # simulate an empty ctor...
             fake_constructor = lambda self: None
             fake_constructor.__name__ = "__init__"
-            returned = types.MethodType(fake_constructor, None, self.mocked_class)
+            returned = types.MethodType(fake_constructor, object())
         return returned
     def _check_unrecorded_method_getting(self, name):
         pass # unrecorded methods can be obtained, but not called...
@@ -60,7 +60,7 @@ class ClassMockHandle(MockHandle):
         real_method = self._get_real_method(name)
         if not self._can_use_as_entry_point(name, real_method):
             raise InvalidEntryPoint("%s is not a method that can be used as a hybrid entry pont" % (name,))
-        return functools.partial(self._get_real_method(name).im_func, self.mock)
+        return functools.partial(self._get_real_method(name), self.mock)
     def _can_use_as_entry_point(self, name, method):
         if self._is_static_method(name):
             return False

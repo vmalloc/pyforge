@@ -1,5 +1,5 @@
-from exceptions import MockObjectUnhashable
-from exceptions import UnexpectedEvent
+from .exceptions import MockObjectUnhashable
+from .exceptions import UnexpectedEvent
 
 class MockObject(object):
     def __repr__(self):
@@ -15,7 +15,7 @@ class MockObject(object):
         if not self.__forge__.is_hashable():
             raise MockObjectUnhashable("%s is not hashable!" % (self,))
         return id(self)
-    def __nonzero__(self):
+    def __bool__(self):
         try:
             return self.__forge__.handle_special_method_call('__nonzero__', (), {},
                                                              caller_info=self.__forge__.forge.debug.get_caller_info())

@@ -1,5 +1,5 @@
-from handle import ForgeHandle
-from signature import FunctionSignature
+from .handle import ForgeHandle
+from .signature import FunctionSignature
 from .dtypes import WILDCARD_FUNCTION
 from .bound_signature_adapter import BoundSignatureAdapter
 

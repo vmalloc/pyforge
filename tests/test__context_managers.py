@@ -33,7 +33,7 @@ class ContextManagerTest(ForgeTestCase):
                 raise my_exception
         caught = caught.exception
         self.assertIs(caught.expected.target, self.checkpoint)
-        self.assertIs(caught.got.target.__forge__.original.im_func, ContextManager.__exit__.im_func)
+        self.assertIs(caught.got.target.__forge__.original, ContextManager.__exit__)
         self.assertIs(caught.got.args['t'], Exception)
         self.assertIs(caught.got.args['v'], my_exception)
         self.assertIsNotNone(caught.got.args['tb'])
@@ -64,7 +64,7 @@ class ContextManagerTest(ForgeTestCase):
         caught = caught.exception
         self.assertIs(caught.expected.target, self.obj.__forge__.get_attribute('__exit__'))
         self.assertEquals(len(caught.expected.args), 3)
-        self.assertTrue(all(x is None for x in caught.expected.args.itervalues()))
+        self.assertTrue(all(x is None for x in caught.expected.args.values()))
         self.assertIs(caught.got.target, self.obj)
         self.assertEquals(caught.got.name, 'a')
         self.assertEquals(caught.got.value, 2)

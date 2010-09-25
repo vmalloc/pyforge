@@ -69,7 +69,7 @@ Whenever an event occurs that was not expected, an exception is raised, explaini
  >>> stub(1, 2, 4) # doctest: +IGNORE_EXCEPTION_DETAIL
  Traceback (most recent call last):
   ...
- UnexpectedCall: Unexpected function called! (Expected: +, Got: -)
+ forge.exceptions.UnexpectedCall: Unexpected function called! (Expected: +, Got: -)
  - some_func(a=1, b=2, c=4)
  ?                       ^
  + some_func(a=1, b=2, c=3)
@@ -86,7 +86,7 @@ In some cases this is sufficient, but in case you want a bit more info as to whe
  >>> stub(1, 2, 4) # doctest: +IGNORE_EXCEPTION_DETAIL
  Traceback (most recent call last):
   ...
- UnexpectedCall: Unexpected function called! (Expected: +, Got: -)
+ forge.exceptions.UnexpectedCall: Unexpected function called! (Expected: +, Got: -)
  Recorded from ...
  Replayed from ...
  - some_func(a=1, b=2, c=4)
@@ -299,7 +299,7 @@ Sometimes you would like to simulate the behavior of a class, and not an object.
  <Class mock of 'MyClass'>
  >>> class_mock.regular_method() # doctest: +IGNORE_EXCEPTION_DETAIL
  Traceback (most recent call last):
- SignatureException: ...
+ forge.exceptions.SignatureException: ...
  >>> class_mock.some_class_method() # doctest: +ELLIPSIS
  <...>
  >>> class_mock.some_static_method() # doctest: +ELLIPSIS

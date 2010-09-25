@@ -1,7 +1,7 @@
 from numbers import Number
-from dtypes import NOTHING
-from exceptions import ConflictingActions
-from queued_object import QueuedObject
+from .dtypes import NOTHING
+from .exceptions import ConflictingActions
+from .queued_object import QueuedObject
 
 class FunctionCall(QueuedObject):
     def __init__(self, target, args, kwargs, caller_info):

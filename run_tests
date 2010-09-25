@@ -37,7 +37,7 @@ def _iterate_modules():
         sys.path = orig_sys_path
 
 def _iterate_module_test_cases(module):
-    for name, var in vars(module).iteritems():
+    for name, var in vars(module).items():
         if name.startswith("_"):
             continue
         if not isinstance(var, type) or not issubclass(var, unittest.TestCase):

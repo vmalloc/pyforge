@@ -1,7 +1,6 @@
 import functools
 from ut_utils import ForgeTestCase
 from ut_utils import Method, ClassMethod, StaticMethod
-from ut_utils import build_old_style_class
 from ut_utils import build_new_style_class
 from ut_utils import resets_forge_at_end
 from forge import SignatureException
@@ -16,7 +15,6 @@ METHODS = [
     ]
 
 MockedNewStyleClass = build_new_style_class(METHODS)
-MockedOldStyleClass = build_old_style_class(METHODS)
 
 def for_each_mock(func):
     @functools.wraps(func)
@@ -29,8 +27,7 @@ class MockInstanceMethodTest(ForgeTestCase):
     def setUp(self):
         super(MockInstanceMethodTest, self).setUp()
         self.newstyle_mock = self.forge.create_mock(MockedNewStyleClass)
-        self.oldstyle_mock = self.forge.create_mock(MockedOldStyleClass)
-        self.mocks = [self.newstyle_mock, self.oldstyle_mock]
+        self.mocks = [self.newstyle_mock]
     def test__calling_methods(self):
         self._test__recording_and_calling('method')
     def test__calling_class_methods(self):

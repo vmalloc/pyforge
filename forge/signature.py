@@ -1,7 +1,7 @@
 import copy
 import inspect
 import itertools
-from exceptions import SignatureException, InvalidKeywordArgument
+from .exceptions import SignatureException, InvalidKeywordArgument
 from .utils import is_bound_method
 from .utils import is_class_method
 from numbers import Number
@@ -19,7 +19,7 @@ class FunctionSignature(object):
     def __init__(self, func):
         super(FunctionSignature, self).__init__()
         self.func = func
-        self.func_name = func.__name__
+        self.__name__ = func.__name__
         self._build_arguments()
     def is_bound_method(self):
         return is_bound_method(self.func)
@@ -28,7 +28,7 @@ class FunctionSignature(object):
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
-        return itertools.izip(args, filled_defaults)
+        return zip(args, filled_defaults)
 
     def _build_arguments(self):
         self._args = []
@@ -69,16 +69,16 @@ class FunctionSignature(object):
         return returned
     def _update_normalized_positional_args(self, returned, args):
         argument_names = list(self.get_arg_names())
-        argument_names.extend(range(len(args) - self.get_num_args()))
+        argument_names.extend(list(range(len(args) - self.get_num_args())))
         for arg_name, given_arg in zip(argument_names, args):
             returned[arg_name] = given_arg
 
     def _update_normalized_kwargs(self, returned, kwargs):
-        for arg_name, arg in kwargs.iteritems():
-            if not isinstance(arg_name, basestring):
+        for arg_name, arg in kwargs.items():
+            if not isinstance(arg_name, str):
                 raise InvalidKeywordArgument("Invalid keyword argument %r" % (arg_name,))
             if arg_name in returned:
-                raise SignatureException("%s is given more than once to %s" % (arg_name, self.func_name))
+                raise SignatureException("%s is given more than once to %s" % (arg_name, self.__name__))
             returned[arg_name] = arg
 
     def _check_missing_arguments(self, args_dict):
@@ -90,10 +90,10 @@ class FunctionSignature(object):
         positional_arg_count = len([arg_name for arg_name in args_dict if isinstance(arg_name, Number)])
         num_args = self.get_num_args()
         if positional_arg_count and not self.has_variable_args():
-            raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.func_name, num_args, num_args + positional_arg_count))
+            raise SignatureException("%s receives %s positional arguments (%s specified)" % (self.__name__, num_args, num_args + positional_arg_count))
         unknown = set(arg for arg in args_dict if not isinstance(arg, Number)) - set(self.get_arg_names())
         if unknown and not self.has_variable_kwargs():
-            raise SignatureException("%s received unknown argument(s): %s" % (self.func_name, ",".join(unknown)))
+            raise SignatureException("%s received unknown argument(s): %s" % (self.__name__, ",".join(unknown)))
     def copy(self):
         returned = copy.copy(self)
         returned._args = copy.deepcopy(returned._args)

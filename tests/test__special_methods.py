@@ -1,8 +1,7 @@
-from cStringIO import StringIO
+from io import StringIO
 from functools import partial
 from ut_utils import ForgeTestCase
 from ut_utils import build_new_style_class
-from ut_utils import build_old_style_class
 from ut_utils import Method
 from forge import UnexpectedCall
 
@@ -110,8 +109,6 @@ class _SpecialMethodsTest(ForgeTestCase):
 
 class NewStyleSpecialMethodsTest(_SpecialMethodsTest):
     CTOR = staticmethod(build_new_style_class)
-class OldStyleSpecialMethodsTest(_SpecialMethodsTest):
-    CTOR = staticmethod(build_old_style_class)
 
 class _SpecialMethodAbsenceTest(ForgeTestCase):
     def tearDown(self):
@@ -122,7 +119,7 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
     def test__special_method_absence(self):
         for statement in self._get_invalid_statements():
             with self.assertRaises(TypeError):
-                exec statement
+                exec(statement)
 
     def test__boolean(self):
         self.assertTrue(self.obj)
@@ -147,10 +144,6 @@ class NewStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
     def setUp(self):
         super(NewStyleSpecialMethodsAbsenceTest, self).setUp()
         self.obj = self.forge.create_mock(build_new_style_class())
-class OldStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
-    def setUp(self):
-        super(OldStyleSpecialMethodsAbsenceTest, self).setUp()
-        self.obj = self.forge.create_mock(build_old_style_class())
 
 class CallCornerCasesTest(ForgeTestCase):
     def test__callable_metaclass(self):
