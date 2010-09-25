@@ -169,6 +169,7 @@ Many comparators exist in Forge:
 * ``Func(f)``: compares true only if *f* returns True for the argument
 * ``IsAlmost(value, [places])``: compares true only if the argument is almost identical to *value*, by *places* digits after the floating point
 * ``Contains(element)``: compares true only if *element* exists in the argument
+* ``StrContains(substring)``: compares true only if *substring* exists in the argument, and the argument is a string
 * ``HasKeyValue(key, value)``: compares true only if the argument has *key* as a key, whose value is *value*
 * ``HasAttributeValue(attr, value)``: same as HasKeyValue, but for attributes
 * ``Anything()``: always compares true

@@ -111,6 +111,9 @@ class And(Comparator):
         self.comparators = comparators
     def equals(self, other):
         return all(c.equals(other) for c in self.comparators)
+
+StrContains = lambda x: And(IsA(basestring), Contains(x))
+
 class Or(Comparator):
     def __init__(self, *comparators):
         super(Or, self).__init__()
