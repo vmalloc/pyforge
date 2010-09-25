@@ -35,7 +35,7 @@ class StubbingObjectsTest(ForgeTestCase):
         self.assertIs(returned, obj.method)
         self.assertIs(obj.method.__forge__.original.im_func, expected.im_func)
         self.assertIs(obj.method.__forge__.signature.func.im_func, expected.im_func)
-        self.assertTrue(obj.method.__forge__.signature.is_bound())
+        self.assertTrue(obj.method.__forge__.is_bound())
         self.forge.restore_all_replacements()
         self.assertIs(obj.method.im_func, expected.im_func)
     def test__stubbing_new_style_objects(self):

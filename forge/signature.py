@@ -2,7 +2,6 @@ import copy
 import inspect
 import itertools
 from exceptions import SignatureException, InvalidKeywordArgument
-from .utils import is_method
 from .utils import is_bound_method
 from .utils import is_class_method
 from numbers import Number
@@ -22,9 +21,7 @@ class FunctionSignature(object):
         self.func = func
         self.func_name = func.__name__
         self._build_arguments()
-    def is_method(self):
-        return is_method(self.func)
-    def is_bound(self):
+    def is_bound_method(self):
         return is_bound_method(self.func)
     def is_class_method(self):
         return is_class_method(self.func)
@@ -47,14 +44,14 @@ class FunctionSignature(object):
         self._varargs_name = varargs_name
         self._kwargs_name = kwargs_name
     def get_args(self):
-        return itertools.islice(self._args, 1 if self.is_bound() else 0, None)
+        return itertools.islice(self._args, 1 if self.is_bound_method() else 0, None)
     def get_num_args(self):
         returned = len(self._args)
-        if self.is_bound():
+        if self.is_bound_method():
             returned = max(0, returned - 1)
         return returned
     def get_self_arg_name(self):
-        if self.is_method() and len(self._args) > 0:
+        if self.is_bound_method() and len(self._args) > 0:
             return self._args[0].name
         return None
     def get_arg_names(self):
@@ -77,8 +74,6 @@ class FunctionSignature(object):
             returned[arg_name] = given_arg
 
     def _update_normalized_kwargs(self, returned, kwargs):
-        if self.is_method() and self.get_num_args() > 0 and self.get_self_arg_name() in kwargs:
-            raise SignatureException("First argument for bound method %s must not be a keyword arg" % self)
         for arg_name, arg in kwargs.iteritems():
             if not isinstance(arg_name, basestring):
                 raise InvalidKeywordArgument("Invalid keyword argument %r" % (arg_name,))

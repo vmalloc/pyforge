@@ -3,9 +3,7 @@ from .exceptions import SignatureException
 class BoundSignatureAdapter(object):
     def __init__(self, signature, obj):
         super(BoundSignatureAdapter, self).__init__()
-        if not signature.is_method():
-            raise SignatureException("%s cannot be bound!" % self.stub)
-        if signature.is_bound():
+        if signature.is_bound_method():
             raise SignatureException("%s is already bound!" % self.stub)
         self._signature = signature
         self._obj = obj

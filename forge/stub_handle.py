@@ -17,7 +17,7 @@ class StubHandle(ForgeHandle):
     def bind(self, obj):
         self.signature = BoundSignatureAdapter(self.signature, obj)
     def is_bound(self):
-        return self.signature.is_bound()
+        return self.signature.is_bound_method()
     def handle_call(self, args, kwargs, caller_info):
         if self.forge.is_recording():
             returned = self._handle_recorded_call(args, kwargs, caller_info)

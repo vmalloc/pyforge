@@ -74,11 +74,9 @@ class SignatureTest(TestCase):
             raise NotImplementedError()
         def f_with_self_arg(self):
             raise NotImplementedError()
-        self.assertFalse(FunctionSignature(f).is_method())
-        self.assertFalse(FunctionSignature(f_with_self_arg).is_method())
-        self.assertFalse(FunctionSignature(f).is_bound())
+        self.assertFalse(FunctionSignature(f_with_self_arg).is_bound_method())
+        self.assertFalse(FunctionSignature(f).is_bound_method())
         self.assertFalse(FunctionSignature(f_with_self_arg)._args[0].has_default())
-        self.assertFalse(FunctionSignature(f_with_self_arg).is_bound())
         class SomeClass(object):
             def f_without_self():
                 raise NotImplementedError()
@@ -98,11 +96,12 @@ class SignatureTest(TestCase):
             def f_with_first_argument_not_self(bla):
                 raise NotImplementedError()
         for cls in (SomeClass, SomeOldStyleClass):
-            self.assertTrue(FunctionSignature(cls.f_without_self).is_method())
-            self.assertTrue(FunctionSignature(cls.f_with_args).is_method())
-            self.assertTrue(FunctionSignature(cls.f_with_first_argument_not_self).is_method())
-            self.assertFalse(FunctionSignature(cls.f_with_args).is_bound())
-            self.assertFalse(FunctionSignature(cls.f_with_first_argument_not_self).is_bound())
+            self.assertFalse(FunctionSignature(cls.f).is_bound_method())
+            self.assertFalse(FunctionSignature(cls.f_with_args).is_bound_method())
+            self.assertFalse(FunctionSignature(cls.f_with_first_argument_not_self).is_bound_method())
+            self.assertTrue(FunctionSignature(cls().f).is_bound_method())
+            self.assertTrue(FunctionSignature(cls().f_with_args).is_bound_method())
+            self.assertTrue(FunctionSignature(cls().f_with_first_argument_not_self).is_bound_method())
     def test__is_class_method(self):
         class New(object):
             @classmethod

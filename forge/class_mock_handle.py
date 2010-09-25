@@ -58,12 +58,14 @@ class ClassMockHandle(MockHandle):
         return super(ClassMockHandle, self).get_method(name)
     def _build_hybrid_method(self, name):
         real_method = self._get_real_method(name)
-        if not self._can_use_as_entry_point(real_method):
+        if not self._can_use_as_entry_point(name, real_method):
             raise InvalidEntryPoint("%s is not a method that can be used as a hybrid entry pont" % (name,))
         return functools.partial(self._get_real_method(name).im_func, self.mock)
-    def _can_use_as_entry_point(self, method):
+    def _can_use_as_entry_point(self, name, method):
+        if self._is_static_method(name):
+            return False
         sig = FunctionSignature(method)
-        return sig.is_method() and not sig.is_class_method()
+        return not sig.is_bound_method() and not sig.is_class_method()
     def _check_special_method_call(self, name, args, kwargs):
         if name == '__call__':
             if self.behaves_as_instance and not self.is_callable():
@@ -88,8 +90,12 @@ class ClassMockHandle(MockHandle):
                 return True, NOTHING
             if method_stub.__forge__.signature.is_class_method():
                 return True, self.mocked_class
-            if self.behaves_as_instance and method_stub.__forge__.signature.is_method():
+            if self._is_static_method(name):
+                return False, None
+            if self.behaves_as_instance and not method_stub.__forge__.signature.is_bound_method():
                 return True, self.mock
         return False, None
+    def _is_static_method(self, method_name):
+        return isinstance(self.mocked_class.__dict__.get(method_name, None), staticmethod)
 
 

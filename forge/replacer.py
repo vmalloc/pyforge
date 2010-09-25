@@ -1,7 +1,7 @@
 from types import ModuleType
 from .utils import is_class
-from .utils import is_method
 from .utils import is_function
+from .utils import is_bound_method
 
 class Replacer(object):
     def __init__(self, forge):
@@ -16,10 +16,10 @@ class Replacer(object):
     def _get_replacement(self, replaced):
         if is_class(replaced):
             return self.forge.create_class_mock(replaced)
-        if is_method(replaced):
-            return self.forge.create_method_stub(replaced)
         if is_function(replaced):
             return self.forge.create_function_stub(replaced)
+        if is_bound_method(replaced):
+            return self.forge.create_method_stub(replaced)
         return self.forge.create_mock(self._get_class(replaced))
     def _get_class(self, obj):
         return getattr(obj, "__class__", type(obj))
