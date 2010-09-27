@@ -15,7 +15,7 @@ Usage
 
 Basics
 ------
-Forge mostly creates mock objects and function stubs, but in a variety of flavors. Using Forge always starts with creating a mock manager, called a Manager, which is created with the Forge class::
+Forge mostly creates mock objects and function stubs, but in a variety of flavors. Using Forge always starts with creating a "Mock Manager", with the *Forge* class::
 
  >>> from forge import Forge
  >>> forge_manager = Forge()
@@ -96,7 +96,7 @@ In some cases this is sufficient, but in case you want a bit more info as to whe
  >>> forge_manager.reset()
  >>> forge_manager.debug.disable()
 
-Since sometimes this is a very common patter, you can also turn on debugging through environment variables, by setting the FORGE_DEBUG environment variable to anything when running your tests.
+Since sometimes this is a very common pattern, you can also turn on debugging through environment variables, by setting the FORGE_DEBUG environment variable to anything when running your tests.
 
 Expecting Attribute Setting
 ---------------------------
