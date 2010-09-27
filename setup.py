@@ -1,4 +1,7 @@
 from distutils.core import setup
+
+from forge import __version__ as VERSION
+
 setup(name="pyforge",
       classifiers = [
           "Development Status :: 4 - Beta",
@@ -13,6 +16,6 @@ setup(name="pyforge",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
       url="http://github.com/vmalloc/pyforge",
-      version="0.3",
+      version=VERSION,
       packages=["forge"]
       )
