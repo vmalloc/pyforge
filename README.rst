@@ -2,6 +2,12 @@ What is it?
 ===========
 Forge is a mocking library for Python. It draws most of its inspiration from Mox (http://code.google.com/p/pymox). It is aimed to be simple, but still feature-rich, and provide maximum flexibility for unit testing using the mock approach.
 
+Running Forge's Acceptance Suite
+================================
+All of Forge's acceptance tests are in the tests/ directory under the root. They require either unittest2 or the built-in unittest module (2.7/3.2 and above).
+
+Running the tests is recommended with the *nosetests* script, but in case you don't have it, the *run_tests* script can be used instead.
+
 Installation
 ============
 Installing forge is pretty much the same as most of the packages you already know
