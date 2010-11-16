@@ -2,6 +2,12 @@ What is it?
 ===========
 Forge is a mocking library for Python. It draws most of its inspiration from Mox (http://code.google.com/p/pymox). It is aimed to be simple, but still feature-rich, and provide maximum flexibility for unit testing using the mock approach.
 
+Running Forge's Acceptance Suite
+================================
+All of Forge's acceptance tests are in the tests/ directory under the root. They require either unittest2 or the built-in unittest module (2.7/3.2 and above).
+
+Running the tests is recommended with the *nosetests* script, but in case you don't have it, the *run_tests* script can be used instead.
+
 Installation
 ============
 Installing forge is pretty much the same as most of the packages you already know
@@ -15,7 +21,7 @@ Usage
 
 Basics
 ------
-Forge mostly creates mock objects and function stubs, but in a variety of flavors. Using Forge always starts with creating a mock manager, called a Manager, which is created with the Forge class::
+Forge mostly creates mock objects and function stubs, but in a variety of flavors. Using Forge always starts with creating a "Mock Manager", with the *Forge* class::
 
  >>> from forge import Forge
  >>> forge_manager = Forge()
@@ -96,7 +102,7 @@ In some cases this is sufficient, but in case you want a bit more info as to whe
  >>> forge_manager.reset()
  >>> forge_manager.debug.disable()
 
-Since sometimes this is a very common patter, you can also turn on debugging through environment variables, by setting the FORGE_DEBUG environment variable to anything when running your tests.
+Since sometimes this is a very common pattern, you can also turn on debugging through environment variables, by setting the FORGE_DEBUG environment variable to anything when running your tests.
 
 Expecting Attribute Setting
 ---------------------------

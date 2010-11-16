@@ -1,6 +1,7 @@
 from ut_utils import ForgeTestCase
 from forge import UnexpectedCall
 
+
 class OrderingTest(ForgeTestCase):
     def setUp(self):
         super(OrderingTest, self).setUp()
@@ -51,3 +52,17 @@ class OrderGroupsTest(OrderingTest):
         self.stub(5)
         self.stub(4)
         self.forge.verify()
+
+class OrderingGroupExceptionFormatting(OrderingTest):
+    def test__unexpected_call(self):
+        with self.forge.any_order():
+            self.stub(1)
+            self.stub(2)
+            self.stub(3)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall) as caught:
+            self.stub(4)
+        self.assertIsInstance(caught.exception.expected, list)
+        self.assertIsInstance(str(caught.exception), str)
+        self.assertIsInstance(repr(caught.exception), str)
+        self.forge.reset()

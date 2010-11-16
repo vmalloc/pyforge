@@ -43,10 +43,20 @@ class UnexpectedEvent(ForgeException):
         return returned
     def _get_debug_info(self):
         returned = ""
-        if self.expected and self.expected.caller_info:
-            returned += "Recorded from %s\n" % self.expected.caller_info
-        if self.got and self.got.caller_info:
-            returned += "Replayed from %s\n" % self.got.caller_info
+        returned += self._get_expected_caller_infos()
+        returned += self._get_got_caller_infos()
+        return returned
+    def _get_expected_caller_infos(self):
+        return self._get_caller_infos("Recorded", self.expected)
+    def _get_got_caller_infos(self):
+        return self._get_caller_infos("Replayed", self.got)
+    def _get_caller_infos(self, verb, list_or_single):
+        if not isinstance(list_or_single, list):
+            list_or_single = [list_or_single]
+        returned = ""
+        for option in list_or_single:
+            if option and option.caller_info:
+                returned += "%s from %s\n" % (verb, option.caller_info)
         return returned
     def _get_diff_string(self):
         got_string = self._get_got_string()
