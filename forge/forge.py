@@ -55,8 +55,8 @@ class Forge(object):
         return ClassMockObject(self, mocked_class, behave_as_instance=True, hybrid=True)
     def create_class_mock(self, mocked_class):
         return ClassMockObject(self, mocked_class, behave_as_instance=False, hybrid=False)
-    def create_wildcard_mock(self):
-        return WildcardMockObject(self)
+    def create_wildcard_mock(self, name=None):
+        return WildcardMockObject(self, name=name)
     # arguments decorated to avoid conflicts with attrs
     def create_sentinel(__forge__self, __forge__name=None, **attrs):
         return Sentinel(__forge__name, **attrs)
