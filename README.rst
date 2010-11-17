@@ -266,7 +266,7 @@ Although not recommended, sometimes you just want a mock that accepts anything d
 
  >>> mock = forge_manager.create_wildcard_mock()
  >>> mock
- <Wildcard mock>
+ <<Wildcard>>
  >>> stub = forge_manager.create_wildcard_function_stub()
  >>> stub
  <Stub for '<<Wildcard>>'>
