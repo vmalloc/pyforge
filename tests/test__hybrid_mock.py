@@ -23,10 +23,10 @@ class TestedClass(object):
     def h(self, a, b):
         raise NotImplementedError()
     @classmethod
-    def class_method_entry_point(self):
-        pass
+    def class_method_entry_point(cls):
+        return cls
     @staticmethod
-    def static_method_entry_point(self):
+    def static_method_entry_point(arg):
         pass
 
 class HybridMockTest(ForgeTestCase):
@@ -45,11 +45,18 @@ class HybridMockTest(ForgeTestCase):
         self.forge.replay()
         hm.entry_point()
         self.forge.verify()
-    def test__cannot_call_class_methods(self):
+    def test__can_call_class_methods(self):
         hm = self.forge.create_hybrid_mock(TestedClass)
         self.forge.replay()
-        with self.assertRaises(InvalidEntryPoint):
-            hm.class_method_entry_point()
+        rv = hm.class_method_entry_point()
+        # the 'cls' argument should be the class itself
+        self.assertIs(rv, TestedClass)
+    def test__can_call_class_methods_on_class_mocks(self):
+        hm = self.forge.create_hybrid_class_mock(TestedClass)
+        self.forge.replay()
+        rv = hm.class_method_entry_point()
+        # for class mocks, the 'cls' argument should be the mock!
+        self.assertIs(rv, hm)
     def test__cannot_call_static_methods(self):
         hm = self.forge.create_hybrid_mock(TestedClass)
         self.forge.replay()
@@ -61,3 +68,20 @@ class HybridMockTest(ForgeTestCase):
         self.forge.replay()
         hm.set_value()
         self.assertEquals(hm.value, 2)
+
+class ClassWithClassmethodConstructor(object):
+    def __init__(self, a, b, c):
+        pass
+    @classmethod
+    def constructor(cls, a, b, c):
+        return cls(a, b, c)
+
+class HybridClassMockTest(ForgeTestCase):
+    def setUp(self):
+        super(HybridClassMockTest, self).setUp()
+        self.mock = self.forge.create_hybrid_class_mock(ClassWithClassmethodConstructor)
+    def test__expecting_construction(self):
+        expected = self.mock(1, 2, 3).and_return(self.forge.create_mock(ClassWithClassmethodConstructor))
+        self.forge.replay()
+        got = self.mock.constructor(1, 2, 3)
+        self.assertIs(expected, got)
