@@ -24,8 +24,8 @@ class FunctionCall(QueuedObject):
     def _get_argument_string(self):
         positional_args = sorted(k for k in self.args if isinstance(k, Number))
         keyword_args = sorted(k for k in self.args if not isinstance(k, Number))
-        args = [str(self.args[arg_index]) for arg_index in positional_args]
-        args.extend("%s=%s" % (arg_name, self.args[arg_name])
+        args = [repr(self.args[arg_index]) for arg_index in positional_args]
+        args.extend("%s=%r" % (arg_name, self.args[arg_name])
                     for arg_name in keyword_args)
         return ", ".join(args)
 
