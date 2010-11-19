@@ -348,5 +348,24 @@ In some cases, constructors (especially in legacy code to which you add tests) d
  >>> forge_manager.replay()
  >>> assert mock.read_and_log(20) == "data"
  >>> forge_manager.verify()
+ >>> forge_manager.reset()
 
 Hybrid mocks are, well, hybrid. They behave as regular mocks during record, but calling any method during replay that hasn't been recorded will invoke the original method on the mock, thus testing it in an isolated environment.
+
+A class equivalent also exists:
+
+ >>> class SomeClass(object):
+ ...     def __init__(self, parameter):
+ ...         raise NotImplementedError()
+ ...     @classmethod
+ ...     def constructor(cls):
+ ...         return cls(1)
+
+ >>> mock = forge_manager.create_hybrid_class_mock(SomeClass)
+ >>> expected_return_value = forge_manager.create_sentinel()
+ >>> mock(1).and_return(expected_return_value) # doctest: +ELLIPSIS
+ <...>
+ >>> forge_manager.replay()
+ >>> got_return_value = mock.constructor()
+ >>> got_return_value is expected_return_value
+ True

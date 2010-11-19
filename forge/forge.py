@@ -55,6 +55,8 @@ class Forge(object):
         return ClassMockObject(self, mocked_class, behave_as_instance=True, hybrid=True)
     def create_class_mock(self, mocked_class):
         return ClassMockObject(self, mocked_class, behave_as_instance=False, hybrid=False)
+    def create_hybrid_class_mock(self, mocked_class):
+        return ClassMockObject(self, mocked_class, behave_as_instance=False, hybrid=True)
     def create_wildcard_mock(self, name=None):
         return WildcardMockObject(self, name=name)
     # arguments decorated to avoid conflicts with attrs
