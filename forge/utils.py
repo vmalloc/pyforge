@@ -15,3 +15,14 @@ def is_class_method(obj):
     if not is_bound_method(obj):
         return False
     return is_class(obj.__self__)
+
+### some useful shortcuts
+class EXPECTING(object):
+
+    def __init__(self, mock):
+        self.mock = mock
+    def __setattr__(self, attr, value):
+        if attr == 'mock':
+            super(EXPECTING, self).__setattr__(attr, value)
+        else:
+            self.mock.__forge__.expect_setattr(attr, value)
