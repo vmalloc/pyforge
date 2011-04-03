@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from types import ModuleType
 from .utils import is_class
 from .utils import is_function
@@ -9,10 +10,19 @@ class Replacer(object):
         self.forge = forge
         self._stubs = []
     def replace(self, obj, attr_name):
+        return self._replace(obj, attr_name).stub
+    def _replace(self, obj, attr_name):
         replaced = getattr(obj, attr_name)
         replacement = self._get_replacement(replaced)
         self._set_replacement_description(replacement, obj, attr_name)
-        return self.replace_with(obj, attr_name, replacement)
+        return self._replace_with(obj, attr_name, replacement)
+    @contextmanager
+    def replacing_context(self, obj, attr_name):
+        installed = self._replace(obj, attr_name)
+        try:
+            yield None
+        finally:
+            installed.restore()
     def _get_replacement(self, replaced):
         if is_class(replaced):
             return self.forge.create_class_mock(replaced)
@@ -36,9 +46,13 @@ class Replacer(object):
         return self.replace_with(module, function_name,
                                        self.forge.create_function_stub(getattr(module, function_name)))
     def replace_with(self, obj, attr_name, stub):
-        self._stubs.append(InstalledStub(obj, attr_name, stub))
-        setattr(obj, attr_name, stub)
+        self._replace_with(obj, attr_name, stub)
         return stub
+    def _replace_with(self, obj, attr_name, stub):
+        installed = InstalledStub(obj, attr_name, stub)
+        self._stubs.append(installed)
+        setattr(obj, attr_name, stub)
+        return installed
     def restore_all(self):
         while self._stubs:
             installed = self._stubs.pop(-1)

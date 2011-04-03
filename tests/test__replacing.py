@@ -194,3 +194,16 @@ class MultipleStubbingTest(ForgeTestCase):
         self.forge.verify()
         self.assertNoMoreCalls()
         self.forge.reset()
+class ReplaceContextTest(ForgeTestCase):
+    def test__replace_context(self):
+        some_object = self.forge.create_sentinel()
+        orig = some_object.attr = self.forge.create_sentinel()
+        other = some_object.other_attr = self.forge.create_sentinel()
+
+        self.forge.replace(some_object, "other_attr")
+
+        with self.forge.replacing_context(some_object, "attr"):
+            self.assertIsNot(some_object.other_attr, other)
+            self.assertIsNot(some_object.attr, orig)
+        self.assertIsNot(some_object.other_attr, other)
+        self.assertIs(some_object.attr, orig)
