@@ -69,6 +69,8 @@ class Forge(object):
         return returned
     def replace(self, obj, attr_name):
         return self.replacer.replace(obj, attr_name)
+    def replacing_context(self, obj, attr_name):
+        return self.replacer.replacing_context(obj, attr_name)
     def replace_many(self, obj, *attr_names):
         return [self.replace(obj, attr_name) for attr_name in attr_names]
     def replace_with(self, obj, attr_name, replacement):

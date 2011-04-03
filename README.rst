@@ -226,6 +226,11 @@ One can also use the same install mechanism to set a custom value and have it re
  >>> forge_manager.restore_all_replacements()
  >>> SomeClass.x
  2
+
+Replacing is also supported within a context, restoring the installed stub upon exit from the context::
+
+ >>> with forge_manager.replacing_context(SomeClass, "x"):
+ ...    pass
  
 Ordering
 --------
