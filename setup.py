@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 from forge import __version__ as VERSION
 
@@ -17,5 +17,5 @@ setup(name="pyforge",
       author_email="vmalloc@gmail.com",
       url="http://github.com/vmalloc/pyforge",
       version=VERSION,
-      packages=["forge"]
+      packages=find_packages(exclude=["tests"])
       )
