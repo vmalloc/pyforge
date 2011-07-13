@@ -14,6 +14,12 @@ class ForgeTestCase(TestCase):
     def setUp(self):
         super(ForgeTestCase, self).setUp()
         self.forge = Forge()
+    def tearDown(self):
+        self.assertNoMoreCalls()
+        self.forge.verify()
+        self.forge.restore_all_replacements()
+        self.forge.reset()
+        super(ForgeTestCase, self).tearDown()
     def assertNoMoreCalls(self):
         self.assertEquals(len(self.forge.queue), 0)
 
