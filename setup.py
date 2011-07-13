@@ -17,5 +17,6 @@ setup(name="pyforge",
       author_email="vmalloc@gmail.com",
       url="http://github.com/vmalloc/pyforge",
       version=VERSION,
+      install_requires=['sentinels'],
       packages=find_packages(exclude=["tests"])
       )

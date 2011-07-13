@@ -5,7 +5,7 @@ from exceptions import SignatureException, InvalidKeywordArgument
 from .utils import is_bound_method
 from .utils import is_class_method
 from numbers import Number
-from .dtypes import NOTHING
+from sentinels import NOTHING
 
 class Argument(object):
     def __init__(self, name, default=NOTHING):

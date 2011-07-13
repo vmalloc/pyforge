@@ -1,5 +1,5 @@
 from collections import defaultdict
-from .dtypes import NOTHING
+from sentinels import NOTHING
 
 class AttributeManager(object):
     def __init__(self, forge):

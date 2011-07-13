@@ -1,7 +1,7 @@
 from ut_utils import ForgeTestCase
 from ut_utils import Checkpoint
 from forge import ConflictingActions
-from forge.dtypes import NOTHING
+from sentinels import NOTHING
 
 class ActionsTest(ForgeTestCase):
     def setUp(self):

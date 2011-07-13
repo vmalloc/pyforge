@@ -1,7 +1,7 @@
 import types
 import functools
 from mock_handle import MockHandle
-from .dtypes import NOTHING
+from sentinels import NOTHING
 from types import FunctionType
 from types import MethodType
 from types import BuiltinMethodType
