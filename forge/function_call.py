@@ -60,4 +60,3 @@ class FunctionCall(QueuedObject):
             return self._return_value
         return None
 
-

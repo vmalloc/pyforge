@@ -11,11 +11,14 @@ class ForgeQueue(object):
     def __init__(self, forge):
         super(ForgeQueue, self).__init__()
         self._order_groups = [OrderedGroup()]
+        self._whenever = set()
         self._forge = forge
     def __len__(self):
         if not self._order_groups:
             return 0
         return sum(len(group) for group in self._order_groups)
+    def allow_whenever(self, queued_object):
+        self._whenever.add(queued_object)
     def push_call(self, target, args, kwargs, caller_info):
         return self._push(FunctionCall(target, args, kwargs, caller_info))
     def push_setattr(self, target, name, value, caller_info):
@@ -31,8 +34,15 @@ class ForgeQueue(object):
             current_group = self._get_replay_group()
             popped = current_group.pop_matching(queued_object)
             if popped is None:
+                popped = self._find_whenever_object(queued_object)
+            if popped is None:
                 raise unexpected_class(self._get_replay_group().get_expected(), queued_object)
             return popped
+    def _find_whenever_object(self, queued_object):
+        for w in self._whenever:
+            if w.matches(queued_object):
+                return w
+        return None
     def pop(self):
         return self._get_recording_group().pop()
     def get_expected(self):

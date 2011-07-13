@@ -265,6 +265,34 @@ You can, however, control it and create groups in which order does not matter::
  >>> forge_manager.verify()
  >>> forge_manager.reset()
 
+Whenever
+--------
+Sometimes you intend for a function to be called zero or more times, regardless of timing, and return a certain value (or raise an exception). There are ugly ways to do this::
+
+ >>> class MyObj(object):
+ ...     def f(self):
+ ...         pass
+ >>> m = forge_manager.create_mock(MyObj)
+ >>> m.f = lambda: 2 # yuck!
+
+And of course the downside is that:
+
+ * the fact that f exists doesn't get verified. Also its signature is not verified with this method.
+ * lambda's are ugly, and it gets nastier when you want to use exceptions.
+
+*whenever()* to the rescue - it is a method that can be called on expected methods, causing the call to be accepted, signature checked and acted upon. However, unlike regular recordings, it expects the call 0 or more times, at any point - so it achieves the same effect::
+
+ >>> m = forge_manager.create_mock(MyObj)
+ >>> m.f().whenever().and_return(2)
+ 2
+ >>> forge_manager.replay()
+ >>> m.f()
+ 2
+ >>> m.f()
+ 2
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
+ 
 Wildcard Mocks
 --------------
 Although not recommended, sometimes you just want a mock that accepts anything during record, and just verifies that you stick to it in replay. This is useful for prototyping an interface that doesn't exist yet. This is done in Forge by using *wildcard mocks*::
