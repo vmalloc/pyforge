@@ -41,6 +41,7 @@ class ActionsTest(ForgeTestCase):
                 #conflict should not affect existing expectations
         self.assertIs(expected_call._return_value, NOTHING)
         self.assertIs(expected_call._raised_exception, exc)
+        self.forge.reset()
     def test__and_call(self):
         return_value = 666
         cp = Checkpoint()

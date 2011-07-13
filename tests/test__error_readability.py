@@ -31,6 +31,11 @@ class ErrorsInRegularStubs(ForgeTestCase):
         self.forge.replace(self.obj, "method")
         self.class_mock = self.forge.create_class_mock(SomeClass)
 
+    def tearDown(self):
+        # ForgeTestCase makes sure no more calls are active etc....
+        self.forge.reset()
+        super(ErrorsInRegularStubs, self).tearDown()
+
     def test__function_error_clarity(self):
         self.stub(1, 2, 3)
         self.forge.replay()
