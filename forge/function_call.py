@@ -1,5 +1,5 @@
 from numbers import Number
-from .dtypes import NOTHING
+from sentinels import NOTHING
 from .exceptions import ConflictingActions
 from .queued_object import QueuedObject
 
@@ -59,5 +59,4 @@ class FunctionCall(QueuedObject):
         if self._return_value is not NOTHING:
             return self._return_value
         return None
-
 

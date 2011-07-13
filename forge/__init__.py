@@ -2,4 +2,4 @@ from .comparators import *
 from .forge import Forge
 from .exceptions import *
 
-__version__ = "0.4.4"
+from .__version__ import __version__
