@@ -1,6 +1,8 @@
+import os
 from setuptools import setup, find_packages
 
-from forge import __version__ as VERSION
+with open(os.path.join(os.path.dirname(__file__), "forge", "__version__.py")) as version_file:
+    exec version_file.read()
 
 setup(name="pyforge",
       classifiers = [
@@ -16,7 +18,7 @@ setup(name="pyforge",
       author="Rotem Yaari",
       author_email="vmalloc@gmail.com",
       url="http://github.com/vmalloc/pyforge",
-      version=VERSION,
+      version=__version__,
       install_requires=['sentinels'],
       packages=find_packages(exclude=["tests"])
       )
