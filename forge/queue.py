@@ -18,7 +18,11 @@ class ForgeQueue(object):
             return 0
         return sum(len(group) for group in self._order_groups)
     def allow_whenever(self, queued_object):
+        self._discard(queued_object)
         self._whenever.add(queued_object)
+    def _discard(self, queued_object):
+        for group in self._order_groups:
+            group.discard(queued_object)
     def push_call(self, target, args, kwargs, caller_info):
         return self._push(FunctionCall(target, args, kwargs, caller_info))
     def push_setattr(self, target, name, value, caller_info):
@@ -88,6 +92,8 @@ class OrderingGroup(object):
         return len(self._collection)
     def is_empty(self):
         return len(self) == 0
+    def discard(self, queued_object):
+        raise NotImplementedError() # pragma: no cover
 
 class OrderedGroup(OrderingGroup):
     def __init__(self):
@@ -102,6 +108,10 @@ class OrderedGroup(OrderingGroup):
         return None
     def get_expected(self):
         return self._collection[0] if self._collection else None
+    def discard(self, queued_object):
+        # only rebuild the queue if the queued object is in it...
+        if any(elem is queued_object for elem in self._collection):
+            self._collection = deque([elem for elem in self._collection if elem is not queued_object])
 
 class UnorderedGroup(OrderingGroup):
     def __init__(self):
@@ -115,3 +125,7 @@ class UnorderedGroup(OrderingGroup):
         return None
     def get_expected(self):
         return list(self._collection)
+    def discard(self, queued_object):
+        for index, elem in renumerate(self._collection):
+            if elem is queued_object:
+                self._collection.pop(index)

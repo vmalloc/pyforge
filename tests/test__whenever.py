@@ -26,3 +26,18 @@ class WheneverTest(ForgeTestCase):
         with self.assertRaises(Exception) as caught:
             self.obj.f(1, 2, 3)
         self.assertIs(caught.exception, e)
+    def test__whenever_with_multiple_groups(self):
+        call = self.obj.f(1, 2, 3)
+        self.obj.f(1, 1, 1).and_return(1)
+        with self.forge.any_order():
+            self.obj.f(2, 2, 2).and_return(2)
+        self.obj.f(3, 3, 3).and_return(3)
+        call.whenever().and_return("hey")
+        self.forge.replay()
+        for i in range(3):
+            self.assertEquals("hey", self.obj.f(1, 2, 3))
+        self.assertEquals(1, self.obj.f(1, 1, 1))
+        self.assertEquals("hey", self.obj.f(1, 2, 3))
+        self.assertEquals(2, self.obj.f(2, 2, 2))
+        self.assertEquals(3, self.obj.f(3, 3, 3))
+        self.assertEquals("hey", self.obj.f(1, 2, 3))
