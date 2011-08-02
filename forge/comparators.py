@@ -64,12 +64,12 @@ class IsAlmost(Comparator):
             return False
 
 class Contains(Comparator):
-    def __init__(self, obj):
+    def __init__(self, *objs):
         super(Contains, self).__init__()
-        self._obj = obj
+        self._objs = objs
     def equals(self, other):
         try:
-            return self._obj in other
+            return all(obj in other for obj in self._objs)
         except TypeError:
             return False
 
@@ -112,7 +112,7 @@ class And(Comparator):
     def equals(self, other):
         return all(c.equals(other) for c in self.comparators)
 
-StrContains = lambda x: And(IsA(basestring), Contains(x))
+StrContains = lambda *xs: And(IsA(basestring), Contains(*xs))
 
 class Or(Comparator):
     def __init__(self, *comparators):
