@@ -84,16 +84,22 @@ class ContainsTest(_ComparatorTest):
         yield Contains("bl"), "able"
         yield Contains(2), [1, 2, 3]
         yield Contains("hey"), ["hey", "there"]
+        yield Contains("a", "b"), "abcdefg"
+        yield Contains("a", "b"), ["a", "b"]
     def _get_unequal_pairs(self):
         yield Contains("a"), "hello"
         yield Contains("bla"), object()
         yield Contains(2), [1, 3, 5]
         yield Contains("hey"), ["hello", "world"]
+        yield Contains("a", "b"), "a"
+        yield Contains("a", "b"), "b"
+        yield Contains("a", "b", "d"), ["a", "b"]
 
 class StrContainsTest(_ComparatorTest):
     def _get_equal_pairs(self):
         yield StrContains("a"), "laugh"
         yield StrContains("bl"), "able"
+        yield StrContains("a", "b"), "able"
     def _get_unequal_pairs(self):
         yield StrContains("hey"), ["hey", "there"]
         yield StrContains("a"), "hello"
@@ -101,6 +107,8 @@ class StrContainsTest(_ComparatorTest):
         yield StrContains(2), [1, 2, 3]
         yield StrContains(2), [1, 3, 5]
         yield StrContains("hey"), ["hello", "world"]
+        yield StrContains("a", "b"), "a"
+        yield StrContains("a", "b"), ["a", "b"]
 
 class HasKeyValueTest(_ComparatorTest):
     def _get_equal_pairs(self):
