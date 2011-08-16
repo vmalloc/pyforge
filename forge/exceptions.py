@@ -90,6 +90,8 @@ class UnexpectedSetattr(UnexpectedEvent):
 class ExpectedEventsNotFound(ForgeException):
     def __init__(self, events):
         super(ExpectedEventsNotFound, self).__init__()
+        if type(events) is not list:
+            raise ValueError("Expected events must be a list")
         self.events = events
     def __str__(self):
         return "Expected events not found:\n%s" % "\n".join(map(str, self.events))
