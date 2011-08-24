@@ -1,6 +1,5 @@
 import types
 import functools
-from mock_handle import MockHandle
 from sentinels import NOTHING
 from types import FunctionType
 from types import MethodType
@@ -9,6 +8,8 @@ from .dtypes import MethodDescriptorType
 from .exceptions import InvalidEntryPoint
 from .exceptions import CannotMockFunctions
 from .signature import FunctionSignature
+from .mock_handle import MockHandle
+from .python3_compat import build_unbound_instance_method, IS_PY3
 
 class ClassMockHandle(MockHandle):
     def __init__(self, forge, mock, mocked_class, behave_as_instance, hybrid):
@@ -27,6 +28,13 @@ class ClassMockHandle(MockHandle):
             raise CannotMockFunctions("Cannot mock functions as classes. Use create_function_stub instead.")
     def _has_method(self, name):
         return hasattr(self.mocked_class, name)
+    def _get_real_function(self, name):
+        returned = self._get_real_method(name)
+        if IS_PY3:
+            if hasattr(returned, '__func__'):
+                return returned.__func__
+            return returned
+        return returned.__func__
     def _get_real_method(self, name):
         if name == '__call__' and not self.behaves_as_instance:
             return self._get_constructor_method()
@@ -38,7 +46,7 @@ class ClassMockHandle(MockHandle):
             # simulate an empty ctor...
             fake_constructor = lambda self: None
             fake_constructor.__name__ = "__init__"
-            returned = types.MethodType(fake_constructor, None, self.mocked_class)
+            returned = build_unbound_instance_method(fake_constructor, self.mocked_class)
         return returned
     def _check_unrecorded_method_getting(self, name):
         pass # unrecorded methods can be obtained, but not called...
@@ -60,7 +68,7 @@ class ClassMockHandle(MockHandle):
         real_method = self._get_real_method(name)
         if not self._can_use_as_entry_point(name, real_method):
             raise InvalidEntryPoint("%s is not a method that can be used as a hybrid entry pont" % (name,))
-        return functools.partial(self._get_real_method(name).im_func, self._build_hybrid_self_arg(real_method))
+        return functools.partial(self._get_real_function(name), self._build_hybrid_self_arg(real_method))
     def _build_hybrid_self_arg(self, method):
         sig = FunctionSignature(method)
         if sig.is_class_method() and self.behaves_as_instance:
@@ -86,7 +94,7 @@ class ClassMockHandle(MockHandle):
         call_method = self.mocked_class.__call__
         if getattr(call_method, "__objclass__", None) is type(self.mocked_class):
             return False
-        if getattr(call_method, "im_self", None) is not None:
+        if getattr(call_method, "__self__", None) is not None:
             #__call__ is already bound, for some reason
             return False
         return True

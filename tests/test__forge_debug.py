@@ -1,5 +1,5 @@
 import os
-from ut_utils import TestCase
+from .ut_utils import TestCase
 from forge import Forge
 from forge.caller_info import CallerInfo
 

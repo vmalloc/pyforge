@@ -1,4 +1,4 @@
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 
 class SentinelTest(ForgeTestCase):
     def test__sentinel_equality(self):

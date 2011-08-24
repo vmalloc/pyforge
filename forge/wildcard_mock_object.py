@@ -1,5 +1,5 @@
-from mock_object import MockObject
-from wildcard_mock_handle import WildcardMockHandle
+from .mock_object import MockObject
+from .wildcard_mock_handle import WildcardMockHandle
 
 class WildcardMockObject(MockObject):
     def __init__(self, forge, name=None):

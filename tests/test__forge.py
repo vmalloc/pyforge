@@ -1,5 +1,5 @@
-from ut_utils import TestCase
-from ut_utils import Checkpoint
+from .ut_utils import TestCase
+from .ut_utils import Checkpoint
 from forge import Forge
 
 class ForgeTest(TestCase):

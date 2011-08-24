@@ -1,5 +1,5 @@
-from exceptions import MockObjectUnhashable
-from exceptions import UnexpectedEvent
+from .exceptions import MockObjectUnhashable
+from .exceptions import UnexpectedEvent
 
 class MockObject(object):
     def __repr__(self):
@@ -21,6 +21,8 @@ class MockObject(object):
                                                              caller_info=self.__forge__.forge.debug.get_caller_info())
         except TypeError:
             return True
+    def __bool__(self):
+        return self.__nonzero__()
     def __exit__(self, *args):
         if self.__forge__.forge.is_replaying() and isinstance(args[1], UnexpectedEvent):
             return

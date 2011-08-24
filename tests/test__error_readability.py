@@ -2,7 +2,7 @@ import sys
 from difflib import Differ
 from types import ModuleType
 from contextlib import contextmanager
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 from forge import UnexpectedCall, UnexpectedSetattr
 
 class ErrorClarityTest(ForgeTestCase):

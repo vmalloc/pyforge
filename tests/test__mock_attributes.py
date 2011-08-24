@@ -1,4 +1,4 @@
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 from forge import UnexpectedSetattr
 from forge import ExpectedEventsNotFound
 from contextlib import contextmanager

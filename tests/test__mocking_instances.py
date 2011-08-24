@@ -1,5 +1,5 @@
 from numbers import Number
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 from forge.mock_handle import MockHandle
 from forge import SignatureException
 from forge import MockObjectUnhashable

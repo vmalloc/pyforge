@@ -1,4 +1,4 @@
-from ut_utils import TestCase
+from .ut_utils import TestCase
 import os
 import doctest
 

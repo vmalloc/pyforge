@@ -1,5 +1,5 @@
 from difflib import Differ
-from queued_object import QueuedObject
+from .queued_object import QueuedObject
 
 class ForgeException(Exception):
     pass

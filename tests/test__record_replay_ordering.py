@@ -1,6 +1,6 @@
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 from forge import UnexpectedCall
-
+from forge.python3_compat import basestring
 
 class OrderingTest(ForgeTestCase):
     def setUp(self):

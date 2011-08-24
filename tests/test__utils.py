@@ -1,4 +1,4 @@
-from ut_utils import TestCase, ForgeTestCase
+from .ut_utils import TestCase, ForgeTestCase
 from forge.utils import renumerate, EXPECTING
 from forge.class_mock_handle import ClassMockHandle
 

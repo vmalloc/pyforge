@@ -1,5 +1,5 @@
-from ut_utils import ForgeTestCase
-from ut_utils import Checkpoint
+from .ut_utils import ForgeTestCase
+from .ut_utils import Checkpoint
 from forge import ConflictingActions
 from sentinels import NOTHING
 

@@ -1,4 +1,5 @@
 import re
+from .python3_compat import basestring
 
 class Comparator(object):
     def equals(self, other):

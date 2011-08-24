@@ -1,6 +1,8 @@
-from ut_utils import ForgeTestCase
+import types
+from .ut_utils import ForgeTestCase
 from forge import UnexpectedCall
 from forge import UnexpectedSetattr
+from forge.python3_compat import IS_PY3
 
 class ContextManager(object):
     def __enter__(self):
@@ -33,7 +35,8 @@ class ContextManagerTest(ForgeTestCase):
                 raise my_exception
         caught = caught.exception
         self.assertIs(caught.expected.target, self.checkpoint)
-        self.assertIs(caught.got.target.__forge__.original.im_func, ContextManager.__exit__.im_func)
+        self.assertIsSameMethod(caught.got.target.__forge__.original,
+                                ContextManager.__exit__)
         self.assertIs(caught.got.args['t'], Exception)
         self.assertIs(caught.got.args['v'], my_exception)
         self.assertIsNotNone(caught.got.args['tb'])
@@ -64,7 +67,7 @@ class ContextManagerTest(ForgeTestCase):
         caught = caught.exception
         self.assertIs(caught.expected.target, self.obj.__forge__.get_attribute('__exit__'))
         self.assertEquals(len(caught.expected.args), 3)
-        self.assertTrue(all(x is None for x in caught.expected.args.itervalues()))
+        self.assertTrue(all(x is None for x in caught.expected.args.values()))
         self.assertIs(caught.got.target, self.obj)
         self.assertEquals(caught.got.name, 'a')
         self.assertEquals(caught.got.value, 2)
@@ -78,4 +81,11 @@ class ContextManagerTest(ForgeTestCase):
         with self.obj as value:
             self.checkpoint()
         self.assertEquals(value, 2)
-
+    def assertIsSameMethod(self, a, b):
+        if IS_PY3:
+            if not isinstance(a, types.FunctionType):
+                a = a.__func__
+            if not isinstance(b, types.FunctionType):
+                b = b.__func__
+            return a is b
+        return a.__func__ is b.__func__

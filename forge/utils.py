@@ -1,4 +1,5 @@
 from types import *
+from .python3_compat import xrange, IS_PY3
 
 def renumerate(collection):
     for index in xrange(len(collection) - 1, -1, -1):
@@ -6,19 +7,18 @@ def renumerate(collection):
 
 ### object predicates
 def is_bound_method(obj):
-    return isinstance(obj, MethodType) and obj.im_self is not None
+    return isinstance(obj, MethodType) and obj.__self__ is not None
 def is_function(obj):
     return isinstance(obj, FunctionType) or isinstance(obj, BuiltinFunctionType)
 def is_class(obj):
-    return isinstance(obj, type) or isinstance(obj, ClassType)
+    return isinstance(obj, type) or (not IS_PY3 and isinstance(obj, ClassType))
 def is_class_method(obj):
     if not is_bound_method(obj):
         return False
-    return is_class(obj.im_self)
+    return is_class(obj.__self__)
 
 ### some useful shortcuts
 class EXPECTING(object):
-
     def __init__(self, mock):
         self.mock = mock
     def __setattr__(self, attr, value):

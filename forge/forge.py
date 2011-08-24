@@ -1,5 +1,6 @@
 import itertools
 from contextlib import contextmanager
+from .python3_compat import iteritems
 from .stub import FunctionStub
 from .queue import ForgeQueue
 from .class_mock import ClassMockObject
@@ -20,7 +21,7 @@ class Forge(object):
         self._id_allocator = itertools.count()
         self.debug = ForgeDebug(self)
     def get_new_handle_id(self):
-        return self._id_allocator.next()
+        return next(self._id_allocator)
     def is_replaying(self):
         return self._is_replaying
     def is_recording(self):
@@ -64,7 +65,7 @@ class Forge(object):
         return Sentinel(__forge__name, **attrs)
     def create_mock_with_attrs(self, mocked_class, **attrs):
         returned = self.create_mock(mocked_class)
-        for attr, value in attrs.iteritems():
+        for attr, value in iteritems(attrs):
             setattr(returned, attr, value)
         return returned
     def replace(self, obj, attr_name):

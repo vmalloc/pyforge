@@ -1,7 +1,8 @@
 import copy
 import inspect
 import itertools
-from exceptions import SignatureException, InvalidKeywordArgument
+from .python3_compat import izip, iteritems, basestring
+from .exceptions import SignatureException, InvalidKeywordArgument
 from .utils import is_bound_method
 from .utils import is_class_method
 from numbers import Number
@@ -28,7 +29,7 @@ class FunctionSignature(object):
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
-        return itertools.izip(args, filled_defaults)
+        return izip(args, filled_defaults)
 
     def _build_arguments(self):
         self._args = []
@@ -74,7 +75,7 @@ class FunctionSignature(object):
             returned[arg_name] = given_arg
 
     def _update_normalized_kwargs(self, returned, kwargs):
-        for arg_name, arg in kwargs.iteritems():
+        for arg_name, arg in iteritems(kwargs):
             if not isinstance(arg_name, basestring):
                 raise InvalidKeywordArgument("Invalid keyword argument %r" % (arg_name,))
             if arg_name in returned:

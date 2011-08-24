@@ -1,4 +1,4 @@
-from constants import WILDCARD_DESCRIPTION
+from .constants import WILDCARD_DESCRIPTION
 
 WILDCARD_FUNCTION = lambda *args, **kwargs: None
 WILDCARD_FUNCTION.__name__ = WILDCARD_DESCRIPTION

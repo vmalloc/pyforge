@@ -1,5 +1,5 @@
 import time
-from ut_utils import TestCase
+from .ut_utils import TestCase
 from forge.signature import FunctionSignature
 from forge.exceptions import SignatureException, InvalidKeywordArgument, FunctionCannotBeBound
 

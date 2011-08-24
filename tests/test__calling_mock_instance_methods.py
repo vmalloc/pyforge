@@ -1,9 +1,9 @@
 import functools
-from ut_utils import ForgeTestCase
-from ut_utils import Method, ClassMethod, StaticMethod
-from ut_utils import build_old_style_class
-from ut_utils import build_new_style_class
-from ut_utils import resets_forge_at_end
+from .ut_utils import ForgeTestCase
+from .ut_utils import Method, ClassMethod, StaticMethod
+from .ut_utils import build_old_style_class
+from .ut_utils import build_new_style_class
+from .ut_utils import resets_forge_at_end
 from forge import SignatureException
 
 METHODS = [

@@ -1,8 +1,8 @@
-import cStringIO
 import itertools
 import re
-from ut_utils import TestCase
+from .ut_utils import TestCase, BinaryObjectClass
 from forge.comparators import *
+from forge.python3_compat import IS_PY3, basestring
 
 class Compared(object):
     def __eq__(self):
@@ -43,12 +43,13 @@ class IsATest(_ComparatorTest):
         c = Compared()
         yield IsA(Compared), c
         yield IsA(basestring), "hey"
-        yield IsA(type(cStringIO.StringIO())), cStringIO.StringIO()
+        yield IsA(type(BinaryObjectClass())), BinaryObjectClass()
     def _get_unequal_pairs(self):
         yield IsA(Compared), "hey"
         yield IsA(basestring), Compared()
-        yield IsA(type(cStringIO.StringIO())), object()
-        yield IsA(cStringIO.StringIO()), cStringIO.StringIO()
+        yield IsA(type(BinaryObjectClass())), object()
+        yield IsA(BinaryObjectClass), BinaryObjectClass
+        yield IsA(BinaryObjectClass()), BinaryObjectClass()
 
 class RegexpMatchesTest(_ComparatorTest):
     def _get_equal_pairs(self):

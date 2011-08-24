@@ -1,10 +1,11 @@
-from cStringIO import StringIO
+from .ut_utils import BinaryObjectClass
 from functools import partial
-from ut_utils import ForgeTestCase
-from ut_utils import build_new_style_class
-from ut_utils import build_old_style_class
-from ut_utils import Method
+from .ut_utils import ForgeTestCase
+from .ut_utils import build_new_style_class
+from .ut_utils import build_old_style_class
+from .ut_utils import Method
 from forge import UnexpectedCall
+from forge.python3_compat import IS_PY3
 
 class _SpecialMethodsTest(ForgeTestCase):
     def setUp(self):
@@ -18,6 +19,7 @@ class _SpecialMethodsTest(ForgeTestCase):
             Method('__call__(self, a, b, c)'),
             Method('__contains__(self, item)'),
             Method('__nonzero__(self)'),
+            Method('__bool__(self)'),
             ]))
     def tearDown(self):
         self.forge.verify()
@@ -103,7 +105,10 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.assertEquals(len(self.forge.queue), 1)
         self.forge.reset()
     def test__boolean(self):
-        self.obj.__nonzero__().and_return(False)
+        if IS_PY3:
+            self.obj.__bool__().and_return(False)
+        else:
+            self.obj.__nonzero__().and_return(False)
         self.forge.replay()
         self.assertFalse(self.obj)
 
@@ -122,7 +127,7 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
     def test__special_method_absence(self):
         for statement in self._get_invalid_statements():
             with self.assertRaises(TypeError):
-                exec statement
+                exec(statement)
 
     def test__boolean(self):
         self.assertTrue(self.obj)
@@ -162,7 +167,7 @@ class CallCornerCasesTest(ForgeTestCase):
         with self.assertRaises(TypeError):
             obj(1, 2, 3)
     def test__non_callable_binary_classes(self):
-        obj = self.forge.create_mock(type(StringIO()))
+        obj = self.forge.create_mock(type(BinaryObjectClass()))
         with self.assertRaises(TypeError):
             obj(1, 2, 3)
     def test__callable_binary_classes(self):

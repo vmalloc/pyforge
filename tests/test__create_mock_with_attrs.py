@@ -1,4 +1,4 @@
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 from forge.class_mock import ClassMockObject
 
 class A(object):

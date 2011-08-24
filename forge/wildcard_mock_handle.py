@@ -1,6 +1,6 @@
-from mock_handle import MockHandle
-from constants import WILDCARD_DESCRIPTION
-from dtypes import WILDCARD_FUNCTION
+from .mock_handle import MockHandle
+from .constants import WILDCARD_DESCRIPTION
+from .dtypes import WILDCARD_FUNCTION
 
 class WildcardMockHandle(MockHandle):
     def __init__(self, forge, mock, name=None):

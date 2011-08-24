@@ -1,5 +1,5 @@
 from numbers import Number
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 from forge.stub import FunctionStub
 from forge.stub_handle import StubHandle
 

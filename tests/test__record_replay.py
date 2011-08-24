@@ -1,5 +1,5 @@
 from forge import UnexpectedCall, ExpectedEventsNotFound, SignatureException
-from ut_utils import ForgeTestCase
+from .ut_utils import ForgeTestCase
 
 class RecordReplayTest(ForgeTestCase):
     def setUp(self):

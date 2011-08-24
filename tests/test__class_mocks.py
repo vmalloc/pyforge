@@ -1,4 +1,4 @@
-from ut_utils import *
+from .ut_utils import *
 from forge import SignatureException
 
 METHODS = [
