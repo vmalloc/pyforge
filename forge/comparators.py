@@ -27,7 +27,7 @@ class IsA(Comparator):
         try:
             return isinstance(other, self._class)
         except TypeError:
-            return type(self._class) is type(other)
+            return self._class is type(other)
     def __repr__(self):
         return "<Is instance of %r >" % (self._class,)
 

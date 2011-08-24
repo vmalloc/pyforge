@@ -43,11 +43,12 @@ class IsATest(_ComparatorTest):
         c = Compared()
         yield IsA(Compared), c
         yield IsA(basestring), "hey"
-        IsA(cStringIO.StringIO()), cStringIO.StringIO()
+        yield IsA(type(cStringIO.StringIO())), cStringIO.StringIO()
     def _get_unequal_pairs(self):
         yield IsA(Compared), "hey"
         yield IsA(basestring), Compared()
-        IsA(cStringIO.StringIO()), object()
+        yield IsA(type(cStringIO.StringIO())), object()
+        yield IsA(cStringIO.StringIO()), cStringIO.StringIO()
 
 class RegexpMatchesTest(_ComparatorTest):
     def _get_equal_pairs(self):
