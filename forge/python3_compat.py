@@ -1,6 +1,7 @@
 import types
 import itertools
 import platform
+import inspect
 
 IS_PY3 = (platform.python_version() >= '3')
 
@@ -8,9 +9,12 @@ if IS_PY3:
     iteritems = dict.items
     xrange = range
     basestring = str
+    def getargspec(x):
+        return inspect.getfullargspec(x)[:4]
 else:
     iteritems = dict.iteritems
     from __builtin__ import xrange, basestring
+    getargspec = inspect.getargspec
 
 def izip(*args, **kwargs):
     if IS_PY3:

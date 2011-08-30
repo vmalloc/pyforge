@@ -1,7 +1,6 @@
 import copy
-import inspect
 import itertools
-from .python3_compat import izip, iteritems, basestring
+from .python3_compat import izip, iteritems, basestring, getargspec
 from .exceptions import SignatureException, InvalidKeywordArgument
 from .utils import is_bound_method
 from .utils import is_class_method
@@ -34,7 +33,7 @@ class FunctionSignature(object):
     def _build_arguments(self):
         self._args = []
         try:
-            args, varargs_name, kwargs_name, defaults = inspect.getargspec(self.func)
+            args, varargs_name, kwargs_name, defaults = getargspec(self.func)[:4]
         except TypeError:
             args = []
             varargs_name = 'args'
