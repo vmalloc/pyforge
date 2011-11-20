@@ -1,11 +1,16 @@
+import sys
+import traceback
 from contextlib import contextmanager
 from collections import deque
+import logging
 from .function_call import FunctionCall
 from .setattr import Setattr
 from .exceptions import UnexpectedCall
 from .exceptions import UnexpectedSetattr
 from .exceptions import ExpectedEventsNotFound
 from .utils import renumerate
+
+_logger = logging.getLogger("pyforge")
 
 class ForgeQueue(object):
     def __init__(self, forge):
@@ -40,8 +45,16 @@ class ForgeQueue(object):
             if popped is None:
                 popped = self._find_whenever_object(queued_object)
             if popped is None:
+                self._log_exception_context()
                 raise unexpected_class(self._get_replay_group().get_expected(), queued_object)
             return popped
+    def _log_exception_context(self):
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        if exc_value is not None:
+            _logger.debug("In exception context:\n"
+                          "%s\n%s: %s",
+                          "".join(traceback.format_tb(exc_tb)),
+                          exc_type.__name__, exc_value)
     def _find_whenever_object(self, queued_object):
         for w in self._whenever:
             if w.matches(queued_object):
