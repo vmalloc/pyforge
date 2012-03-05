@@ -1,6 +1,7 @@
 from .ut_utils import TestCase
 from .ut_utils import Checkpoint
 from forge import Forge
+from forge.exceptions import ExpectedEventsNotFound
 
 class ForgeTest(TestCase):
     def setUp(self):
@@ -40,4 +41,8 @@ class ForgeTest(TestCase):
         self.assertTrue(check_reset.called)
         self.assertTrue(check_verify.called)
         # we don't assertRecording, since we stubbed out reset
-
+    def test__verified_replay_context_checks_no_more_calls(self):
+        expected_call = self.forge.create_wildcard_function_stub()(1, 2, 3)
+        with self.assertRaises(ExpectedEventsNotFound):
+            with self.forge.verified_replay_context():
+                pass

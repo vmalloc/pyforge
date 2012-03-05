@@ -43,7 +43,6 @@ class Forge(object):
         return self.queue.pop()
     def verify(self):
         self.queue.verify()
-
     def create_function_stub(self, func, name=None):
         return FunctionStub(self, func, name=name)
     def create_wildcard_function_stub(self, name=None):
