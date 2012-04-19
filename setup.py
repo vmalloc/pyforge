@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), "forge", "__version__.py")) as
     exec(version_file.read())
 
 _INSTALL_REQUIREMENTS = ['sentinels>=0.0.4']
-if platform.python_version() < '2.7':
+if platform.python_version_tuple() < ('2', '7'):
     _INSTALL_REQUIREMENTS.append('unittest2')
 
 setup(name="pyforge",
