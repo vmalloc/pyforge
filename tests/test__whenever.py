@@ -1,8 +1,11 @@
+import random
 from .ut_utils import ForgeTestCase
 from forge.exceptions import UnexpectedCall
 
 class Obj(object):
     def f(self, a, b, c):
+        raise NotImplementedError() # pragma: no cover
+    def g(self, value):
         raise NotImplementedError() # pragma: no cover
 
 class WheneverTest(ForgeTestCase):
@@ -41,3 +44,14 @@ class WheneverTest(ForgeTestCase):
         self.assertEquals(2, self.obj.f(2, 2, 2))
         self.assertEquals(3, self.obj.f(3, 3, 3))
         self.assertEquals("hey", self.obj.f(1, 2, 3))
+    def test__whenever_patterns(self):
+        values = list(range(10))
+        for value in values:
+            self.obj.g(value).whenever().and_return(value*2)
+        self.forge.replay()
+        for i in range(3):
+            random.shuffle(values)
+            for value in values:
+                self.assertEquals(self.obj.g(value), value * 2)
+        with self.assertRaises(UnexpectedCall):
+            self.obj.g(max(values)+1)
