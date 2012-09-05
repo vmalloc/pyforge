@@ -55,3 +55,16 @@ class WheneverTest(ForgeTestCase):
                 self.assertEquals(self.obj.g(value), value * 2)
         with self.assertRaises(UnexpectedCall):
             self.obj.g(max(values)+1)
+    def test__whenever_when_syntax(self):
+        self.obj.g.when(1).then_return(2)
+        self.forge.replay()
+        self.assertEquals(self.obj.g(1), 2)
+        self.assertEquals(self.obj.g(1), 2)
+        self.assertEquals(self.obj.g(1), 2)
+        with self.assertRaises(UnexpectedCall):
+            self.obj.g(2)
+    def test__whenever_when_syntax_disabled_in_replay(self):
+        self.forge.replay()
+        self.obj.g # make sure the stub exists
+        with self.assertRaises(AttributeError):
+            self.obj.g.when

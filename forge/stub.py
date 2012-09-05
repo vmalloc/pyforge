@@ -1,3 +1,4 @@
+import functools
 from .stub_handle import StubHandle
 from .dtypes import WILDCARD_FUNCTION
 
@@ -13,4 +14,10 @@ class FunctionStub(object):
         return self.__forge__.handle_call(args[1:], kwargs, caller_info=caller_info)
     def __repr__(self):
         return '<Stub for %r>' % self.__forge__.describe()
+    def __getattribute__(self, name):
+        if name == "when" and self.__forge__.forge.is_recording():
+            return functools.partial(_when, self)
+        return super(FunctionStub, self).__getattribute__(name)
 
+def _when(__func, *args, **kwargs):
+    return __func(*args, **kwargs).whenever()

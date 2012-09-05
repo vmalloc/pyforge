@@ -292,7 +292,24 @@ And of course the downside is that:
  2
  >>> forge_manager.verify()
  >>> forge_manager.reset()
+
+Multiple *whenever()* recordings can be specified with different parameters, which results in a form of "pattern matching" for the requested calls (each call signature will result in a different return value).
  
+An alternative syntax exists for *whenever()* for easier readability::
+
+ >>> class Obj(object):
+ ...     def f(self, value):
+ ...         pass
+ >>> m = forge_manager.create_mock(Obj)
+ >>> m.f.when(2).then_return(3)
+ 3
+ >>> forge_manager.replay()
+ >>> m.f(2)
+ 3
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
+ 
+
 Wildcard Mocks
 --------------
 Although not recommended, sometimes you just want a mock that accepts anything during record, and just verifies that you stick to it in replay. This is useful for prototyping an interface that doesn't exist yet. This is done in Forge by using *wildcard mocks*::

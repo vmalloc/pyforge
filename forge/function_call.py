@@ -34,20 +34,24 @@ class FunctionCall(QueuedObject):
             kwargs = {}
         self._call_funcs.append((func, list(args), kwargs))
         return self
+    then_call = and_call
     def and_call_with_args(self, func):
         self._call_funcs_with_args.append(func)
         return self
+    then_call_with_args = and_call_with_args
     def and_raise(self, exc):
         if self._return_value is not NOTHING:
             raise ConflictingActions()
         self._raised_exception = exc
         return exc
+    then_raise  = and_raise
 
     def and_return(self, rv):
         if self._raised_exception is not NOTHING:
             raise ConflictingActions()
         self._return_value = rv
         return rv
+    then_return = and_return
     def do_side_effects(self, args, kwargs):
         for call_func, args, kwargs in self._call_funcs:
             call_func(*args, **kwargs)
