@@ -3,6 +3,7 @@ from sentinels import NOTHING
 from .exceptions import ConflictingActions
 from .queued_object import QueuedObject
 
+
 class FunctionCall(QueuedObject):
     def __init__(self, target, args, kwargs, caller_info):
         super(FunctionCall, self).__init__(caller_info)
@@ -12,15 +13,18 @@ class FunctionCall(QueuedObject):
         self._call_funcs_with_args = []
         self._return_value = NOTHING
         self._raised_exception = NOTHING
+
     def matches(self, call):
         if not isinstance(call, FunctionCall):
             return False
         return self.target is call.target and self.args == call.args
+
     def describe(self):
         return "%s(%s)" % (
             self.target.__forge__.describe(),
             self._get_argument_string(),
             )
+
     def _get_argument_string(self):
         positional_args = sorted(k for k in self.args if isinstance(k, Number))
         keyword_args = sorted(k for k in self.args if not isinstance(k, Number))
@@ -35,16 +39,18 @@ class FunctionCall(QueuedObject):
         self._call_funcs.append((func, list(args), kwargs))
         return self
     then_call = and_call
+
     def and_call_with_args(self, func):
         self._call_funcs_with_args.append(func)
         return self
     then_call_with_args = and_call_with_args
+
     def and_raise(self, exc):
         if self._return_value is not NOTHING:
             raise ConflictingActions()
         self._raised_exception = exc
         return exc
-    then_raise  = and_raise
+    then_raise = and_raise
 
     def and_return(self, rv):
         if self._raised_exception is not NOTHING:
@@ -52,6 +58,7 @@ class FunctionCall(QueuedObject):
         self._return_value = rv
         return rv
     then_return = and_return
+
     def do_side_effects(self, args, kwargs):
         for call_func, args, kwargs in self._call_funcs:
             call_func(*args, **kwargs)
@@ -59,8 +66,8 @@ class FunctionCall(QueuedObject):
             call_func(*args, **kwargs)
         if self._raised_exception is not NOTHING:
             raise self._raised_exception
+
     def get_return_value(self):
         if self._return_value is not NOTHING:
             return self._return_value
         return None
-

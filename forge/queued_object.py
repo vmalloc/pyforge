@@ -4,8 +4,10 @@ class QueuedObject(object):
         self.caller_info = caller_info
     def matches(self, queue_object):
         raise NotImplementedError()
+
     def describe(self):
         raise NotImplementedError()
+
     def __repr__(self):
         return "<%s>" % self.describe()
     def whenever(self):
