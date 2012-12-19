@@ -21,7 +21,8 @@ class RecordReplayTest(ForgeTestCase):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 6)
         exc = caught.exception
-        self.assertEquals(exc.expected.args, dict(a=1, b=2, c=3))
+        self.assertEquals(len(exc.expected), 1)
+        self.assertEquals(exc.expected[0].args, dict(a=1, b=2, c=3))
         self.assertEquals(exc.got.args, dict(a=1, b=2, c=6))
         self.assertExpectedNotMet([self.stub])
     def test__record_replay_different_more_args(self):
@@ -47,7 +48,7 @@ class RecordReplayTest(ForgeTestCase):
         self.stub(1, 2, 3)
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 3)
-        self.assertIs(caught.exception.expected, None)
+        self.assertEquals(caught.exception.expected, [])
         self.assertIs(caught.exception.got.target, self.stub)
         self.assertNoMoreCalls()
         self.forge.verify()
@@ -80,9 +81,10 @@ class RecordReplayTest(ForgeTestCase):
         with self.assertRaises(ExpectedEventsNotFound) as caught:
             self.forge.verify()
         self.assertEquals(len(caught.exception.events), len(stubs))
+        expected = self.forge.queue.get_expected()
         for stub, exception_call in zip(stubs, caught.exception.events):
-            expected_call = self.forge.pop_expected_call()
+            expected_call = expected.pop()
             self.assertIs(expected_call, exception_call)
             self.assertIs(expected_call.target, stub)
-        self.assertNoMoreCalls()
-
+        self.assertEquals(len(expected), 0)
+        self.forge.queue.clear()

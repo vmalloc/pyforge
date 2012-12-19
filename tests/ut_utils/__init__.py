@@ -30,7 +30,9 @@ class ForgeTestCase(TestCase):
         self.forge.reset()
         super(ForgeTestCase, self).tearDown()
     def assertNoMoreCalls(self):
-        self.assertEquals(len(self.forge.queue), 0)
+        expected = self.forge.queue.get_expected()
+        self.assertEquals(len(expected), 0, "len=%d != 0, expected_events=%s, queue=%s" % (len(expected),
+            repr(expected), repr(self.forge.queue)))
 
 class Method(object):
     def __init__(self, signature_string):
