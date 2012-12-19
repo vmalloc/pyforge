@@ -24,7 +24,7 @@ class ForgeTest(TestCase):
         self.forge.queue._queue = [1, 2, 3, 4]
         self.forge.reset()
         self.assertRecording()
-        self.assertEquals(len(self.forge.queue), 0)
+        self.assertTrue(self.forge.queue.is_empty())
     def test__verified_replay_context(self):
         self.assertRecording()
         check_verify = Checkpoint()

@@ -47,9 +47,6 @@ class Forge(object):
         self.verify()
         self.reset()
 
-    def pop_expected_call(self):
-        return self.queue.pop()
-
     def verify(self):
         self.queue.verify()
 
@@ -103,4 +100,9 @@ class Forge(object):
         self.replacer.restore_all()
 
     def any_order(self):
-        return self.queue.get_unordered_group_context()
+        return self.queue.get_any_order_group_context()
+
+    def ordered(self):
+        return self.queue.get_ordered_group_context()
+
+    group = ordered

@@ -68,3 +68,18 @@ class WheneverTest(ForgeTestCase):
         self.obj.g # make sure the stub exists
         with self.assertRaises(AttributeError):
             self.obj.g.when
+    def test__whenever_when_syntax_in_group(self):
+        with self.forge.ordered():
+            self.obj.f(1, 2, 3).and_return(42)
+            self.obj.g.when(1).then_return(2)
+        with self.forge.ordered():
+            self.obj.f(3, 2, 1).and_return(24)
+            self.obj.g.when(1).then_return(3)
+        self.forge.replay()
+        self.assertEquals(self.obj.g(1), 2)
+        self.assertEquals(self.obj.g(1), 2)
+        self.assertEquals(self.obj.f(1, 2, 3), 42)
+
+        self.assertEquals(self.obj.g(1), 3)
+        self.assertEquals(self.obj.g(1), 3)
+        self.assertEquals(self.obj.f(3, 2, 1), 24)

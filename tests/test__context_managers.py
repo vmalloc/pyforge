@@ -16,7 +16,7 @@ class ContextManagerTest(ForgeTestCase):
         self.obj = self.forge.create_mock(ContextManager)
         self.checkpoint = self.forge.create_function_stub(lambda: None)
     def tearDown(self):
-        self.assertEquals(len(self.forge.queue), 0)
+        self.assertTrue(self.forge.queue.is_empty())
         self.forge.verify()
         super(ContextManagerTest, self).tearDown()
     def test__expecting_context(self):
@@ -34,7 +34,8 @@ class ContextManagerTest(ForgeTestCase):
             with self.obj:
                 raise my_exception
         caught = caught.exception
-        self.assertIs(caught.expected.target, self.checkpoint)
+        self.assertEquals(len(caught.expected), 1)
+        self.assertIs(caught.expected[0].target, self.checkpoint)
         self.assertIsSameMethod(caught.got.target.__forge__.original,
                                 ContextManager.__exit__)
         self.assertIs(caught.got.args['t'], Exception)
@@ -51,9 +52,10 @@ class ContextManagerTest(ForgeTestCase):
             with self.obj:
                 stub(2)
         caught = caught.exception
-        self.assertIs(caught.expected.target, stub)
+        self.assertEquals(len(caught.expected), 1)
+        self.assertIs(caught.expected[0].target, stub)
         self.assertIs(caught.got.target, stub)
-        self.assertIs(caught.expected.args['arg'], 1)
+        self.assertIs(caught.expected[0].args['arg'], 1)
         self.assertIs(caught.got.args['arg'], 2)
         self.assertEquals(len(self.forge.queue), 2)
         self.forge.reset()
@@ -65,9 +67,10 @@ class ContextManagerTest(ForgeTestCase):
             with self.obj:
                 self.obj.a = 2
         caught = caught.exception
-        self.assertIs(caught.expected.target, self.obj.__forge__.get_attribute('__exit__'))
-        self.assertEquals(len(caught.expected.args), 3)
-        self.assertTrue(all(x is None for x in caught.expected.args.values()))
+        self.assertEquals(len(caught.expected), 1)
+        self.assertIs(caught.expected[0].target, self.obj.__forge__.get_attribute('__exit__'))
+        self.assertEquals(len(caught.expected[0].args), 3)
+        self.assertTrue(all(x is None for x in caught.expected[0].args.values()))
         self.assertIs(caught.got.target, self.obj)
         self.assertEquals(caught.got.name, 'a')
         self.assertEquals(caught.got.value, 2)

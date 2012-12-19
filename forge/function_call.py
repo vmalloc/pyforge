@@ -33,6 +33,10 @@ class FunctionCall(QueuedObject):
                     for arg_name in keyword_args)
         return ", ".join(args)
 
+    def whenever(self):
+        self.target.__forge__.forge.queue.allow_whenever(self)
+        return self
+
     def and_call(self, func, args=(), kwargs=None):
         if kwargs is None:
             kwargs = {}

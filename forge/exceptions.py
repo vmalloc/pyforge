@@ -92,6 +92,11 @@ class UnexpectedEvent(ForgeException):
         return self._get_description_string(self.got)
 
     def _get_description_string(self, x):
+        if isinstance(x, list):
+            if len(x) == 1:
+                x = x[0]
+            elif len(x) == 0:
+                x = None
         if x is None:
             return "<< None >>"
         if not isinstance(x, QueuedObject):
