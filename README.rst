@@ -265,6 +265,28 @@ You can, however, control it and create groups in which order does not matter::
  >>> forge_manager.verify()
  >>> forge_manager.reset()
 
+You can always nest ordering groups, by using *ordered* and *any_order*::
+
+ >>> with forge_manager.any_order(): # doctest: +ELLIPSIS
+ ...     mock.func(4)
+ ...     with forge_manager.ordered():
+ ...         mock.func(5)
+ ...         mock.func(6)
+ ...     mock.func(7)
+ <...>
+ <...>
+ <...>
+ <...>
+
+In the example above, func(5) and func(6) will be asserted to occur in this specific order, but the group can appear anywhere among func(4) and func(7).
+
+ >>> forge_manager.replay()
+ >>> for i in (5, 6, 7, 4):
+ ...     _ = mock.func(i)
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
+ 
+
 Whenever
 --------
 Sometimes you intend for a function to be called zero or more times, regardless of timing, and return a certain value (or raise an exception). There are ugly ways to do this::
@@ -309,6 +331,7 @@ An alternative syntax exists for *whenever()* for easier readability::
  >>> forge_manager.verify()
  >>> forge_manager.reset()
  
+.. note:: whenever() calls always apply to the ordering group in which they were recorded. This means that once an order group is cleared, all of the *whenever*s recorded in it are automatically "forgotten", and will no longer be accepted on replay.
 
 Wildcard Mocks
 --------------
