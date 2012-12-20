@@ -79,7 +79,7 @@ class OrderedOrderedGroupTest(OrderingTest):
             self.stub(3)
         self.stub(4)
         self.forge.replay()
-        for i in xrange(5):
+        for i in range(5):
             self.stub(i)
         self.forge.verify()
 
