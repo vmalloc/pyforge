@@ -171,6 +171,15 @@ class OrderedAnyOrder2GroupTest(OrderingTest):
             self.stub(n)
         self.forge.verify()
 
+    def test__break_inner_ordered__unexpected(self):
+        for n in (0, 1, 'c', 'd'):
+            self.stub(n)
+        with self.assertRaises(UnexpectedCall) as caught:
+            self.stub('b')
+        self.assertIsInstance(caught.exception.expected, list)
+        self.assertIsInstance(str(caught.exception), basestring)
+        self.assertIsInstance(repr(caught.exception), basestring)
+        self.forge.reset()
 
 class OrderedAnyOrderOrderedGroupTest(OrderingTest):
     def setUp(self):
@@ -198,3 +207,4 @@ class OrderedAnyOrderOrderedGroupTest(OrderingTest):
         for n in (0, 'a', '@', '!', 'b', 3, 2, 1, 4):
             self.stub(n)
         self.forge.verify()
+

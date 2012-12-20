@@ -90,8 +90,8 @@ class ForgeQueue(object):
 
     @contextmanager
     def _get_group_context(self, group_class):
+        group = group_class()
         try:
-            group = group_class()
             self._recording_group.push(group)
             self._recording_group = group
             yield

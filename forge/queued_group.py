@@ -11,12 +11,12 @@ class QueuedGroup(QueuedNodeParent):
         self._out_of_band_collection = []
 
     def get_expected(self):
-        return list(chain.from_iterable(obj.get_expected() for obj in self.get_expected_or_available_children()))
+        return list(chain.from_iterable(obj.get_expected() for obj in self.iter_expected_or_available_children()))
 
     def get_available(self):
-        return list(chain.from_iterable(obj.get_available() for obj in self.get_expected_or_available_children()))
+        return list(chain.from_iterable(obj.get_available() for obj in self.iter_expected_or_available_children()))
 
-    def get_expected_or_available_children(self):
+    def iter_expected_or_available_children(self):
         raise NotImplementedError()  # pragma: no cover
 
     def push(self, obj):
@@ -30,7 +30,7 @@ class QueuedGroup(QueuedNodeParent):
         return obj
 
     def pop_matching(self, queued_object):
-        result = self._pop_matching_strategy(queued_object)
+        result = self._pop_matching_by_strategy(queued_object)
         if result is None:
             result = self.pop_matching_out_of_band(queued_object)
         if result and self.get_parent() and not self.get_expected():
@@ -60,10 +60,10 @@ class QueuedGroup(QueuedNodeParent):
 
 
 class OrderedGroup(QueuedGroup):
-    def get_expected_or_available_children(self):
-        return self._collection[0:1] + self._out_of_band_collection
+    def iter_expected_or_available_children(self):
+        return chain(self._collection[:1], self._out_of_band_collection)
 
-    def _pop_matching_strategy(self, queued_object):
+    def _pop_matching_by_strategy(self, queued_object):
         return self._collection[0].pop_matching(queued_object) if self._collection else None
 
 
@@ -72,22 +72,27 @@ class AnyOrderGroup(QueuedGroup):
         super(AnyOrderGroup, self).__init__(parent_group)
         self._current_child = None
 
-    def get_expected_or_available_children(self):
-        return self._collection + self._out_of_band_collection
+    def iter_expected_or_available_children(self):
+        return chain(self._collection, self._out_of_band_collection)
 
     def discard_child(self, queued_object):
+        returned = super(AnyOrderGroup, self).discard_child(queued_object)
         if queued_object is self._current_child:
             self._current_child = None
-        return super(AnyOrderGroup, self).discard_child(queued_object)
+        return returned
 
-    def _pop_matching_strategy(self, queued_object):
+    def _pop_matching_by_strategy(self, queued_object):
         if self._current_child:
             return self._current_child.pop_matching(queued_object)
         else:
             for obj in self._collection:
                 # Save the current child so if it removes itself we won't set it as as the current child anymore.
                 self._current_child = obj
-                result = obj.pop_matching(queued_object)
+                try:
+                    result = obj.pop_matching(queued_object)
+                except:
+                    self._current_child = None
+                    raise
                 if result is not None:
                     return result
             self._current_child = None

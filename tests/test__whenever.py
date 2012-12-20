@@ -83,3 +83,21 @@ class WheneverTest(ForgeTestCase):
         self.assertEquals(self.obj.g(1), 3)
         self.assertEquals(self.obj.g(1), 3)
         self.assertEquals(self.obj.f(3, 2, 1), 24)
+    def test__whenever_applies_only_in_group(self):
+        result = object()
+        with self.forge.ordered():
+            self.obj.f(1, 1, 1)
+            with self.forge.any_order():
+                self.obj.g(1).whenever().and_return(result)
+                self.obj.f(2, 2, 2)
+            self.obj.f(3, 3, 3)
+        self.forge.replay()
+        with self.assertRaises(UnexpectedCall):
+            self.obj.g(1)
+        self.obj.f(1, 1, 1)
+        self.assertIs(result, self.obj.g(1))
+        self.obj.f(2, 2, 2)
+        with self.assertRaises(UnexpectedCall):
+            # once f(2, 2, 2) is called, the group is cleared and the whenever() no longer applies
+            self.obj.g(1)
+        self.obj.f(3, 3, 3)
