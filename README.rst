@@ -1,5 +1,8 @@
 What is it?
 ===========
+
+.. image:: https://secure.travis-ci.org/vmalloc/pyforge.png
+
 Forge is a mocking library for Python. It draws most of its inspiration from Mox (http://code.google.com/p/pymox). It is aimed to be simple, but still feature-rich, and provide maximum flexibility for unit testing using the mock approach.
 
 Running Forge's Acceptance Suite
