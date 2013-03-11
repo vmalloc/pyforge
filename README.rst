@@ -428,7 +428,7 @@ In some cases, constructors (especially in legacy code to which you add tests) d
 
 Hybrid mocks are, well, hybrid. They behave as regular mocks during record, but calling any method during replay that hasn't been recorded will invoke the original method on the mock, thus testing it in an isolated environment.
 
-A class equivalent also exists:
+A class equivalent also exists::
 
  >>> class SomeClass(object):
  ...     def __init__(self, parameter):
