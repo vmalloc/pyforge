@@ -10,6 +10,9 @@ class QueuedGroup(QueuedNodeParent):
         self._collection = []
         self._out_of_band_collection = []
 
+    def is_empty(self):
+        return not self.get_expected() and not self.get_available()
+
     def get_expected(self):
         return list(chain.from_iterable(obj.get_expected() for obj in self.iter_expected_or_available_children()))
 

@@ -96,7 +96,10 @@ class ForgeQueue(object):
             self._recording_group = group
             yield
         finally:
-            self._recording_group = group.get_parent()
+            parent = group.get_parent()
+            if group.is_empty():
+                parent.discard_child(group)
+            self._recording_group = parent
 
     def get_any_order_group_context(self):
         return self._get_group_context(AnyOrderGroup)

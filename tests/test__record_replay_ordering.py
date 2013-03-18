@@ -1,6 +1,7 @@
 from .ut_utils import ForgeTestCase
-from forge import UnexpectedCall
+from forge import UnexpectedCall, ExpectedEventsNotFound
 from forge.python3_compat import basestring
+import random
 
 class OrderingTest(ForgeTestCase):
     def setUp(self):
@@ -17,17 +18,41 @@ class StrictOrderingTest(OrderingTest):
         self.assertEquals(len(caught.exception.expected), 1)
         self.assertIs(caught.exception.expected[0].target, self.stub)
         self.forge.reset()
+
 class EmptyGroupTest(OrderingTest):
-    def test__empty_group(self):
-        self.stub(0)
-        with self.forge.any_order():
+    def test__empty_group_with_initial_ordered(self):
+        self._test__empty_group(True, True, True)
+        self._test__empty_group(True, True, False)
+    def test__empty_group_with_initial_unordered(self):
+        self._test__empty_group(True, False, True)
+        self._test__empty_group(True, False, False)
+    def test__empty_group_without_initial_ordered(self):
+        self._test__empty_group(False, True, True)
+        self._test__empty_group(False, True, False)
+    def test__empty_group_without_initial_unordered(self):
+        self._test__empty_group(False, False, True)
+        self._test__empty_group(False, False, False)
+    def _test__empty_group(self, with_initial_recording, ordered, success):
+        if with_initial_recording:
+            self.stub(0)
+        if ordered:
+            context = self.forge.ordered
+        else:
+            context = self.forge.any_order
+        with context():
             pass
         self.stub(1)
         self.stub(2)
         self.forge.replay()
-        self.stub(0)
-        with self.assertRaises(UnexpectedCall):
+        if with_initial_recording:
+            self.stub(0)
+        if success:
+            self.stub(1)
             self.stub(2)
+            self.forge.verify()
+        else:
+            with self.assertRaises(UnexpectedCall):
+                self.stub(2)
         self.forge.reset()
 
 class OrderGroupsTest(OrderingTest):
@@ -54,6 +79,19 @@ class OrderGroupsTest(OrderingTest):
         self.stub(5)
         self.stub(4)
         self.forge.verify()
+
+# class EmptyGroupTest(OrderingTest):
+#     def test__empty_ordered_group(self):
+#         self._test__empty_group(self.forge.ordered)
+#     def test__empty_unordered_group(self):
+#         self._test__empty_group(self.forge.any_order)
+#     def _test__empty_group(self, context):
+#         with context():
+#             pass
+#         self.stub(1)
+#         self.forge.replay()
+#         self.stub(1)
+#         self.forge.verify()
 
 class OrderingGroupExceptionFormatting(OrderingTest):
     def test__unexpected_call(self):
