@@ -14,6 +14,8 @@ class Obj(object):
 class InterleavedTest(ForgeTestCase):
     def setUp(self):
         super(InterleavedTest, self).setUp()
+        # make tests deterministic and reproducible...
+        random.seed(0)
         self.obj = self.forge.create_mock(Obj)
 
     def test__interleaved__single_collection(self):
@@ -48,11 +50,20 @@ class InterleavedTest(ForgeTestCase):
 
         while parallels:
             random.shuffle(parallels)
-            args, ret = parallels[0].pop(0)
+            thread = parallels[0]
+
+            if len(thread) > 1:
+                # try to skip one call...
+                with self.assertRaises(UnexpectedCall):
+                    self.obj.f(*thread[1][0])
+
+            args, ret = thread.pop(0)
             self.assertEquals(self.obj.f(*args), ret)
-            if not parallels[0]:
+            if not thread:
                 parallels.pop(0)
 
     def test__interleaved__zero_context(self):
         with self.forge.interleaved_order():
             pass
+
+        self.forge.replay()
