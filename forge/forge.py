@@ -105,4 +105,7 @@ class Forge(object):
     def ordered(self):
         return self.queue.get_ordered_group_context()
 
+    def interleaved_order(self):
+        return self.queue.get_interleaved_group_context()
+
     group = ordered
