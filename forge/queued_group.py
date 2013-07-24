@@ -104,3 +104,19 @@ class AnyOrderGroup(QueuedGroup):
     def __repr__(self):
         return "%s <id %s>(_current_child id=%s, %s, out_of_band=%s)" % (type(self).__name__, id(self),
                     id(self._current_child), repr(self._collection), repr(self._out_of_band_collection))
+
+
+class InterleavedGroup(QueuedGroup):
+    def iter_expected_or_available_children(self):
+        return chain(self._collection, self._out_of_band_collection)
+
+    def _pop_matching_by_strategy(self, queued_object):
+        for obj in self._collection:
+            result = obj.pop_matching(queued_object)
+            if result is not None:
+                return result
+        return None
+
+    def __repr__(self):
+        return "%s <id %s>(%s, out_of_band=%s)" % (type(self).__name__, id(self), repr(self._collection),
+                                                   repr(self._out_of_band_collection))

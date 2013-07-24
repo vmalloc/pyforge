@@ -7,7 +7,7 @@ from .function_call import FunctionCall
 from .setattr import Setattr
 from .exceptions import UnexpectedCall, UnexpectedSetattr, ExpectedEventsNotFound
 from .queued_node import QueuedNode
-from .queued_group import OrderedGroup, AnyOrderGroup
+from .queued_group import OrderedGroup, AnyOrderGroup, InterleavedGroup
 
 _logger = logging.getLogger("pyforge")
 
@@ -106,6 +106,9 @@ class ForgeQueue(object):
 
     def get_ordered_group_context(self):
         return self._get_group_context(OrderedGroup)
+
+    def get_interleaved_group_context(self):
+        return self._get_group_context(InterleavedGroup)
 
     def verify(self):
         expected_events = self._root_group.get_expected()

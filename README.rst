@@ -31,16 +31,16 @@ Forge mostly creates mock objects and function stubs, but in a variety of flavor
 
 There shouldn't be a real reason for keeping more than one forge manager. What it is typically used for is creating mocks::
 
- >>> class SomeClass(object): 
+ >>> class SomeClass(object):
  ...     def f(self, a, b, c):
- ...         pass    
+ ...         pass
  >>> mock = forge_manager.create_mock(SomeClass)
  >>> mock
  <Mock of 'SomeClass'>
 
 Mock tests usually act in a record-replay manner. You record what you expect your mock to do, and then replay it, while Forge tracks what happens and makes sure it is correct::
 
- >>> forge_manager.is_recording() 
+ >>> forge_manager.is_recording()
  True
  >>> mock.f(1, 2, 3) # doctest: +ELLIPSIS
  <...>
@@ -234,7 +234,7 @@ Replacing is also supported within a context, restoring the installed stub upon 
 
  >>> with forge_manager.replacing_context(SomeClass, "x"):
  ...    pass
- 
+
 Ordering
 --------
 By default, forge verifies that the order in which calls are made in practice is the same as the record flow.
@@ -268,7 +268,8 @@ You can, however, control it and create groups in which order does not matter::
  >>> forge_manager.verify()
  >>> forge_manager.reset()
 
-You can always nest ordering groups, by using *ordered* and *any_order*::
+
+You can always nest ordering groups, by using *ordered*, *any_order* and *interleaved_order* (see below) ::
 
  >>> with forge_manager.any_order(): # doctest: +ELLIPSIS
  ...     mock.func(4)
@@ -288,7 +289,56 @@ In the example above, func(5) and func(6) will be asserted to occur in this spec
  ...     _ = mock.func(i)
  >>> forge_manager.verify()
  >>> forge_manager.reset()
- 
+
+
+In the context of nested ordering groups, the *interleaved* ordering may come in handy when working with coroutines/greenlets::
+
+ >>> class SomeClass(object):
+ ...     def foo(self, arg):
+ ...        pass
+ ...     def bar(self, arg):
+ ...        pass
+ >>> mock = forge_manager.create_mock(SomeClass)
+ >>> with forge_manager.interleaved_order(): # doctest: +ELLIPSIS
+ ...     with forge_manager.ordered():
+ ...         mock.foo(1)
+ ...         mock.foo(2)
+ ...     with forge_manager.ordered():
+ ...         mock.bar(1)
+ ...         mock.bar(2)
+ <...>
+ <...>
+ <...>
+ <...>
+ >>> forge_manager.replay()
+ >>> mock.foo(1)
+ >>> mock.bar(1)
+ >>> mock.foo(2)
+ >>> mock.bar(2)
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
+
+The expectation above will work with following sequence as well:
+
+ >>> with forge_manager.interleaved_order(): # doctest: +ELLIPSIS
+ ...     with forge_manager.ordered():
+ ...         mock.foo(1)
+ ...         mock.foo(2)
+ ...     with forge_manager.ordered():
+ ...         mock.bar(1)
+ ...         mock.bar(2)
+ <...>
+ <...>
+ <...>
+ <...>
+ >>> forge_manager.replay()
+ >>> mock.bar(1)
+ >>> mock.bar(2)
+ >>> mock.foo(1)
+ >>> mock.foo(2)
+ >>> forge_manager.verify()
+ >>> forge_manager.reset()
+
 
 Whenever
 --------
@@ -319,7 +369,7 @@ And of course the downside is that:
  >>> forge_manager.reset()
 
 Multiple *whenever()* recordings can be specified with different parameters, which results in a form of "pattern matching" for the requested calls (each call signature will result in a different return value).
- 
+
 An alternative syntax exists for *whenever()* for easier readability::
 
  >>> class Obj(object):
@@ -333,7 +383,7 @@ An alternative syntax exists for *whenever()* for easier readability::
  3
  >>> forge_manager.verify()
  >>> forge_manager.reset()
- 
+
 .. note:: whenever() calls always apply to the ordering group in which they were recorded. This means that once an order group is cleared, all of the *whenever*s recorded in it are automatically "forgotten", and will no longer be accepted on replay.
 
 Wildcard Mocks
@@ -354,12 +404,12 @@ Although not recommended, sometimes you just want a mock that accepts anything d
  <...>
  >>> stub(1, 2, 3, d=4) # doctest: +ELLIPSIS
  <...>
- >>> forge_manager.replay() 
- >>> mock.f() 
- >>> mock.g(1, 2, 3, d=4) 
- >>> stub() 
- >>> stub(1, 2, 3, d=4) 
- >>> forge_manager.reset() 
+ >>> forge_manager.replay()
+ >>> mock.f()
+ >>> mock.g(1, 2, 3, d=4)
+ >>> stub()
+ >>> stub(1, 2, 3, d=4)
+ >>> forge_manager.reset()
 
 Class Mocks
 -----------
