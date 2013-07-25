@@ -67,6 +67,16 @@ Just like classes yield mocks, regular functions yield stubs, through the use of
 
 As methods and functions are recorded, their signature is verified against the recorded calls. Upon replay the call must match the original call, so you shouldn't worry too much about accidents concerning the function signature.
 
+To promote niceness, two context managers provide syntactic sugar that structure the test code:
+
+ >>> with forge_manager.record_context():
+ ...    mock.f(1, 2, 3) # doctest: +ELLIPSIS
+ ...    mock.f(3, 4, 5) # doctest: +ELLIPSIS
+ <...>
+ >>> with forge_manager.verified_replay_context():
+ ...    mock.f(1, 2, 3) # doctest: +ELLIPSIS
+ ...    mock.f(3, 4, 5) # doctest: +ELLIPSIS
+
 Failures and Unexpected Events
 ------------------------------
 Whenever an event occurs that was not expected, an exception is raised, explaining what happend::

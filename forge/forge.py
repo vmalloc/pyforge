@@ -41,6 +41,11 @@ class Forge(object):
         self.attributes.reset_replay_attributes()
 
     @contextmanager
+    def record_context(self):
+        assert self.is_recording()
+        yield
+
+    @contextmanager
     def verified_replay_context(self):
         self.replay()
         yield
