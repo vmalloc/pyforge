@@ -2,7 +2,6 @@ from .handle import ForgeHandle
 from .signature import FunctionSignature
 from .bound_signature_adapter import BoundSignatureAdapter
 
-
 class StubHandle(ForgeHandle):
     def __init__(self, forge, stub, original, name=None):
         super(StubHandle, self).__init__(forge)
@@ -10,6 +9,14 @@ class StubHandle(ForgeHandle):
         self.name = name
         self.original = original
         self.signature = FunctionSignature(self.original)
+        self._call_count = 0
+        self._call_count_session_id = 0
+
+    @property
+    def call_count(self):
+        if self.forge.session_id == self._call_count_session_id:
+            return self._call_count
+        return 0
 
     def _describe(self):
         if self.name is not None:
@@ -36,9 +43,16 @@ class StubHandle(ForgeHandle):
     def _handle_replay_call(self, args, kwargs, caller_info):
         expected_call = self.forge.queue.pop_matching_call(self.stub, args, kwargs, caller_info)
         return_value = expected_call.get_return_value()
+        self._increment_call_count()
         #might raise...
         expected_call.do_side_effects(args, kwargs)
         return return_value
+
+    def _increment_call_count(self):
+        if self._call_count_session_id != self.forge.session_id:
+            self._call_count_session_id = self.forge.session_id
+            self._call_count = 0
+        self._call_count += 1
 
     def has_recorded_calls(self):
         return self.forge.stubs.was_stub_recorded(self.stub)

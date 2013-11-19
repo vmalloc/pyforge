@@ -10,11 +10,27 @@ class RecordReplayTest(ForgeTestCase):
     def tearDown(self):
         self.assertNoMoreCalls()
         super(RecordReplayTest, self).tearDown()
+
     def test__record_replay_valid(self):
         self.stub(1, 2, 3)
         self.forge.replay()
         self.stub(1, 2, 3)
         self.forge.verify()
+
+    def test__call_counts(self):
+        for i in range(2):
+            self.stub(1, 2, 3)
+            self.stub(1, 2, 3)
+        self.assertEquals(self.stub.__forge__.call_count, 0)
+        self.forge.replay()
+        self.stub(1, 2, 3)
+        self.assertEquals(self.stub.__forge__.call_count, 1)
+        self.stub(1, 2, 3)
+        self.assertEquals(self.stub.__forge__.call_count, 2)
+        self.assertIn("2 times", str(self.stub))
+        self.forge.reset()
+        self.assertEquals(self.stub.__forge__.call_count, 0)
+
     def test__record_replay_different_not_equal_value(self):
         self.stub(1, 2, 3)
         self.forge.replay()

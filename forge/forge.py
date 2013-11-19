@@ -1,4 +1,5 @@
 import itertools
+import time
 from contextlib import contextmanager
 from .python3_compat import iteritems
 from .stub import FunctionStub
@@ -36,6 +37,7 @@ class Forge(object):
 
     def reset(self):
         self._is_replaying = False
+        self.session_id = time.time()
         self.queue = ForgeQueue(self)
         self.stubs = StubManager(self)
         self.attributes.reset_replay_attributes()

@@ -13,7 +13,10 @@ class FunctionStub(object):
         caller_info = self.__forge__.forge.debug.get_caller_info()
         return self.__forge__.handle_call(args[1:], kwargs, caller_info=caller_info)
     def __repr__(self):
-        return '<Stub for %r>' % self.__forge__.describe()
+        call_count_msg = ""
+        if self.__forge__.call_count:
+            call_count_msg += " (already called %s times)" % (self.__forge__.call_count,)
+        return '<Stub for %r%s>' % (self.__forge__.describe(), call_count_msg)
     def __getattribute__(self, name):
         if name == "when" and self.__forge__.forge.is_recording():
             return functools.partial(_when, self)
