@@ -38,7 +38,7 @@ UNEXPECTED_SETATTR_STR = "Unexpected attribute set!"
 DIFF_DESCRIPTION_STR = "(Expected: +, Got: -)"
 
 
-class UnexpectedEvent(ForgeException):
+class UnexpectedEvent(ForgeException, AssertionError):
     def __init__(self, expected, got):
         super(UnexpectedEvent, self).__init__()
         self.expected = expected
@@ -116,7 +116,7 @@ class UnexpectedSetattr(UnexpectedEvent):
         return UNEXPECTED_SETATTR_STR
 
 
-class ExpectedEventsNotFound(ForgeException):
+class ExpectedEventsNotFound(ForgeException, AssertionError):
     def __init__(self, events):
         super(ExpectedEventsNotFound, self).__init__()
         if type(events) is not list:
