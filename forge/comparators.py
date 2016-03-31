@@ -44,6 +44,18 @@ class RegexpMatches(Comparator):
     def __repr__(self):
         return "<Matches %r>" % (self._regexp,)
 
+class RegexpSearches(Comparator):
+    def __init__(self, regexp, flags=0):
+        super(RegexpSearches, self).__init__()
+        self._regexp = regexp
+        self._flags = flags
+    def equals(self, other):
+        if not isinstance(other, basestring):
+            return False
+        return re.search(self._regexp, other, self._flags)
+    def __repr__(self):
+        return "<Searches %r>" % (self._regexp,)
+
 class Func(Comparator):
     def __init__(self, func):
         super(Func, self).__init__()
