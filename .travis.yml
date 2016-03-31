@@ -1,13 +1,19 @@
 language: python
 sudo: false
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: 
-  - "pip install ."
-  - "pip install nose"
-# command to run tests, e.g. python setup.py test
+- '2.7'
+- '3.3'
+- '3.4'
+- '3.5'
+install:
+- pip install .
+- pip install nose
 script: nosetests
+deploy:
+  provider: pypi
+  user: vmalloc
+  password:
+    secure: dLHV+qi3Pgd61dyDDIGBO7dauuZ3hS/0guZNwkLy2g/4eSzNKcUDXDxBeYYLiduZhRPEdAkAM5pirjc0FCBJUxdrncuNOsvIphRh/DhM9aEpiaiTuGBoOyxF2UPAfJwfvIjkSbdAGjeIuTK1aCAtXkijYHmCKnAjRTRmgRgBW2g=
+  on:
+    tags: true
+    repo: vmalloc/pyforge
