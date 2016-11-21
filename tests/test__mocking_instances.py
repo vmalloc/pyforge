@@ -16,7 +16,7 @@ class MockingTest(ForgeTestCase):
     def test__mock_hashability(self):
         self._assert_mock_not_hashable(self.obj)
         self.obj.__forge__.enable_hashing()
-        self.assertEquals(id(self.obj), hash(self.obj))
+        assert hash(self.obj)
         self.obj.__forge__.disable_hashing()
         self._assert_mock_not_hashable(self.obj)
     def _assert_mock_not_hashable(self, obj):
