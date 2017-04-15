@@ -505,3 +505,63 @@ A class equivalent also exists::
  >>> got_return_value = mock.constructor()
  >>> got_return_value is expected_return_value
  True
+
+Mocking Class Construction
+--------------------------
+Suppose you have the following classes:
+
+account.py::
+
+ from browser import Browser
+
+ class Account(object):
+     def __init__(self, account_name):
+         self._browser = Browser('%s-cookies' % (account_name, ))
+
+     def login(self, username, password):
+         ...
+
+browser.py::
+
+ class Browser(object):
+     def __init__(self, cookies_file):
+         # Open cookies file
+         ...
+
+     def get(self, url):
+         ...
+
+You wish to test Account, and therefore mock Browser. The problem is that Account creates its own instance of browser. A possible solution would be::
+
+ forge_manager = Forge()
+
+ a = account.Account('testing')
+
+ mock = forge_manager.create_mock(browser.Browser)
+ mock.get('http://some-site.com/login').and_raise(HTTPError('...'))
+ forge_manager.replay()
+
+ a._browser = mock
+ a.login('user', 'password')
+
+There several downsides to the solution above:
+
+ * A real instance of 'Browser' is constructed and then thrown away. This might be undesired (For example: if you do not want to create a cookies file in the testing environment).
+ * You cannot verify that the constructor was called with the expected arguments by using the instance mock.
+ 
+A better solution is to combine a class mock and an instance mock. The class mock, when called, will verify the paremeters and then return the instance mock to the caller. The class mock should be also 'transplanted' inside the tested module namespace::
+
+ forge_manager = Forge()
+
+ c_mock = forge_manager.create_class_mock(browser.Browser)
+ mock = forge_manager.create_mock(browser.Browser)
+ forge_manager.replace_with(account, "Browser", c_mock)
+ c_mock('testing-cookies').and_return(mock)
+
+ mock.get('http://some-site.com/login').and_raise(HTTPError('...'))
+
+ forge_manager.replay()
+
+ a = account.Account('testing')
+ a.login('user', 'password')
+
