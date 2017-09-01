@@ -79,7 +79,7 @@ To promote niceness, two context managers provide syntactic sugar that structure
 
 Failures and Unexpected Events
 ------------------------------
-Whenever an event occurs that was not expected, an exception is raised, explaining what happend::
+Whenever an event occurs that was not expected, an exception is raised, explaining what happened::
 
  >>> stub = forge_manager.create_function_stub(some_func)
  >>> stub(1, 2, 3) # doctest: +ELLIPSIS
