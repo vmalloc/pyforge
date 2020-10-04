@@ -5,8 +5,7 @@ python:
 - '3.7'
 - '3.8'
 install:
-- pip install .
-- pip install nose
+- pip install ".[testing]"
 script: nosetests
 deploy:
   provider: pypi
