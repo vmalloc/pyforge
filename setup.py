@@ -6,19 +6,15 @@ with open(os.path.join(os.path.dirname(__file__), "forge", "__version__.py")) as
     exec(version_file.read())
 
 _INSTALL_REQUIREMENTS = ['sentinels>=0.0.4']
-if platform.python_version_tuple() < ('2', '7'):
-    _INSTALL_REQUIREMENTS.append('unittest2')
 
 setup(name="pyforge",
       classifiers = [
           "Development Status :: 4 - Beta",
           "Intended Audience :: Developers",
           "License :: OSI Approved :: BSD License",
-          "Programming Language :: Python :: 2.6",
-          "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3.3",
-          "Programming Language :: Python :: 3.4",
-          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
           "Topic :: Software Development :: Libraries :: Python Modules",
           "Topic :: Software Development :: Testing",
           ],
