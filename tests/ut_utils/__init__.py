@@ -3,12 +3,10 @@ import sys
 import types
 import platform
 from forge import Forge
+
 from forge.python3_compat import IS_PY3
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 class TestCase(unittest.TestCase):
     pass
