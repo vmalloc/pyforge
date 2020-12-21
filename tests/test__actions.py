@@ -9,9 +9,9 @@ class ActionsTest(ForgeTestCase):
         self.stub = self.forge.create_function_stub(lambda *args, **kwargs: None)
     def test__return_value(self):
         rv = self.stub(1, 2, 3).and_return(666)
-        self.assertEquals(rv, 666)
+        self.assertEqual(rv, 666)
         self.forge.replay()
-        self.assertEquals(666, self.stub(1, 2, 3))
+        self.assertEqual(666, self.stub(1, 2, 3))
         self.assertNoMoreCalls()
         self.forge.verify()
     def test__raised_exception(self):
@@ -30,7 +30,7 @@ class ActionsTest(ForgeTestCase):
         with self.assertRaises(ConflictingActions):
             expected_call.and_raise(Exception())
         #conflict should not affect existing expectations
-        self.assertEquals(expected_call._return_value, 2)
+        self.assertEqual(expected_call._return_value, 2)
         self.assertIs(expected_call._raised_exception, NOTHING)
 
         expected_call = self.stub(1, 2, 3)
@@ -46,34 +46,34 @@ class ActionsTest(ForgeTestCase):
         return_value = 666
         cp = Checkpoint()
         rv = self.stub(1, 2, 3).and_call(cp.trigger).and_return(return_value)
-        self.assertEquals(rv, return_value)
+        self.assertEqual(rv, return_value)
         self.forge.replay()
         rv = self.stub(1, 2, 3)
-        self.assertEquals(rv, return_value)
+        self.assertEqual(rv, return_value)
         self.assertTrue(cp.called)
     def test__and_call__specify_args_kwargs(self):
         return_value = 666
         cp = Checkpoint()
         def callback(a, b, c, d):
-            self.assertEquals((a, b, c, d), (1, 2, 3, 4))
+            self.assertEqual((a, b, c, d), (1, 2, 3, 4))
             cp.trigger()
         rv = self.stub(1, 2, 3).and_call(callback, args=(1, 2, 3), kwargs=dict(d=4)).and_return(return_value)
-        self.assertEquals(rv, return_value)
+        self.assertEqual(rv, return_value)
         self.forge.replay()
         rv = self.stub(1, 2, 3)
-        self.assertEquals(rv, return_value)
+        self.assertEqual(rv, return_value)
         self.assertTrue(cp.called)
 
     def test__and_call_with_args(self):
         return_value = 666
         cp = Checkpoint()
         def trigger(*args, **kwargs):
-            self.assertEquals(args, (1, 2, 3))
-            self.assertEquals(kwargs, dict(d=4))
+            self.assertEqual(args, (1, 2, 3))
+            self.assertEqual(kwargs, dict(d=4))
             cp.trigger()
         rv = self.stub(1, 2, 3, d=4).and_call_with_args(trigger).and_return(return_value)
-        self.assertEquals(rv, return_value)
+        self.assertEqual(rv, return_value)
         self.forge.replay()
         rv = self.stub(1, 2, 3, d=4)
-        self.assertEquals(rv, return_value)
+        self.assertEqual(rv, return_value)
         self.assertTrue(cp.called)

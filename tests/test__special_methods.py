@@ -28,7 +28,7 @@ class _SpecialMethodsTest(ForgeTestCase):
     def test__len(self):
         self.obj.__len__().and_return(2)
         self.forge.replay()
-        self.assertEquals(len(self.obj), 2)
+        self.assertEqual(len(self.obj), 2)
     def test__setitem_explicit(self):
         self.obj.__setitem__('a', 'b')
         self.forge.replay()
@@ -42,22 +42,22 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.forge.replay()
         with self.assertRaises(UnexpectedCall):
             self.obj['a'] = 'c'
-        self.assertEquals(len(self.forge.queue), 1)
+        self.assertEqual(len(self.forge.queue), 1)
         self.forge.reset()
     def test__getitem_explicit(self):
         self.obj.__getitem__(2).and_return(3)
         self.forge.replay()
-        self.assertEquals(self.obj[2], 3)
+        self.assertEqual(self.obj[2], 3)
     def test__getitem_implicit(self):
         self.obj[2].and_return(3)
         self.forge.replay()
-        self.assertEquals(self.obj[2], 3)
+        self.assertEqual(self.obj[2], 3)
     def test__getitem_mismatch(self):
         self.obj[2].and_return(3)
         self.forge.replay()
         with self.assertRaises(UnexpectedCall):
             self.obj[3]
-        self.assertEquals(len(self.forge.queue), 1)
+        self.assertEqual(len(self.forge.queue), 1)
         self.forge.reset()
     def test__delitem_explicit(self):
         self.obj.__delitem__(2)
@@ -72,24 +72,24 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.forge.replay()
         with self.assertRaises(UnexpectedCall):
             del self.obj[3]
-        self.assertEquals(len(self.forge.queue), 1)
+        self.assertEqual(len(self.forge.queue), 1)
         self.forge.reset()
     def test__iter(self):
         expected_result = [1, 3, 4, 5]
         self.obj.__iter__().and_return(iter(expected_result))
         self.forge.replay()
         l = [x for x in self.obj]
-        self.assertEquals(l, expected_result)
+        self.assertEqual(l, expected_result)
     def test__call(self):
         self.obj(1, 2, c=3).and_return(5)
         self.forge.replay()
-        self.assertEquals(self.obj(1, 2, c=3), 5)
+        self.assertEqual(self.obj(1, 2, c=3), 5)
     def test__call_mismatch(self):
         self.obj(1, 2, c=3).and_return(5)
         self.forge.replay()
         with self.assertRaises(UnexpectedCall):
             self.obj(1, 2, c=4)
-        self.assertEquals(len(self.forge.queue), 1)
+        self.assertEqual(len(self.forge.queue), 1)
         self.forge.reset()
     def test__contains_explicit(self):
         self.obj.__contains__(2).and_return(True)
@@ -102,7 +102,7 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.forge.replay()
         with self.assertRaises(UnexpectedCall):
             3 in self.obj
-        self.assertEquals(len(self.forge.queue), 1)
+        self.assertEqual(len(self.forge.queue), 1)
         self.forge.reset()
     def test__boolean(self):
         if IS_PY3:

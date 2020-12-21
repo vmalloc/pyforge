@@ -12,7 +12,7 @@ class ExpectedArg(object):
 
 class SignatureTest(TestCase):
     def _assert_argument_names(self, sig, names):
-        self.assertEquals([arg.name for arg in sig._args], names)
+        self.assertEqual([arg.name for arg in sig._args], names)
 
     def _test_function_signature(self,
         func,
@@ -22,19 +22,19 @@ class SignatureTest(TestCase):
         ):
         sig = FunctionSignature(func)
 
-        self.assertEquals(len(expected_signature), len(sig._args))
-        self.assertEquals(len(expected_signature), sig.get_num_args())
+        self.assertEqual(len(expected_signature), len(sig._args))
+        self.assertEqual(len(expected_signature), sig.get_num_args())
         for expected_arg, arg in zip(expected_signature, sig._args):
             if isinstance(expected_arg, tuple):
                 expected_arg = ExpectedArg(*expected_arg)
-            self.assertEquals(expected_arg.name,
+            self.assertEqual(expected_arg.name,
                               arg.name)
-            self.assertEquals(expected_arg.has_default,
+            self.assertEqual(expected_arg.has_default,
                               arg.has_default())
             if expected_arg.has_default:
-                self.assertEquals(expected_arg.default, arg.default)
-        self.assertEquals(sig.has_variable_kwargs(), has_varkwargs)
-        self.assertEquals(sig.has_variable_args(), has_varargs)
+                self.assertEqual(expected_arg.default, arg.default)
+        self.assertEqual(sig.has_variable_kwargs(), has_varkwargs)
+        self.assertEqual(sig.has_variable_args(), has_varargs)
 
     def test__simple_functions(self):
         def f(a, b, c):
@@ -128,7 +128,7 @@ class SignatureTest(TestCase):
 class BinaryFunctionSignatureTest(TestCase):
     def test__binary_global_function(self):
         sig = FunctionSignature(time.time)
-        self.assertEquals(sig._args, [])
+        self.assertEqual(sig._args, [])
         self.assertTrue(sig.has_variable_args())
         self.assertTrue(sig.has_variable_kwargs())
     def test__object_method_placeholders(self):

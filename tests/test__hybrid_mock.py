@@ -67,7 +67,7 @@ class HybridMockTest(ForgeTestCase):
         hm.__forge__.enable_setattr_during_replay()
         self.forge.replay()
         hm.set_value()
-        self.assertEquals(hm.value, 2)
+        self.assertEqual(hm.value, 2)
 
 class ClassWithClassmethodConstructor(object):
     def __init__(self, a, b, c):

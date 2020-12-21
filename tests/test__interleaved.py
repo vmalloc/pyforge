@@ -24,10 +24,10 @@ class InterleavedTest(ForgeTestCase):
             self.obj.f(2, 3, 4).and_return(3)
 
         self.forge.replay()
-        self.assertEquals(self.obj.f(1, 2, 3), 2)
+        self.assertEqual(self.obj.f(1, 2, 3), 2)
         with self.assertRaises(UnexpectedCall):
             self.obj.f(1, 2, 4)
-        self.assertEquals(self.obj.f(2, 3, 4), 3)
+        self.assertEqual(self.obj.f(2, 3, 4), 3)
 
     def test__interleaved__two_ordered_nested(self):
         with self.forge.interleaved_order():
@@ -58,7 +58,7 @@ class InterleavedTest(ForgeTestCase):
                     self.obj.f(*thread[1][0])
 
             args, ret = thread.pop(0)
-            self.assertEquals(self.obj.f(*args), ret)
+            self.assertEqual(self.obj.f(*args), ret)
             if not thread:
                 parallels.pop(0)
 

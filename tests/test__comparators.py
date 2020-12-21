@@ -27,7 +27,7 @@ class _ComparatorTest(TestCase):
         for a, _ in itertools.chain(self._get_equal_pairs(), self._get_unequal_pairs()):
             self.assertIsInstance(a, Comparator)
             self.assertIsInstance(str(a), basestring)
-            self.assertEquals(str(a), repr(a))
+            self.assertEqual(str(a), repr(a))
 
 class IsTest(_ComparatorTest):
     def _get_equal_pairs(self):

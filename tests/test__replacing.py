@@ -100,7 +100,7 @@ class StubbingModulesTest(ForgeTestCase):
         expected_result = 666
         time.sleep(10).and_return(expected_result)
         self.forge.replay()
-        self.assertEquals(time.sleep(10), expected_result)
+        self.assertEqual(time.sleep(10), expected_result)
         self.forge.restore_all_replacements()
         self.assertIs(time.sleep, orig_time_sleep)
     def test__stub_module_functions(self):
@@ -111,7 +111,7 @@ class StubbingModulesTest(ForgeTestCase):
         return_path = "return_path"
         os.path.join("a", "b", "c").and_return(return_path)
         self.forge.replay()
-        self.assertEquals(return_path, os.path.join("a", "b", "c"))
+        self.assertEqual(return_path, os.path.join("a", "b", "c"))
         self.forge.verify()
         self.forge.restore_all_replacements()
         self.assertIs(os.path.join, orig_os_path_join)
@@ -121,17 +121,17 @@ class ReplacingTest(ForgeTestCase):
         s = self.forge.create_sentinel()
         s.a = 2
         self.forge.replace_with(s, "a", 3)
-        self.assertEquals(s.a, 3)
+        self.assertEqual(s.a, 3)
         self.forge.restore_all_replacements()
-        self.assertEquals(s.a, 2)
+        self.assertEqual(s.a, 2)
     def test__replacing_properties__new_style(self):
         self._test__replacing_properties(NewStyleClass, orig_newstyle_property)
     def test__replacing_properties__old_style(self):
         self._test__replacing_properties(OldStyleClass, orig_oldstyle_property)
     def _test__replacing_properties(self, cls, orig):
         self.forge.replace_with(cls, "some_property", 3)
-        self.assertEquals(cls.some_property, 3)
-        self.assertEquals(cls().some_property, 3)
+        self.assertEqual(cls.some_property, 3)
+        self.assertEqual(cls().some_property, 3)
         self.forge.restore_all_replacements()
         self.assertIs(cls.some_property, orig)
         self.assertIs(cls().some_property, 2)
@@ -189,7 +189,7 @@ class MultipleStubbingTest(ForgeTestCase):
         self.forge.replay()
 
         returned = self.forge.replace_many(some_object, "a", "b", "c")
-        self.assertEquals(returned, expected_results)
+        self.assertEqual(returned, expected_results)
         self.forge.restore_all_replacements()
         self.forge.verify()
         self.assertNoMoreCalls()
