@@ -15,7 +15,7 @@ class StrictOrderingTest(OrderingTest):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(2)
         self.assertIs(caught.exception.got.target, self.stub)
-        self.assertEquals(len(caught.exception.expected), 1)
+        self.assertEqual(len(caught.exception.expected), 1)
         self.assertIs(caught.exception.expected[0].target, self.stub)
         self.forge.reset()
 

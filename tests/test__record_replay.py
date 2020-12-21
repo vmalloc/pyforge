@@ -21,15 +21,15 @@ class RecordReplayTest(ForgeTestCase):
         for i in range(2):
             self.stub(1, 2, 3)
             self.stub(1, 2, 3)
-        self.assertEquals(self.stub.__forge__.call_count, 0)
+        self.assertEqual(self.stub.__forge__.call_count, 0)
         self.forge.replay()
         self.stub(1, 2, 3)
-        self.assertEquals(self.stub.__forge__.call_count, 1)
+        self.assertEqual(self.stub.__forge__.call_count, 1)
         self.stub(1, 2, 3)
-        self.assertEquals(self.stub.__forge__.call_count, 2)
+        self.assertEqual(self.stub.__forge__.call_count, 2)
         self.assertIn("2 times", str(self.stub))
         self.forge.reset()
-        self.assertEquals(self.stub.__forge__.call_count, 0)
+        self.assertEqual(self.stub.__forge__.call_count, 0)
 
     def test__record_replay_different_not_equal_value(self):
         self.stub(1, 2, 3)
@@ -37,9 +37,9 @@ class RecordReplayTest(ForgeTestCase):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 6)
         exc = caught.exception
-        self.assertEquals(len(exc.expected), 1)
-        self.assertEquals(exc.expected[0].args, dict(a=1, b=2, c=3))
-        self.assertEquals(exc.got.args, dict(a=1, b=2, c=6))
+        self.assertEqual(len(exc.expected), 1)
+        self.assertEqual(exc.expected[0].args, dict(a=1, b=2, c=3))
+        self.assertEqual(exc.got.args, dict(a=1, b=2, c=6))
         self.assertExpectedNotMet([self.stub])
     def test__record_replay_different_more_args(self):
         self.stub(1, 2, 3)
@@ -64,7 +64,7 @@ class RecordReplayTest(ForgeTestCase):
         self.stub(1, 2, 3)
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(1, 2, 3)
-        self.assertEquals(caught.exception.expected, [])
+        self.assertEqual(caught.exception.expected, [])
         self.assertIs(caught.exception.got.target, self.stub)
         self.assertNoMoreCalls()
         self.forge.verify()
@@ -96,11 +96,11 @@ class RecordReplayTest(ForgeTestCase):
         self.assertGreater(len(stubs), 0)
         with self.assertRaises(ExpectedEventsNotFound) as caught:
             self.forge.verify()
-        self.assertEquals(len(caught.exception.events), len(stubs))
+        self.assertEqual(len(caught.exception.events), len(stubs))
         expected = self.forge.queue.get_expected()
         for stub, exception_call in zip(stubs, caught.exception.events):
             expected_call = expected.pop()
             self.assertIs(expected_call, exception_call)
             self.assertIs(expected_call.target, stub)
-        self.assertEquals(len(expected), 0)
+        self.assertEqual(len(expected), 0)
         self.forge.queue.clear()

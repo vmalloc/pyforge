@@ -44,7 +44,7 @@ class WildcardTest(ForgeTestCase):
         wc = self.forge.create_wildcard_mock()
         wc.a = 2
         self.forge.replay()
-        self.assertEquals(wc.a, 2)
+        self.assertEqual(wc.a, 2)
         with self.assertRaises(UnexpectedSetattr):
             wc.a = 2
         with self.assertRaises(UnexpectedSetattr):
@@ -56,7 +56,7 @@ class WildcardTest(ForgeTestCase):
         wc.__forge__.expect_setattr("a", 2)
         self.forge.replay()
         wc.a = 2
-        self.assertEquals(wc.a, 2)
+        self.assertEqual(wc.a, 2)
     def test__repr(self):
         name = 'some_name'
         wc = self.forge.create_wildcard_mock(name)
@@ -77,5 +77,5 @@ class WildcardTest(ForgeTestCase):
         self.forge.replay()
         with wc:
             f()
-        self.assertEquals(len(wc), 666)
-        self.assertEquals([x for x in wc], list(range(10)))
+        self.assertEqual(len(wc), 666)
+        self.assertEqual([x for x in wc], list(range(10)))

@@ -15,10 +15,10 @@ class WheneverTest(ForgeTestCase):
     def test__whenever_verifies_arguments(self):
         self.obj.f(1, 2, 3).whenever().and_return(2)
         self.forge.replay()
-        self.assertEquals(self.obj.f(1, 2, 3), 2)
+        self.assertEqual(self.obj.f(1, 2, 3), 2)
         with self.assertRaises(UnexpectedCall):
             self.obj.f(1, 2, 4)
-        self.assertEquals(self.obj.f(1, 2, 3), 2)
+        self.assertEqual(self.obj.f(1, 2, 3), 2)
     def test__whenever_accepts_zero_times(self):
         self.obj.f(1, 2, 3).whenever().and_return(2)
         self.forge.replay()
@@ -38,12 +38,12 @@ class WheneverTest(ForgeTestCase):
         call.whenever().and_return("hey")
         self.forge.replay()
         for i in range(3):
-            self.assertEquals("hey", self.obj.f(1, 2, 3))
-        self.assertEquals(1, self.obj.f(1, 1, 1))
-        self.assertEquals("hey", self.obj.f(1, 2, 3))
-        self.assertEquals(2, self.obj.f(2, 2, 2))
-        self.assertEquals(3, self.obj.f(3, 3, 3))
-        self.assertEquals("hey", self.obj.f(1, 2, 3))
+            self.assertEqual("hey", self.obj.f(1, 2, 3))
+        self.assertEqual(1, self.obj.f(1, 1, 1))
+        self.assertEqual("hey", self.obj.f(1, 2, 3))
+        self.assertEqual(2, self.obj.f(2, 2, 2))
+        self.assertEqual(3, self.obj.f(3, 3, 3))
+        self.assertEqual("hey", self.obj.f(1, 2, 3))
     def test__whenever_patterns(self):
         values = list(range(10))
         for value in values:
@@ -52,15 +52,15 @@ class WheneverTest(ForgeTestCase):
         for i in range(3):
             random.shuffle(values)
             for value in values:
-                self.assertEquals(self.obj.g(value), value * 2)
+                self.assertEqual(self.obj.g(value), value * 2)
         with self.assertRaises(UnexpectedCall):
             self.obj.g(max(values)+1)
     def test__whenever_when_syntax(self):
         self.obj.g.when(1).then_return(2)
         self.forge.replay()
-        self.assertEquals(self.obj.g(1), 2)
-        self.assertEquals(self.obj.g(1), 2)
-        self.assertEquals(self.obj.g(1), 2)
+        self.assertEqual(self.obj.g(1), 2)
+        self.assertEqual(self.obj.g(1), 2)
+        self.assertEqual(self.obj.g(1), 2)
         with self.assertRaises(UnexpectedCall):
             self.obj.g(2)
     def test__whenever_when_syntax_disabled_in_replay(self):
@@ -76,13 +76,13 @@ class WheneverTest(ForgeTestCase):
             self.obj.f(3, 2, 1).and_return(24)
             self.obj.g.when(1).then_return(3)
         self.forge.replay()
-        self.assertEquals(self.obj.g(1), 2)
-        self.assertEquals(self.obj.g(1), 2)
-        self.assertEquals(self.obj.f(1, 2, 3), 42)
+        self.assertEqual(self.obj.g(1), 2)
+        self.assertEqual(self.obj.g(1), 2)
+        self.assertEqual(self.obj.f(1, 2, 3), 42)
 
-        self.assertEquals(self.obj.g(1), 3)
-        self.assertEquals(self.obj.g(1), 3)
-        self.assertEquals(self.obj.f(3, 2, 1), 24)
+        self.assertEqual(self.obj.g(1), 3)
+        self.assertEqual(self.obj.g(1), 3)
+        self.assertEqual(self.obj.f(3, 2, 1), 24)
     def test__whenever_applies_only_in_group(self):
         result = object()
         with self.forge.ordered():

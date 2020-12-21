@@ -19,19 +19,19 @@ class FunctionStubbingTest(ForgeTestCase):
         urlopen_stub = self.forge.create_function_stub(urlopen)
         urlopen_stub("url").and_return(666)
         self.forge.replay()
-        self.assertEquals(urlopen_stub("url"), 666)
+        self.assertEqual(urlopen_stub("url"), 666)
 
 class FunctionStubAttributesTest(ForgeTestCase):
     def setUp(self):
         super(FunctionStubAttributesTest, self).setUp()
         self.stub = self.forge.create_function_stub(some_function)
     def test__name(self):
-        self.assertEquals(self.stub.__name__, some_function.__name__)
+        self.assertEqual(self.stub.__name__, some_function.__name__)
     def test__specific_name(self):
         stub = self.forge.create_function_stub(some_function, name='other_name')
-        self.assertEquals(stub.__name__, 'other_name')
+        self.assertEqual(stub.__name__, 'other_name')
     def test__doc(self):
-        self.assertEquals(self.stub.__doc__, some_function.__doc__)
+        self.assertEqual(self.stub.__doc__, some_function.__doc__)
     def test__stub_id(self):
         self.assertIsInstance(self.stub.__forge__.id, Number)
     def test__str_repr(self):

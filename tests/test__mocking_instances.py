@@ -71,8 +71,8 @@ class MockingCornerCasesTest(ForgeTestCase):
         with self.assertRaises(AttributeError):
             mock.gettt
         self.forge.replay()
-        self.assertEquals(mock.get(2, 3), 4)
-        self.assertEquals(mock[6], 7)
+        self.assertEqual(mock.get(2, 3), 4)
+        self.assertEqual(mock[6], 7)
 
 class InvalidMockingTest(ForgeTestCase):
     def test__cannot_mock_functions(self):

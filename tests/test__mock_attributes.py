@@ -22,7 +22,7 @@ class MockAttributesTest(ForgeTestCase):
         self.forge.replay()
         self.assertIs(self.obj.a, attr_value)
         self.forge.reset()
-        self.assertEquals(self.obj.a, attr_value)
+        self.assertEqual(self.obj.a, attr_value)
     def test__setting_mock_object_attributes_during_replay(self):
         self.forge.replay()
         with self.assertUnexpectedSetattr(self.obj, "a", 2):
@@ -36,7 +36,7 @@ class MockAttributesTest(ForgeTestCase):
         self.obj.__forge__.enable_setattr_during_replay()
         self.forge.replay()
         self.obj.a = 2
-        self.assertEquals(self.obj.a, 2)
+        self.assertEqual(self.obj.a, 2)
         self.forge.reset()
         with self.assertRaises(AttributeError):
             self.obj.a
@@ -52,9 +52,9 @@ class MockAttributesTest(ForgeTestCase):
         with self.assertUnexpectedSetattr(self.obj, "a", 3):
             self.obj.a = 3
         self.assertNoMoreCalls()
-        self.assertEquals(self.obj.a, 2)
+        self.assertEqual(self.obj.a, 2)
         self.forge.reset()
-        self.assertEquals(self.obj.a, 2)
+        self.assertEqual(self.obj.a, 2)
     def test__getattr_of_nonexisting_attr_during_replay(self):
         self.forge.replay()
         with self.assertRaises(AttributeError):
@@ -67,15 +67,15 @@ class MockAttributesTest(ForgeTestCase):
         self.forge.replay()
         self.obj.some_method
     def test__getattr_of_class_variables_during_record(self):
-        self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
+        self.assertEqual(self.obj.class_variable, MockedClass.class_variable)
     def test__getattr_of_class_variables_during_replay(self):
         self.forge.replay()
-        self.assertEquals(self.obj.class_variable, MockedClass.class_variable)
+        self.assertEqual(self.obj.class_variable, MockedClass.class_variable)
     def test__setattr_of_class_variables_during_record(self):
         self.obj.class_variable = 300
-        self.assertEquals(self.obj.class_variable, 300)
+        self.assertEqual(self.obj.class_variable, 300)
         self.forge.replay()
-        self.assertEquals(self.obj.class_variable, 300)
+        self.assertEqual(self.obj.class_variable, 300)
     def test__setattr_of_class_variables_during_replay(self):
         self.forge.replay()
         with self.assertUnexpectedSetattr(self.obj, "class_variable", 300):
@@ -86,28 +86,28 @@ class MockAttributesTest(ForgeTestCase):
         with self.assertRaises(AttributeError):
             self.obj.a
         self.obj.a = 666
-        self.assertEquals(self.obj.a, 666)
+        self.assertEqual(self.obj.a, 666)
     def test__expect_setattr_previous_value(self):
         self.obj.a = 1
-        self.assertEquals(self.obj.a, 1)
+        self.assertEqual(self.obj.a, 1)
         self.obj.__forge__.expect_setattr("a", 2)
-        self.assertEquals(self.obj.a, 1)
+        self.assertEqual(self.obj.a, 1)
         self.forge.replay()
-        self.assertEquals(self.obj.a, 1)
+        self.assertEqual(self.obj.a, 1)
         self.obj.a = 2
-        self.assertEquals(self.obj.a, 2)
+        self.assertEqual(self.obj.a, 2)
         self.assertNoMoreCalls()
         self.forge.reset()
-        self.assertEquals(self.obj.a, 1)
+        self.assertEqual(self.obj.a, 1)
     def test__expect_setattr_not_happening(self):
         self.obj.__forge__.expect_setattr("a", 666)
         self.forge.replay()
         with self.assertRaises(ExpectedEventsNotFound) as caught:
             self.forge.verify()
-        self.assertEquals(len(caught.exception.events), 1)
+        self.assertEqual(len(caught.exception.events), 1)
         self.assertIs(caught.exception.events[0].target, self.obj)
-        self.assertEquals(caught.exception.events[0].name, "a")
-        self.assertEquals(caught.exception.events[0].value, 666)
+        self.assertEqual(caught.exception.events[0].name, "a")
+        self.assertEqual(caught.exception.events[0].value, 666)
         self.forge.reset()
     @contextmanager
     def assertUnexpectedSetattr(self, target, name, value):
@@ -115,8 +115,8 @@ class MockAttributesTest(ForgeTestCase):
             yield None
         exception = caught.exception
         self.assertIs(exception.got.target, target)
-        self.assertEquals(exception.got.name, name)
-        self.assertEquals(exception.got.value, value)
+        self.assertEqual(exception.got.name, name)
+        self.assertEqual(exception.got.value, value)
 
 
 
