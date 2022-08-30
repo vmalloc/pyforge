@@ -1,6 +1,5 @@
 from .ut_utils import ForgeTestCase
 from forge import UnexpectedSetattr
-from forge.python3_compat import xrange
 
 class WildcardTest(ForgeTestCase):
     def tearDown(self):
@@ -73,7 +72,7 @@ class WildcardTest(ForgeTestCase):
         with wc:
             f()
         wc.__len__().and_return(666)
-        wc.__iter__().and_return(iter(xrange(10)))
+        wc.__iter__().and_return(iter(range(10)))
         self.forge.replay()
         with wc:
             f()

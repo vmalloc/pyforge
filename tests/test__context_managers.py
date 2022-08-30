@@ -2,7 +2,6 @@ import types
 from .ut_utils import ForgeTestCase
 from forge import UnexpectedCall
 from forge import UnexpectedSetattr
-from forge.python3_compat import IS_PY3
 
 class ContextManager(object):
     def __enter__(self):
@@ -85,10 +84,8 @@ class ContextManagerTest(ForgeTestCase):
             self.checkpoint()
         self.assertEqual(value, 2)
     def assertIsSameMethod(self, a, b):
-        if IS_PY3:
-            if not isinstance(a, types.FunctionType):
-                a = a.__func__
-            if not isinstance(b, types.FunctionType):
-                b = b.__func__
-            return a is b
-        return a.__func__ is b.__func__
+        if not isinstance(a, types.FunctionType):
+            a = a.__func__
+        if not isinstance(b, types.FunctionType):
+            b = b.__func__
+        return a is b

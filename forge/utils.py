@@ -1,8 +1,7 @@
 from types import *
-from .python3_compat import xrange, IS_PY3
 
 def renumerate(collection):
-    for index in xrange(len(collection) - 1, -1, -1):
+    for index in range(len(collection) - 1, -1, -1):
         yield (index, collection[index])
 
 ### object predicates
@@ -11,7 +10,7 @@ def is_bound_method(obj):
 def is_function(obj):
     return isinstance(obj, FunctionType) or isinstance(obj, BuiltinFunctionType)
 def is_class(obj):
-    return isinstance(obj, type) or (not IS_PY3 and isinstance(obj, ClassType))
+    return isinstance(obj, type)
 def is_class_method(obj):
     if not is_bound_method(obj):
         return False

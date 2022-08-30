@@ -1,6 +1,6 @@
+import inspect
 import copy
 import itertools
-from .python3_compat import izip, iteritems, basestring, getargspec
 from .exceptions import SignatureException, InvalidKeywordArgument
 from .utils import is_bound_method
 from .utils import is_class_method
@@ -28,12 +28,13 @@ class FunctionSignature(object):
     def _iter_args_and_defaults(self, args, defaults):
         defaults = [] if defaults is None else defaults
         filled_defaults = itertools.chain(itertools.repeat(NOTHING, len(args) - len(defaults)), defaults)
-        return izip(args, filled_defaults)
+        return zip(args, filled_defaults)
 
     def _build_arguments(self):
         self._args = []
         try:
-            args, varargs_name, kwargs_name, defaults = getargspec(self.func)[:4]
+            args, varargs_name, kwargs_name, defaults = \
+                inspect.getfullargspec(self.func)[:4]
         except TypeError:
             args = []
             varargs_name = 'args'
@@ -74,8 +75,8 @@ class FunctionSignature(object):
             returned[arg_name] = given_arg
 
     def _update_normalized_kwargs(self, returned, kwargs):
-        for arg_name, arg in iteritems(kwargs):
-            if not isinstance(arg_name, basestring):
+        for arg_name, arg in kwargs.items():
+            if not isinstance(arg_name, str):
                 raise InvalidKeywordArgument("Invalid keyword argument %r" % (arg_name,))
             if arg_name in returned:
                 raise SignatureException("%s is given more than once to %s" % (arg_name, self.func_name))

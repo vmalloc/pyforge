@@ -9,7 +9,6 @@ from .exceptions import InvalidEntryPoint
 from .exceptions import CannotMockFunctions
 from .signature import FunctionSignature
 from .mock_handle import MockHandle
-from .python3_compat import build_unbound_instance_method, IS_PY3
 
 class ClassMockHandle(MockHandle):
     def __init__(self, forge, mock, mocked_class, behave_as_instance, hybrid):
@@ -30,11 +29,9 @@ class ClassMockHandle(MockHandle):
         return hasattr(self.mocked_class, name)
     def _get_real_function(self, name):
         returned = self._get_real_method(name)
-        if IS_PY3:
-            if hasattr(returned, '__func__'):
-                return returned.__func__
-            return returned
-        return returned.__func__
+        if hasattr(returned, '__func__'):
+            return returned.__func__
+        return returned
     def _get_real_method(self, name):
         if name == '__call__' and not self.behaves_as_instance:
             return self._get_constructor_method()
@@ -46,7 +43,7 @@ class ClassMockHandle(MockHandle):
             # simulate an empty ctor...
             fake_constructor = lambda self: None
             fake_constructor.__name__ = "__init__"
-            returned = build_unbound_instance_method(fake_constructor, self.mocked_class)
+            returned = types.MethodType(fake_constructor, self.mocked_class)
         return returned
     def _check_unrecorded_method_getting(self, name):
         pass # unrecorded methods can be obtained, but not called...

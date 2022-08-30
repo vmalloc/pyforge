@@ -1,5 +1,4 @@
 import re
-from .python3_compat import basestring
 
 class Comparator(object):
     def equals(self, other):
@@ -38,7 +37,7 @@ class RegexpMatches(Comparator):
         self._regexp = regexp
         self._flags = flags
     def equals(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, str):
             return False
         return re.match(self._regexp, other, self._flags)
     def __repr__(self):
@@ -50,7 +49,7 @@ class RegexpSearches(Comparator):
         self._regexp = regexp
         self._flags = flags
     def equals(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, str):
             return False
         return re.search(self._regexp, other, self._flags)
     def __repr__(self):
@@ -125,7 +124,7 @@ class And(Comparator):
     def equals(self, other):
         return all(c.equals(other) for c in self.comparators)
 
-StrContains = lambda *xs: And(IsA(basestring), Contains(*xs))
+StrContains = lambda *xs: And(IsA(str), Contains(*xs))
 
 class Or(Comparator):
     def __init__(self, *comparators):

@@ -5,7 +5,6 @@ from .ut_utils import build_new_style_class
 from .ut_utils import build_old_style_class
 from .ut_utils import Method
 from forge import UnexpectedCall
-from forge.python3_compat import IS_PY3
 
 class _SpecialMethodsTest(ForgeTestCase):
     def setUp(self):
@@ -105,10 +104,7 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.assertEqual(len(self.forge.queue), 1)
         self.forge.reset()
     def test__boolean(self):
-        if IS_PY3:
-            self.obj.__bool__().and_return(False)
-        else:
-            self.obj.__nonzero__().and_return(False)
+        self.obj.__bool__().and_return(False)
         self.forge.replay()
         self.assertFalse(self.obj)
 

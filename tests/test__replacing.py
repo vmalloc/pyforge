@@ -4,7 +4,6 @@ import types
 from .ut_utils import ForgeTestCase, BinaryObjectClass
 from forge.stub import FunctionStub
 from forge.class_mock import ClassMockObject
-from forge.python3_compat import IS_PY3
 orig_time_sleep = time.sleep
 orig_os_path_join = os.path.join
 

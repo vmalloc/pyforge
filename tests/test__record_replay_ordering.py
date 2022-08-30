@@ -1,6 +1,5 @@
 from .ut_utils import ForgeTestCase
 from forge import UnexpectedCall, ExpectedEventsNotFound
-from forge.python3_compat import basestring
 import random
 
 class OrderingTest(ForgeTestCase):
@@ -103,8 +102,8 @@ class OrderingGroupExceptionFormatting(OrderingTest):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(4)
         self.assertIsInstance(caught.exception.expected, list)
-        self.assertIsInstance(str(caught.exception), basestring)
-        self.assertIsInstance(repr(caught.exception), basestring)
+        self.assertIsInstance(str(caught.exception), str)
+        self.assertIsInstance(repr(caught.exception), str)
         self.forge.reset()
 
 
@@ -132,8 +131,8 @@ class OrderedOrderedGroupTest(OrderingTest):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(2)
         self.assertIsInstance(caught.exception.expected, list)
-        self.assertIsInstance(str(caught.exception), basestring)
-        self.assertIsInstance(repr(caught.exception), basestring)
+        self.assertIsInstance(str(caught.exception), str)
+        self.assertIsInstance(repr(caught.exception), str)
         self.forge.reset()
 
 
@@ -177,8 +176,8 @@ class OrderedAnyOrderGroupTest(OrderingTest):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub(2)
         self.assertIsInstance(caught.exception.expected, list)
-        self.assertIsInstance(str(caught.exception), basestring)
-        self.assertIsInstance(repr(caught.exception), basestring)
+        self.assertIsInstance(str(caught.exception), str)
+        self.assertIsInstance(repr(caught.exception), str)
         self.forge.reset()
 
 
@@ -215,8 +214,8 @@ class OrderedAnyOrder2GroupTest(OrderingTest):
         with self.assertRaises(UnexpectedCall) as caught:
             self.stub('b')
         self.assertIsInstance(caught.exception.expected, list)
-        self.assertIsInstance(str(caught.exception), basestring)
-        self.assertIsInstance(repr(caught.exception), basestring)
+        self.assertIsInstance(str(caught.exception), str)
+        self.assertIsInstance(repr(caught.exception), str)
         self.forge.reset()
 
 class OrderedAnyOrderOrderedGroupTest(OrderingTest):
