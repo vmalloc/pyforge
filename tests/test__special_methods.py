@@ -6,7 +6,7 @@ from .ut_utils import build_old_style_class
 from .ut_utils import Method
 from forge import UnexpectedCall
 
-class _SpecialMethodsTest(ForgeTestCase):
+class _SpecialMethodsTest:
     def setUp(self):
         super(_SpecialMethodsTest, self).setUp()
         self.obj = self.forge.create_mock(self.CTOR([
@@ -109,12 +109,12 @@ class _SpecialMethodsTest(ForgeTestCase):
         self.assertFalse(self.obj)
 
 
-class NewStyleSpecialMethodsTest(_SpecialMethodsTest):
+class NewStyleSpecialMethodsTest(_SpecialMethodsTest, ForgeTestCase):
     CTOR = staticmethod(build_new_style_class)
-class OldStyleSpecialMethodsTest(_SpecialMethodsTest):
+class OldStyleSpecialMethodsTest(_SpecialMethodsTest, ForgeTestCase):
     CTOR = staticmethod(build_old_style_class)
 
-class _SpecialMethodAbsenceTest(ForgeTestCase):
+class _SpecialMethodAbsenceTest:
     def tearDown(self):
         self.forge.verify()
         self.assertNoMoreCalls()
@@ -144,11 +144,11 @@ class _SpecialMethodAbsenceTest(ForgeTestCase):
             '3 in self.obj'
             ]
 
-class NewStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
+class NewStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest, ForgeTestCase):
     def setUp(self):
         super(NewStyleSpecialMethodsAbsenceTest, self).setUp()
         self.obj = self.forge.create_mock(build_new_style_class())
-class OldStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest):
+class OldStyleSpecialMethodsAbsenceTest(_SpecialMethodAbsenceTest, ForgeTestCase):
     def setUp(self):
         super(OldStyleSpecialMethodsAbsenceTest, self).setUp()
         self.obj = self.forge.create_mock(build_old_style_class())
@@ -171,4 +171,3 @@ class CallCornerCasesTest(ForgeTestCase):
         obj(1, 2, 3)
         self.forge.replay()
         obj(1, 2, 3)
-

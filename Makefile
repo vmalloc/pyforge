@@ -1,7 +1,7 @@
 default: test
 
 test: env
-	.env/bin/nosetests -x
+	.env/bin/pytest
 
 env: .env/.up-to-date
 
