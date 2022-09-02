@@ -1,21 +1,15 @@
 from functools import wraps
 import sys
-import types
-import platform
 from forge import Forge
 
-from forge.python3_compat import IS_PY3
 
 import unittest
 
 class TestCase(unittest.TestCase):
     pass
 
-if IS_PY3:
-    from io import BytesIO as BinaryObjectClass
-    assert not hasattr(sys.modules[BinaryObjectClass.__module__], "__file__")
-else:
-    from cStringIO import StringIO as BinaryObjectClass
+from io import BytesIO as BinaryObjectClass
+assert not hasattr(sys.modules[BinaryObjectClass.__module__], "__file__")
 
 class ForgeTestCase(TestCase):
     def setUp(self):
@@ -57,9 +51,7 @@ class StaticMethod(Method):
 def build_new_style_class(methods=()):
     return type('NewStyleClass', (object,), _get_class_dict(methods))
 def build_old_style_class(methods=()):
-    if IS_PY3:
-        return build_new_style_class(methods)
-    return types.ClassType('OldStyleClass', (), _get_class_dict(methods))
+    return build_new_style_class(methods)
 def _get_class_dict(methods):
     return dict((method.name, method.get_function())
                 for method in methods)

@@ -1,7 +1,6 @@
 import itertools
 import time
 from contextlib import contextmanager
-from .python3_compat import iteritems
 from .stub import FunctionStub
 from .queue import ForgeQueue
 from .class_mock import ClassMockObject
@@ -87,7 +86,7 @@ class Forge(object):
 
     def create_mock_with_attrs(self, mocked_class, **attrs):
         returned = self.create_mock(mocked_class)
-        for attr, value in iteritems(attrs):
+        for attr, value in attrs.items():
             setattr(returned, attr, value)
         return returned
 

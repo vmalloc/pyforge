@@ -178,7 +178,7 @@ If you don't know the exact value that the argument to a function is going to ge
 
 To complete the picture, if you want to assert all sorts of checks on the arguments you are recording, you can use comparators. For instance, the following doesn't care about which argument is passed to 'name', as long as it is a string::
 
- my_stub(name=IsA(basestring))
+ my_stub(name=IsA(str))
 
 Many comparators exist in Forge:
 

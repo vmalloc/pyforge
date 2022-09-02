@@ -2,12 +2,8 @@ from numbers import Number
 from .ut_utils import ForgeTestCase
 from forge.stub import FunctionStub
 from forge.stub_handle import StubHandle
-from forge.python3_compat import IS_PY3
 
-if IS_PY3:
-    from urllib.request import urlopen
-else:
-    from urllib2 import urlopen
+from urllib.request import urlopen
 
 def some_function():
     "some doc"

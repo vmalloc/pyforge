@@ -26,7 +26,8 @@ class _NewStyleTest(object):
     def _get_class_factory(Self):
         return build_new_style_class
 
-class _BasicClassMockTest(_ClassMockTest):
+class _BasicClassMockTest:
+
     def _get_methods(self):
         return METHODS
     def test__isinstance(self):
@@ -67,9 +68,9 @@ class _BasicClassMockTest(_ClassMockTest):
         with self.assertRaises(SignatureException):
             self.mock.regular_method(d=10)
 
-class OldStyleBasicTest(_BasicClassMockTest, _OldStyleTest):
+class OldStyleBasicTest(_ClassMockTest, _BasicClassMockTest, _OldStyleTest):
     pass
-class NewStyleBasicTest(_BasicClassMockTest, _NewStyleTest):
+class NewStyleBasicTest(_ClassMockTest, _BasicClassMockTest, _NewStyleTest):
     pass
 
 

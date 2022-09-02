@@ -31,3 +31,7 @@ pip-log.txt
 MANIFEST
 .env
 .eggs
+
+AUTHORS
+ChangeLog
+.venv/

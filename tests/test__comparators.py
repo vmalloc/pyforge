@@ -2,7 +2,6 @@ import itertools
 import re
 from .ut_utils import TestCase, BinaryObjectClass
 from forge.comparators import *
-from forge.python3_compat import IS_PY3, basestring
 
 class Compared(object):
     def __eq__(self):
@@ -10,7 +9,7 @@ class Compared(object):
     def __ne__(self):
         raise NotImplementedError()
 
-class _ComparatorTest(TestCase):
+class _ComparatorTest:
     def test__valid_equality(self):
         for a, b in self._get_equal_pairs():
             self.assertTrue(a == b)
@@ -26,10 +25,10 @@ class _ComparatorTest(TestCase):
     def test__representation(self):
         for a, _ in itertools.chain(self._get_equal_pairs(), self._get_unequal_pairs()):
             self.assertIsInstance(a, Comparator)
-            self.assertIsInstance(str(a), basestring)
+            self.assertIsInstance(str(a), str)
             self.assertEqual(str(a), repr(a))
 
-class IsTest(_ComparatorTest):
+class IsTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         c = Compared()
         yield Is(c), c
@@ -38,20 +37,20 @@ class IsTest(_ComparatorTest):
         yield Is(c), Compared()
         yield Is(c), 2
 
-class IsATest(_ComparatorTest):
+class IsATest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         c = Compared()
         yield IsA(Compared), c
-        yield IsA(basestring), "hey"
+        yield IsA(str), "hey"
         yield IsA(type(BinaryObjectClass())), BinaryObjectClass()
     def _get_unequal_pairs(self):
         yield IsA(Compared), "hey"
-        yield IsA(basestring), Compared()
+        yield IsA(str), Compared()
         yield IsA(type(BinaryObjectClass())), object()
         yield IsA(BinaryObjectClass), BinaryObjectClass
         yield IsA(BinaryObjectClass()), BinaryObjectClass()
 
-class RegexpMatchesTest(_ComparatorTest):
+class RegexpMatchesTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield RegexpMatches(".+"), "hey"
         yield RegexpMatches(r"hey \S+"), "hey there"
@@ -60,7 +59,7 @@ class RegexpMatchesTest(_ComparatorTest):
         yield RegexpMatches(r"hello \S+"), "hey there"
         yield RegexpMatches(r"hello"), 2
 
-class FuncTest(_ComparatorTest):
+class FuncTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         obj = object()
         yield Func(lambda o: o is obj), obj
@@ -71,7 +70,7 @@ class FuncTest(_ComparatorTest):
             yield Func(lambda o: o is obj), other
         yield Func(lambda o: False), "hello"
 
-class IsAlmostTest(_ComparatorTest):
+class IsAlmostTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield IsAlmost(3, 3), 3.0002
         yield IsAlmost(3), 3.00000002
@@ -80,7 +79,7 @@ class IsAlmostTest(_ComparatorTest):
         yield IsAlmost(3), 3.02
         yield IsAlmost(3), "hey"
 
-class ContainsTest(_ComparatorTest):
+class ContainsTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield Contains("a"), "laugh"
         yield Contains("bl"), "able"
@@ -97,7 +96,7 @@ class ContainsTest(_ComparatorTest):
         yield Contains("a", "b"), "b"
         yield Contains("a", "b", "d"), ["a", "b"]
 
-class StrContainsTest(_ComparatorTest):
+class StrContainsTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield StrContains("a"), "laugh"
         yield StrContains("bl"), "able"
@@ -112,7 +111,7 @@ class StrContainsTest(_ComparatorTest):
         yield StrContains("a", "b"), "a"
         yield StrContains("a", "b"), ["a", "b"]
 
-class HasKeyValueTest(_ComparatorTest):
+class HasKeyValueTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield HasKeyValue('a', 1), dict(a=1, b=2)
         yield HasKeyValue(1, 2), [0, 2, 0, 0]
@@ -123,7 +122,7 @@ class HasKeyValueTest(_ComparatorTest):
         yield HasKeyValue('a', 1), object()
         yield HasKeyValue(0, 1), [0, 0, 0]
 
-class HasAttributeValueTest(_ComparatorTest):
+class HasAttributeValueTest(_ComparatorTest, TestCase):
     class Object(object):
         a = 2
         b = 3
@@ -138,7 +137,7 @@ class HasAttributeValueTest(_ComparatorTest):
         yield HasAttributeValue('bla', 2), Object()
         yield HasAttributeValue('bloop', 2), dict(bloop=2)
 
-class AnythingTest(_ComparatorTest):
+class AnythingTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield Anything(), object
         yield Anything(), object()
@@ -148,30 +147,30 @@ class AnythingTest(_ComparatorTest):
     def _get_unequal_pairs(self):
         return ()
 
-class AndTest(_ComparatorTest):
+class AndTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
-        yield And(IsA(basestring), Contains('a')), "Boa"
-        yield And(IsA(basestring), Contains('a'), Contains('g')), "Bga"
+        yield And(IsA(str), Contains('a')), "Boa"
+        yield And(IsA(str), Contains('a'), Contains('g')), "Bga"
         yield And(IsA(int)), 2
     def _get_unequal_pairs(self):
-        yield And(IsA(basestring), Contains('a')), 2
-        yield And(IsA(basestring), Contains('a'), Contains('g')), "Boa"
+        yield And(IsA(str), Contains('a')), 2
+        yield And(IsA(str), Contains('a'), Contains('g')), "Boa"
         yield And(IsA(int)), "a"
     def test__empty_and(self):
         with self.assertRaises(TypeError):
             And()
-class OrTest(_ComparatorTest):
+class OrTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
-        yield Or(IsA(basestring), IsA(int)), "a"
-        yield Or(Anything(), IsA(basestring)), 2
-        yield Or(IsA(basestring), Anything()), 2
+        yield Or(IsA(str), IsA(int)), "a"
+        yield Or(Anything(), IsA(str)), 2
+        yield Or(IsA(str), Anything()), 2
     def _get_unequal_pairs(self):
-        yield Or(IsA(basestring), IsA(int)), 2.0
+        yield Or(IsA(str), IsA(int)), 2.0
     def test__empty_or(self):
         with self.assertRaises(TypeError):
             Or()
 
-class NotTest(_ComparatorTest):
+class NotTest(_ComparatorTest, TestCase):
     def _get_equal_pairs(self):
         yield Not(IsA(int)), "a"
     def _get_unequal_pairs(self):
