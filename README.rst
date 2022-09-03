@@ -1,4 +1,4 @@
-.. image:: https://secure.travis-ci.org/vmalloc/pyforge.png
+.. image:: https://github.com/vmalloc/pyforge/actions/workflows/main.yml/badge.svg?branch=master
 
 What is it?
 ===========
