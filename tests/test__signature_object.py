@@ -1,4 +1,5 @@
 import time
+import sys
 from .ut_utils import TestCase
 from forge.signature import FunctionSignature
 from forge.exceptions import SignatureException, InvalidKeywordArgument, FunctionCannotBeBound
@@ -126,11 +127,26 @@ class SignatureTest(TestCase):
         self.assertIsNot(f._args, f2._args)
 
 class BinaryFunctionSignatureTest(TestCase):
-    def test__binary_global_function(self):
+    def test__binary_global_function_with_no_parameters(self):
         sig = FunctionSignature(time.time)
         self.assertEqual(sig._args, [])
-        self.assertTrue(sig.has_variable_args())
-        self.assertTrue(sig.has_variable_kwargs())
+        if sys.version_info[:2] < (3, 13):
+            self.assertTrue(sig.has_variable_args())
+            self.assertTrue(sig.has_variable_kwargs())
+        else:
+            # Starting 3.13, inspect succeed (not raise TypeError) for buildin functions, like `time.time`
+            self.assertFalse(sig.has_variable_args())
+            self.assertFalse(sig.has_variable_kwargs())
+    def test__binary_global_function_with_parameters(self):
+        sig = FunctionSignature(time.sleep)
+        if sys.version_info[:2] < (3, 13):
+            self.assertEqual(sig._args, [])
+            self.assertTrue(sig.has_variable_args())
+            self.assertTrue(sig.has_variable_kwargs())
+        else:
+            self.assertEqual(len(sig._args), 1)
+            self.assertFalse(sig.has_variable_args())
+            self.assertFalse(sig.has_variable_kwargs())
     def test__object_method_placeholders(self):
         class SomeObject(object):
             pass

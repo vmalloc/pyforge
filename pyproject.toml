@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling>=0.25.1", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyforge"
+description = "Python mocking framework"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = { text = "BSD 3-Clause License" }
+
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = ["sentinels>=0.0.4"]
+dynamic = ["version"]
+
+authors = [{ name = "Rotem Yaari", email = "vmalloc@gmail.com" }]
+
+[project.urls]
+"Homepage" = "https://github.com/vmalloc/pyforge"
+
+[project.optional-dependencies]
+testing = ["pytest"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["forge"]
